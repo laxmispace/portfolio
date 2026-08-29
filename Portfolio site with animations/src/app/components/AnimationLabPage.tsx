@@ -862,7 +862,7 @@ function DemoCard({ number, title, tagline, children, chosen, onChoose }: DemoCa
 // ─────────────────────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────────────────────
-const DEMOS = [
+export const DEMOS = [
   {
     number: "01",
     title: "Name as Image",
