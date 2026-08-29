@@ -4,6 +4,7 @@ import { useScrollProgress } from "../ScrollContext";
 import { useIsMobile } from "../useIsMobile";
 import { AI_PROJECTS as ALL_AI_PROJECTS, isOpenableAiProject, type AiProject } from "../data/aiProjects";
 import { AiProjectDrawer } from "./AiProjectDrawer";
+import { AiProjectFrame } from "./AiProjectFrame";
 
 // Featured on the homepage: openable projects first, then fill up to 3 with the rest.
 const AI_PROJECTS: AiProject[] = [...ALL_AI_PROJECTS]
@@ -72,49 +73,82 @@ export function AiPlaygroundSection({ onViewAll }: { onViewAll?: () => void }) {
         </div>
 
         {/* Project cards — clickable only when there's something to open */}
-        <div style={{ display: "flex", gap: 16, flexDirection: isMobile ? "column" : "row" }}>
+        <div style={{ display: "flex", gap: isMobile ? 40 : 16, flexDirection: isMobile ? "column" : "row" }}>
           {AI_PROJECTS.map((project, i) => {
             const clickable = isOpenableAiProject(project);
             return (
               <motion.div
                 key={project.id}
+                className="aipf-card"
                 initial={{ opacity: 0, y: 32 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={clickable ? { y: -4 } : undefined}
+                whileHover={clickable && !isMobile ? { y: -4 } : undefined}
                 onClick={clickable ? () => setSelectedProject(project) : undefined}
                 style={{ flex: 1, cursor: clickable ? "pointer" : "default", opacity: clickable ? 1 : 0.55 }}
               >
                 <motion.div
                   style={{
-                    height: isMobile ? 140 : 240,
+                    // Mobile follows the design: a fixed 240px-tall, full-bleed
+                    // frame. Web ties height to the flexing card via aspect-ratio
+                    // (~240 on a MacBook Air, scaling up/down from there).
+                    ...(isMobile
+                      ? { height: 240, borderRadius: 0, border: "none" }
+                      : { aspectRatio: "353 / 240", borderRadius: 8, border: `1px solid ${project.accent}28` }),
                     backgroundColor: "rgba(227,217,206,0.07)",
-                    borderRadius: 8,
-                    border: `1px solid ${project.accent}28`,
                     position: "relative",
                     overflow: "hidden",
-                    marginBottom: 14,
+                    marginBottom: isMobile ? 16 : 14,
                   }}
-                  whileHover={clickable ? { borderColor: `${project.accent}60` } : undefined}
+                  whileHover={clickable && !isMobile ? { borderColor: `${project.accent}60` } : undefined}
                   transition={{ duration: 0.2 }}
                 >
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: project.accent, opacity: 0.5 }} />
-                  {/* Subtle expand hint — only for clickable projects */}
-                  {clickable && (
-                    <div style={{ position: "absolute", top: 12, right: 12, width: 24, height: 24, borderRadius: "50%", backgroundColor: "rgba(227,217,206,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {project.frameKey && <AiProjectFrame frameKey={project.frameKey} isMobile={isMobile} />}
+                  {!project.frameKey && (
+                    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: project.accent, opacity: 0.5 }} />
+                  )}
+                  {/* Subtle expand hint — web only; mobile shows the inline arrow instead */}
+                  {clickable && !isMobile && (
+                    <div style={{ position: "absolute", top: 12, right: 12, width: 24, height: 24, borderRadius: "50%", backgroundColor: project.frameKey ? "rgba(33,32,18,0.18)" : "rgba(227,217,206,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                        <path d="M2 8L8 2M8 2H4M8 2V6" stroke="rgba(227,217,206,0.35)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M2 8L8 2M8 2H4M8 2V6" stroke={project.frameKey ? "rgba(255,255,255,0.7)" : "rgba(227,217,206,0.35)"} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                   )}
                 </motion.div>
-                <p className="font-caslon not-italic" style={{ color: "#e3d9ce", fontSize: 18, lineHeight: "22px", fontWeight: 600 }}>
-                  {project.title}
-                </p>
-                <p className="font-inclusive-sans" style={{ color: "rgba(227,217,206,0.5)", fontSize: 13, lineHeight: "18px", marginTop: 4 }}>
-                  {project.description}
-                </p>
+
+                {isMobile ? (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12, padding: "0 16px", width: "100%", boxSizing: "border-box" }}>
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "stretch" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4, flexGrow: 1, minWidth: 0 }}>
+                        <p className="font-caslon not-italic" style={{ color: "#E3D9CE", fontSize: 16, lineHeight: "21px", fontWeight: 600 }}>
+                          {project.title}
+                        </p>
+                        <p className="font-caslon" style={{ color: "rgba(227,217,206,0.8)", fontSize: 12, lineHeight: "12px", fontStyle: "italic", fontWeight: 500 }}>
+                          {project.kind === "extension" ? "Chrome extension" : "Web app"}
+                        </p>
+                      </div>
+                      {clickable && (
+                        <p className="font-caslon not-italic" style={{ color: "#E3D9CE", fontSize: 20, lineHeight: "20px", fontWeight: 600, flexShrink: 0 }}>
+                          →
+                        </p>
+                      )}
+                    </div>
+                    <p className="font-inclusive-sans" style={{ color: "#E3D9CE", fontSize: 13, lineHeight: "17px", letterSpacing: "-0.02em" }}>
+                      {project.description}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="font-caslon not-italic" style={{ color: "#e3d9ce", fontSize: 18, lineHeight: "22px", fontWeight: 600 }}>
+                      {project.title}
+                    </p>
+                    <p className="font-inclusive-sans" style={{ color: "rgba(227,217,206,0.5)", fontSize: 13, lineHeight: "18px", marginTop: 4 }}>
+                      {project.description}
+                    </p>
+                  </>
+                )}
               </motion.div>
             );
           })}

@@ -76,11 +76,14 @@ function BlogListItem({ post, isNewest, onClick }: { post: BlogPost; isNewest: b
   );
 }
 
-export function TinkeringSection() {
+export function TinkeringSection({ onDrawerChange }: { onDrawerChange?: (open: boolean) => void }) {
   const photoRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [activeChip, setActiveChip] = useState<BlogCategory | null>(null);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+
+  // Let the host (App) hide the mobile bottom nav while a blog post is open.
+  useEffect(() => { onDrawerChange?.(!!selectedPost); }, [selectedPost, onDrawerChange]);
 
   const scrollYProgress = useScrollProgress(photoRef, ["start end", "end start"]);
   const imageY = useTransform(scrollYProgress, [0, 1], [-80, 80]);

@@ -1,98 +1,141 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useIsMobile } from "@/app/useIsMobile";
 
 type Mood = "walking" | "sitting" | "sleeping" | "irritated" | "happy";
 
 // ── SVG Cat drawing ───────────────────────────────────────────────────────────
-function CatBody({ mood, dir }: { mood: Mood; dir: 1 | -1 }) {
-  const eyeRy = mood === "sleeping" ? 0.8 : mood === "irritated" ? 1.8 : 3.5;
-  const eyeColor = mood === "irritated" ? "#c67d39" : "#212012";
-  const earInner = mood === "irritated" ? "#c67d39" : "#dda1ae";
-  const tailAngle = mood === "sleeping" ? 140 : mood === "irritated" ? 40 : mood === "happy" ? 160 : 120;
+// Soft, hand-drawn look: every shape is a rounded blob path, strokes are thick
+// with round joins, and a gentle turbulence filter gives the outline a wobbly,
+// pencil-sketch quality. `fat` (0–3) puffs the belly out as the cat is fed.
+function CatBody({ mood, dir, fat, blink }: { mood: Mood; dir: 1 | -1; fat: number; blink: boolean }) {
+  const sleeping = mood === "sleeping";
+  const irritated = mood === "irritated";
+  const happy = mood === "happy";
+  const eyesShut = sleeping || happy || blink;
+
+  const ink = irritated ? "#c67d39" : "#4a4327";
+  const fur = "#efe4d4";
+  const belly = "#f8f2e6";
+  const line = "#c9bd84";
+  const earPink = irritated ? "#c67d39" : "#eab0c0";
+  const cheek = "#eab0c0";
+
+  // Body puffs outward and settles lower as the cat gets rounder.
+  const bx = 34;
+  const by = 42 + fat * 0.6;
+  const brx = (sleeping ? 25 : 19) + fat * 3.4;
+  const bry = (sleeping ? 15 : 14) + fat * 1.4;
+
+  const sitting = mood === "sitting" || sleeping || happy;
+  const footY = by + bry - 2;
 
   return (
     <svg
-      width="64" height="60"
-      viewBox="0 0 64 60"
+      width="80" height="66"
+      viewBox="0 0 80 66"
       fill="none"
-      style={{ transform: dir === -1 ? "scaleX(-1)" : undefined, display: "block" }}
+      style={{ transform: dir === -1 ? "scaleX(-1)" : undefined, display: "block", overflow: "visible" }}
     >
-      {/* Tail */}
-      <path
-        d={mood === "sleeping"
-          ? "M44 40 Q56 40 58 32 Q60 24 54 20"
-          : mood === "irritated"
-          ? "M44 36 Q52 28 58 30 Q64 32 60 26 Q56 20 52 24"
-          : `M44 36 Q54 ${tailAngle > 130 ? 28 : 38} 58 ${tailAngle > 130 ? 22 : 34}`}
-        stroke="#b0a882" strokeWidth={3} strokeLinecap="round" fill="none"
-      />
+      <defs>
+        <filter id="cat-sketch" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="2" seed="6" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="1.7" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
 
-      {/* Body */}
-      <ellipse
-        cx={mood === "sleeping" ? "26" : "28"}
-        cy={mood === "sleeping" ? "42" : "40"}
-        rx={mood === "sleeping" ? "24" : "20"}
-        ry={mood === "sleeping" ? "14" : "13"}
-        fill="#e3d9ce" stroke="#c3be6f" strokeWidth="1.5"
-      />
+      <g filter="url(#cat-sketch)" strokeLinecap="round" strokeLinejoin="round">
+        {/* Tail — a soft curl, never a spike */}
+        <path
+          d={sleeping
+            ? "M50 46 Q64 46 65 35 Q66 25 57 23"
+            : irritated
+            ? "M50 40 Q60 30 66 33 Q72 37 67 27"
+            : happy
+            ? "M50 40 Q62 35 63 21 Q63 12 55 11"
+            : "M50 40 Q60 37 62 28 Q64 20 57 16"}
+          stroke={line} strokeWidth={5.5} fill="none"
+        />
 
-      {/* Head */}
-      <circle cx="28" cy="22" r="14" fill="#e3d9ce" stroke="#c3be6f" strokeWidth="1.5" />
+        {/* Body blob */}
+        <ellipse cx={bx} cy={by} rx={brx} ry={bry} fill={fur} stroke={line} strokeWidth={2.5} />
+        {/* Belly patch */}
+        <ellipse cx={bx - 2} cy={by + 3} rx={brx * 0.62} ry={bry * 0.7} fill={belly} />
 
-      {/* Left ear */}
-      <polygon points="18,12 13,2 25,9" fill="#e3d9ce" stroke="#c3be6f" strokeWidth="1.5" />
-      <polygon points="19,11 15,4 23,9" fill={earInner} opacity={0.7} />
-      {/* Right ear */}
-      <polygon points="38,12 43,2 31,9" fill="#e3d9ce" stroke="#c3be6f" strokeWidth="1.5" />
-      <polygon points="37,11 41,4 33,9" fill={earInner} opacity={0.7} />
+        {/* Paws */}
+        {sitting ? (
+          <>
+            <ellipse cx={bx - 9} cy={footY + 2} rx={6} ry={4.2} fill={fur} stroke={line} strokeWidth={2} />
+            <ellipse cx={bx + 7} cy={footY + 2} rx={6} ry={4.2} fill={fur} stroke={line} strokeWidth={2} />
+          </>
+        ) : (
+          <>
+            <ellipse cx={bx - 10} cy={footY} rx={4.2} ry={3.2} fill={fur} stroke={line} strokeWidth={2} />
+            <ellipse cx={bx + 8} cy={footY} rx={4.2} ry={3.2} fill={fur} stroke={line} strokeWidth={2} />
+          </>
+        )}
 
-      {/* Eyes */}
-      {mood === "sleeping" ? (
-        <>
-          <path d="M22 21 Q25 18 28 21" stroke="#212012" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M28 21 Q31 18 34 21" stroke="#212012" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        </>
-      ) : mood === "happy" ? (
-        <>
-          <path d="M22 22 Q25 19 28 22" stroke="#212012" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M28 22 Q31 19 34 22" stroke="#212012" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        </>
-      ) : (
-        <>
-          <ellipse cx="24" cy="21" rx="2.5" ry={eyeRy} fill={eyeColor} />
-          <ellipse cx="32" cy="21" rx="2.5" ry={eyeRy} fill={eyeColor} />
-        </>
-      )}
+        {/* Head — a rounded squish, not a hard circle */}
+        <path
+          d="M20 24 Q19 9 34 9 Q49 9 48 24 Q48 38 34 38 Q20 38 20 24 Z"
+          fill={fur} stroke={line} strokeWidth={2.5}
+        />
 
-      {/* Nose */}
-      <path d="M27 25 L28 26.5 L29 25" fill="#dda1ae" />
+        {/* Ears — rounded triangles */}
+        <path d="M23 13 Q19 3 29 8 Q26 11 23 13 Z" fill={fur} stroke={line} strokeWidth={2.5} />
+        <path d="M45 13 Q49 3 39 8 Q42 11 45 13 Z" fill={fur} stroke={line} strokeWidth={2.5} />
+        <path d="M24 12 Q22 6.5 27.5 9.5 Z" fill={earPink} opacity={0.75} />
+        <path d="M44 12 Q46 6.5 40.5 9.5 Z" fill={earPink} opacity={0.75} />
 
-      {/* Whiskers */}
-      <line x1="10" y1="24" x2="21" y2="25" stroke="#625e37" strokeWidth={0.8} opacity={0.4} />
-      <line x1="10" y1="27" x2="21" y2="27" stroke="#625e37" strokeWidth={0.8} opacity={0.4} />
-      <line x1="35" y1="25" x2="46" y2="24" stroke="#625e37" strokeWidth={0.8} opacity={0.4} />
-      <line x1="35" y1="27" x2="46" y2="27" stroke="#625e37" strokeWidth={0.8} opacity={0.4} />
+        {/* Cheeks */}
+        {!irritated && (
+          <>
+            <ellipse cx={25} cy={28} rx={3.6} ry={2.6} fill={cheek} opacity={0.4} />
+            <ellipse cx={43} cy={28} rx={3.6} ry={2.6} fill={cheek} opacity={0.4} />
+          </>
+        )}
 
-      {/* Mouth */}
-      {mood === "irritated" ? (
-        <path d="M26 28 Q28 26 30 28" stroke="#212012" strokeWidth={1} strokeLinecap="round" fill="none" />
-      ) : (
-        <path d="M26 28 Q28 30 30 28" stroke="#212012" strokeWidth={1} strokeLinecap="round" fill="none" />
-      )}
+        {/* Eyes */}
+        {eyesShut ? (
+          <>
+            <path d="M25 22 Q28.5 26 32 22" stroke={ink} strokeWidth={2} fill="none" />
+            <path d="M36 22 Q39.5 26 43 22" stroke={ink} strokeWidth={2} fill="none" />
+          </>
+        ) : (
+          <>
+            <ellipse cx={29} cy={22} rx={3} ry={irritated ? 1.6 : 3.7} fill={ink} />
+            <ellipse cx={39} cy={22} rx={3} ry={irritated ? 1.6 : 3.7} fill={ink} />
+            {!irritated && (
+              <>
+                <circle cx={30.2} cy={20.6} r={1.05} fill="#fff" />
+                <circle cx={40.2} cy={20.6} r={1.05} fill="#fff" />
+              </>
+            )}
+          </>
+        )}
 
-      {/* Paws when sitting/sleeping */}
-      {(mood === "sitting" || mood === "sleeping" || mood === "happy") && (
-        <>
-          <ellipse cx={mood === "sleeping" ? "14" : "18"} cy="51" rx="5" ry="3.5" fill="#e3d9ce" stroke="#c3be6f" strokeWidth="1.2" />
-          <ellipse cx={mood === "sleeping" ? "26" : "28"} cy="51" rx="5" ry="3.5" fill="#e3d9ce" stroke="#c3be6f" strokeWidth="1.2" />
-        </>
-      )}
+        {/* Nose — tiny soft blob */}
+        <path d="M32.4 26.6 Q34 28.8 35.6 26.6 Q34 25.9 32.4 26.6 Z" fill={earPink} stroke="#dc9db0" strokeWidth={0.6} />
+
+        {/* Mouth */}
+        {irritated ? (
+          <path d="M31 31 Q34 29 37 31" stroke={ink} strokeWidth={1.4} fill="none" />
+        ) : (
+          <path d="M34 28.6 Q34 31.4 31.6 31.8 M34 28.6 Q34 31.4 36.4 31.8" stroke={ink} strokeWidth={1.4} fill="none" />
+        )}
+
+        {/* Whiskers — gentle curves */}
+        <path d="M13 25 Q20 24 24 27" stroke={line} strokeWidth={1} fill="none" opacity={0.55} />
+        <path d="M13 30 Q20 30 24 30" stroke={line} strokeWidth={1} fill="none" opacity={0.55} />
+        <path d="M55 25 Q48 24 44 27" stroke={line} strokeWidth={1} fill="none" opacity={0.55} />
+        <path d="M55 30 Q48 30 44 30" stroke={line} strokeWidth={1} fill="none" opacity={0.55} />
+      </g>
     </svg>
   );
 }
 
 // ── Speech bubble ─────────────────────────────────────────────────────────────
-function Bubble({ text, color = "#e3d9ce" }: { text: string; color?: string }) {
+function Bubble({ text, color = "#efe4d4" }: { text: string; color?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.6, y: 4 }}
@@ -101,7 +144,7 @@ function Bubble({ text, color = "#e3d9ce" }: { text: string; color?: string }) {
       transition={{ duration: 0.2, ease: "backOut" }}
       style={{
         position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
-        background: color, borderRadius: 10, padding: "6px 12px", marginBottom: 6,
+        background: color, borderRadius: 12, padding: "6px 12px", marginBottom: 6,
         fontFamily: "'Inclusive Sans', sans-serif", fontSize: 12, fontWeight: 600,
         color: "#212012", whiteSpace: "nowrap",
         boxShadow: "0 2px 12px rgba(33,32,18,0.15)",
@@ -181,11 +224,14 @@ function FeedButton({ onFeed }: { onFeed: () => void }) {
 
 // ── Main Cat Component ────────────────────────────────────────────────────────
 export function CatMascot() {
+  const isMobile = useIsMobile();
   const [mood, setMood] = useState<Mood>("walking");
   const [posX, setPosX] = useState(12); // percent from left
   const [dir, setDir] = useState<1 | -1>(1);
   const [hovered, setHovered] = useState(false);
   const [bubble, setBubble] = useState<string | null>(null);
+  const [blink, setBlink] = useState(false);
+  const [feedCount, setFeedCount] = useState(0);
   const dirRef = useRef<1 | -1>(1);
   const moodRef = useRef<Mood>("walking");
   const walkTimerRef = useRef<ReturnType<typeof setInterval>>();
@@ -193,13 +239,38 @@ export function CatMascot() {
 
   moodRef.current = mood;
 
+  // How chonky the cat is right now: one level per two feeds, capped at 3.
+  const fat = Math.min(3, Math.floor(feedCount / 2));
+  const fatRef = useRef(fat);
+  fatRef.current = fat;
+
   const showBubble = useCallback((text: string, dur = 2200) => {
     setBubble(text);
     clearTimeout(bubbleTimerRef.current);
     bubbleTimerRef.current = setTimeout(() => setBubble(null), dur);
   }, []);
 
-  // Walking loop
+  // Occasional blink — small thing, makes it feel alive
+  useEffect(() => {
+    let stop = false;
+    let to: ReturnType<typeof setTimeout>;
+    const loop = () => {
+      if (stop) return;
+      setBlink(true);
+      setTimeout(() => setBlink(false), 140);
+      to = setTimeout(loop, 3600 + Math.random() * 2800);
+    };
+    to = setTimeout(loop, 3000);
+    return () => { stop = true; clearTimeout(to); };
+  }, []);
+
+  // The food slowly digests — chonk wears off over time
+  useEffect(() => {
+    const t = setInterval(() => setFeedCount(c => (c > 0 ? c - 1 : 0)), 22000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Walking loop — a fuller cat waddles slower
   useEffect(() => {
     if (mood !== "walking") {
       clearInterval(walkTimerRef.current);
@@ -207,7 +278,8 @@ export function CatMascot() {
     }
     walkTimerRef.current = setInterval(() => {
       setPosX(prev => {
-        const next = prev + dirRef.current * 0.22;
+        const speed = Math.max(0.07, 0.22 - fatRef.current * 0.05);
+        const next = prev + dirRef.current * speed;
         if (next > 82) { dirRef.current = -1; setDir(-1); }
         if (next < 4) { dirRef.current = 1; setDir(1); }
         return Math.max(4, Math.min(82, next));
@@ -216,17 +288,18 @@ export function CatMascot() {
     return () => clearInterval(walkTimerRef.current);
   }, [mood]);
 
-  // Idle sit: sit occasionally while walking
+  // Idle sit: a heavier cat plops down to rest more often
   useEffect(() => {
     if (mood !== "walking") return;
+    const heavy = fat >= 2;
     const t = setTimeout(() => {
       if (moodRef.current !== "walking") return;
       setMood("sitting");
-      showBubble("...", 2000);
-      setTimeout(() => { if (moodRef.current === "sitting") setMood("walking"); }, 3500);
-    }, 12000 + Math.random() * 8000);
+      showBubble(heavy ? "need a break 😮‍💨" : "...", 2000);
+      setTimeout(() => { if (moodRef.current === "sitting") setMood("walking"); }, heavy ? 4800 : 3500);
+    }, (heavy ? 5000 : 12000) + Math.random() * (heavy ? 4000 : 8000));
     return () => clearTimeout(t);
-  }, [mood, showBubble]);
+  }, [mood, showBubble, fat]);
 
   const handleBodyClick = () => {
     if (mood === "sleeping") {
@@ -234,7 +307,14 @@ export function CatMascot() {
       showBubble("hiss! >:(", 2000);
       return;
     }
+    if (mood === "happy") return;
     if (mood === "sitting" || mood === "walking") {
+      if (fat >= 3) {
+        setMood("sitting");
+        showBubble("too full to play 😩", 2200);
+        setTimeout(() => { if (moodRef.current === "sitting") setMood("walking"); }, 2400);
+        return;
+      }
       setMood("irritated");
       showBubble("stop poking me!", 2000);
       setTimeout(() => { setMood("walking"); }, 2200);
@@ -243,20 +323,28 @@ export function CatMascot() {
 
   const handleFeed = () => {
     if (mood === "sleeping") return;
+    const next = Math.min(8, feedCount + 1);
+    setFeedCount(next);
+    const nextFat = Math.min(3, Math.floor(next / 2));
     setMood("happy");
-    showBubble("yummy! 🐟", 2500);
+    showBubble(
+      nextFat >= 3 ? "so stuffed 😵‍💫" : nextFat >= 2 ? "getting chonky 🐟" : "yummy! 🐟",
+      2500,
+    );
     setTimeout(() => {
       setMood("sleeping");
-      setTimeout(() => { setMood("walking"); }, 9000);
+      setTimeout(() => { setMood("walking"); }, nextFat >= 2 ? 12000 : 9000);
     }, 2800);
   };
 
   return (
     <motion.div
-      animate={{ left: `${posX}%` }}
-      transition={{ type: "tween", duration: 0.05, ease: "linear" }}
+      animate={{ left: `${posX}%`, scale: isMobile ? 0.72 : 1 }}
+      transition={{ left: { type: "tween", duration: 0.05, ease: "linear" }, scale: { duration: 0.3 } }}
       style={{
-        position: "fixed", bottom: 0, zIndex: 40,
+        // On mobile the cat walks the seam just above the fixed bottom nav band.
+        position: "fixed", bottom: isMobile ? 76 : 0, zIndex: 40,
+        transformOrigin: "bottom left",
         userSelect: "none",
       }}
     >
@@ -288,23 +376,36 @@ export function CatMascot() {
           {mood === "happy" && <Hearts />}
         </AnimatePresence>
 
-        {/* Walking bob */}
+        {/* Walking bob / full-belly wobble */}
         <motion.div
-          animate={mood === "walking" ? { y: [0, -2, 0] } : { y: 0 }}
-          transition={mood === "walking" ? { duration: 0.45, repeat: Infinity, ease: "easeInOut" } : {}}
+          animate={
+            mood === "walking"
+              ? { y: [0, -2, 0] }
+              : fat >= 2 && (mood === "sitting" || mood === "happy")
+              ? { scaleX: [1, 1.03, 1], scaleY: [1, 0.98, 1] }
+              : { y: 0 }
+          }
+          transition={
+            mood === "walking"
+              ? { duration: Math.max(0.3, 0.45 + fat * 0.07), repeat: Infinity, ease: "easeInOut" }
+              : fat >= 2
+              ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" }
+              : {}
+          }
+          style={{ transformOrigin: "bottom center" }}
         >
           {/* Irritated shake */}
           <motion.div
             animate={mood === "irritated" ? { x: [-3, 3, -3, 3, 0] } : { x: 0 }}
             transition={mood === "irritated" ? { duration: 0.4, ease: "easeInOut" } : {}}
           >
-            <CatBody mood={mood} dir={dir} />
+            <CatBody mood={mood} dir={dir} fat={fat} blink={blink} />
           </motion.div>
         </motion.div>
 
-        {/* Ground shadow */}
+        {/* Ground shadow — widens with the cat */}
         <div style={{
-          width: 48, height: 6, background: "rgba(33,32,18,0.08)", borderRadius: "50%",
+          width: 48 + fat * 12, height: 6, background: "rgba(33,32,18,0.08)", borderRadius: "50%",
           margin: "0 auto", transform: "scaleX(0.9)",
         }} />
       </div>

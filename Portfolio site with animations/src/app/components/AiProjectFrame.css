@@ -1,0 +1,35 @@
+/* Hover interaction for AI-project card artwork.
+   Only the foreground photo scales — the grid pattern and logo stay put.
+   Each photo keeps its own anchor, so `transform-origin` pins it to the
+   edge/point it's positioned against and it scales up from there. */
+
+.aipf-photo {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aipf-photo--piano {
+  transform: translateY(-50%);
+  transform-origin: right center;
+}
+
+.aipf-photo--job {
+  transform: scale(1);
+  transform-origin: right bottom;
+}
+
+.aipf-photo--breathing {
+  transform: translateX(-50%);
+  transform-origin: center bottom;
+}
+
+@media (hover: hover) {
+  .aipf-card:hover .aipf-photo--piano {
+    transform: translateY(-50%) scale(1.05);
+  }
+  .aipf-card:hover .aipf-photo--job {
+    transform: scale(1.05);
+  }
+  .aipf-card:hover .aipf-photo--breathing {
+    transform: translateX(-50%) scale(1.05);
+  }
+}

@@ -1,0 +1,18 @@
+/* Main */
+
+position: relative;
+width: 140px;
+height: 1px;
+
+background: #C3BE6F;
+
+
+/* progress */
+
+position: absolute;
+width: 12px;
+height: 1px;
+left: 0px;
+top: 0px;
+
+background: #625E37;
