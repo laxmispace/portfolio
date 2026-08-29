@@ -10,9 +10,9 @@ import { TinkeringSection } from "./components/TinkeringSection";
 import { AiProjectsPage } from "./components/AiProjectsPage";
 import { PersonalSection } from "./components/PersonalSection";
 import { MobileBottomNav } from "./components/MobileBottomNav";
-import { AnimationLabPage } from "./components/AnimationLabPage";
 import { CatMascot } from "./components/CatMascot";
 import { useIsMobile } from "./useIsMobile";
+import { softTick } from "./lib/feedback";
  
 // ── 0→100% site loading bar ───────────────────────────────────────────────────
 // Fixed to the bottom of the viewport, fills left-to-right with a palette gradient,
@@ -53,10 +53,20 @@ function SiteLoader() {
 
 export default function App() {
   const isMobile = useIsMobile();
-  const [page, setPage] = useState<"portfolio" | "ai-projects" | "animation-lab">("portfolio");
+  const [page, setPage] = useState<"portfolio" | "ai-projects">("portfolio");
   const [activeSection, setActiveSection] = useState<NavSection>("home");
-  const [aboutOpen, setAboutOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(() => {
+    // Reopen the About Me drawer after the Spotify OAuth redirect lands back
+    // here — the player that started the connect lives inside it.
+    if (typeof window === "undefined") return false;
+    const returningFromSpotify =
+      window.location.search.includes("code=") ||
+      sessionStorage.getItem("spotify_reopen_about") === "1";
+    if (returningFromSpotify) sessionStorage.removeItem("spotify_reopen_about");
+    return returningFromSpotify;
+  });
   const [csDrawerOpen, setCsDrawerOpen] = useState(false);
+  const [blogOpen, setBlogOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
   const scrollCallbackRef = useCallback((node: HTMLDivElement | null) => {
@@ -70,6 +80,11 @@ export default function App() {
   const aiRef = useRef<HTMLDivElement>(null);
   const tinkeringRef = useRef<HTMLDivElement>(null);
 
+  // Suppress the manual-scroll sound while a nav-driven smooth scroll is running.
+  const programmaticUntil = useRef(0);
+  const scrollIdle = useRef(true);
+  const scrollIdleTimer = useRef<ReturnType<typeof setTimeout>>();
+
   const navigateTo = useCallback((section: NavSection) => {
     const map: Record<NavSection, React.RefObject<HTMLDivElement | null>> = {
       home: homeRef, projects: projectsRef, "ai-playground": aiRef, tinkering: tinkeringRef,
@@ -77,9 +92,29 @@ export default function App() {
     const target = map[section].current;
     const container = scrollRef.current;
     if (!target || !container) return;
+    programmaticUntil.current = Date.now() + 800;
     container.scrollTo({ top: target.offsetTop, behavior: "smooth" });
     setActiveSection(section);
   }, []);
+
+  // One soft blip at the start of each manual scroll gesture (not nav clicks).
+  const handleCardScroll = useCallback(() => {
+    if (Date.now() < programmaticUntil.current) return;
+    if (scrollIdle.current) {
+      scrollIdle.current = false;
+      softTick(0.028);
+    }
+    clearTimeout(scrollIdleTimer.current);
+    scrollIdleTimer.current = setTimeout(() => { scrollIdle.current = true; }, 240);
+  }, []);
+
+  // Lock background scroll while the About Me drawer is open — otherwise
+  // wheel/trackpad input over the drawer also scrolls the page behind it.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.style.overflowY = aboutOpen ? "hidden" : "auto";
+  }, [aboutOpen]);
 
   // IntersectionObserver: section becomes active when it crosses the viewport midpoint.
   // This works correctly even for the sticky projects zone (100vh + 1200px tall).
@@ -114,20 +149,17 @@ export default function App() {
     });
 
     return () => observer.disconnect();
-  }, []);
+    // Re-run once the scroll element (and with it the section refs) has mounted —
+    // on first render those refs are still null and nothing gets observed.
+  }, [scrollEl]);
 
   if (page === "ai-projects") {
     return (
-      <div className="h-screen w-screen" style={{ minWidth: 1280, backgroundColor: "#212012" }}>
+      <div
+        className="h-screen w-screen"
+        style={{ minWidth: 1280, backgroundColor: "#212012", overflowY: "auto", scrollbarWidth: "none" }}
+      >
         <AiProjectsPage onBack={() => setPage("portfolio")} />
-      </div>
-    );
-  }
-
-  if (page === "animation-lab") {
-    return (
-      <div className="h-screen w-screen overflow-y-auto" style={{ backgroundColor: "#e3d9ce" }}>
-        <AnimationLabPage onBack={() => setPage("portfolio")} />
       </div>
     );
   }
@@ -139,8 +171,21 @@ export default function App() {
       ::-webkit-scrollbar { display: none; }
       * { box-sizing: border-box; }
       @media (max-width: 768px) {
-        .portfolio-outer { padding: 0 !important; }
+        .portfolio-outer { padding: 0 !important; background: #ECE6DF !important; }
         .portfolio-inner { border-radius: 0 !important; }
+        /* Scroll card locked to the top 80dvh — position:fixed so it cannot
+           drift on overscroll; the bottom 20dvh belongs to the nav band. */
+        .m-scroll-inset {
+          position: fixed !important;
+          top: 0 !important; left: 0 !important; right: 0 !important;
+          height: calc(100dvh - 76px) !important;
+          flex: none !important;
+          width: 100% !important;
+          z-index: 20 !important;
+          border-radius: 0 0 16px 16px !important;
+          overflow-y: auto !important;
+          overscroll-behavior: none !important;
+        }
         .side-nav-hide { display: none !important; }
         .m-hide { display: none !important; }
         .m-pad { padding-left: 16px !important; padding-right: 16px !important; }
@@ -160,15 +205,26 @@ export default function App() {
       style={{ padding: 12 }}
     >
       <div className="portfolio-inner flex flex-1 rounded-2xl overflow-hidden" style={{ backgroundColor: "#ece6df" }}>
-        <AboutMeDrawer open={aboutOpen} onClose={() => setAboutOpen(false)} />
+        <AboutMeDrawer
+          open={aboutOpen}
+          onClose={() => setAboutOpen(false)}
+          onViewAiProjects={() => { setAboutOpen(false); setPage("ai-projects"); }}
+        />
         <div className="side-nav-hide">
           <SideNav activeSection={activeSection} onNavigate={navigateTo} />
         </div>
 
-        <div ref={scrollCallbackRef} className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "none", position: "relative" }}>
+        <div ref={scrollCallbackRef} onScroll={isMobile ? handleCardScroll : undefined} className="flex-1 overflow-y-auto m-scroll-inset" style={{ scrollbarWidth: "none", position: "relative" }}>
 
           <ScrollContext.Provider value={scrollEl}>
-            <div className="rounded-2xl" style={{ backgroundColor: "#e3d9ce", minHeight: "100%" }}>
+            <div
+              className="rounded-2xl"
+              style={{
+                backgroundColor: "#e3d9ce",
+                minHeight: "100%",
+                borderRadius: isMobile ? "0 0 16px 16px" : undefined,
+              }}
+            >
               {scrollEl && (
                 <>
                   <div ref={homeRef} id="home">
@@ -186,46 +242,25 @@ export default function App() {
                   <PersonalSection onAboutOpen={() => setAboutOpen(true)} />
 
                   <div ref={tinkeringRef} id="tinkering">
-                    <TinkeringSection />
+                    <TinkeringSection onDrawerChange={setBlogOpen} />
                   </div>
                 </>
               )}
-              {/* Extra bottom space so floating mobile nav doesn't cover content */}
-              <div className="rounded-b-2xl" style={{ height: isMobile ? 72 : 33, backgroundColor: "#d2ce93" }} />
+              {/* Breathing room above the card's rounded bottom edge */}
+              <div className="rounded-b-2xl" style={{ height: isMobile ? 20 : 33, backgroundColor: isMobile ? "#e3d9ce" : "#d2ce93" }} />
             </div>
           </ScrollContext.Provider>
         </div>
+
+        {/* Bottom nav band — fixed to the lower 20%, homepage only, no drawer open */}
+        {isMobile && !aboutOpen && !csDrawerOpen && !blogOpen && (
+          <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} />
+        )}
       </div>
     </div>
 
-    {/* Mobile bottom nav — hidden when any drawer is open */}
-    {isMobile && !aboutOpen && !csDrawerOpen && (
-      <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} />
-    )}
-
-    {/* Cat mascot — always present */}
-    {!isMobile && <CatMascot />}
-
-    {/* Animation lab shortcut — desktop only, subtle corner button */}
-    {!isMobile && (
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 3, duration: 0.5 }}
-        onClick={() => setPage("animation-lab")}
-        style={{
-          position: "fixed", bottom: 20, right: 20, zIndex: 30,
-          background: "rgba(33,32,18,0.08)", backdropFilter: "blur(8px)",
-          border: "1px solid rgba(33,32,18,0.1)", borderRadius: 10,
-          padding: "7px 12px", cursor: "pointer",
-          fontFamily: "'Inclusive Sans', sans-serif", fontSize: 10,
-          fontWeight: 600, letterSpacing: "0.4px", textTransform: "uppercase",
-          color: "#625e37",
-        }}
-      >
-        animation lab ✦
-      </motion.button>
-    )}
+    {/* Cat mascot — always present (walks the seam above the mobile nav band) */}
+    <CatMascot />
     </>
   );
 }

@@ -173,12 +173,12 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
           />
           <motion.div
             key="drawer"
-            initial={{ x: isMobile ? "100%" : 880 }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: isMobile ? "100%" : 880 }}
+            exit={{ x: "100%" }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "fixed", right: 0, top: 0, bottom: 0, width: isMobile ? "100%" : 880, zIndex: 500,
+              position: "fixed", right: 0, top: 0, bottom: 0, width: isMobile ? "100%" : "min(1120px, 94vw)", zIndex: 500,
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
               backgroundColor: "#e3d9ce",
               overflow: "hidden",
@@ -247,7 +247,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-40px" }}
-                      transition={{ duration: 0.4, delay: i * 0.04 }}
+                      transition={{ duration: 0.4, delay: Math.min(i, 6) * 0.04 }}
                       className="font-caslon not-italic"
                       style={{ fontSize: 17, lineHeight: "30px", color: "#212012", opacity: 0.85 }}
                     >

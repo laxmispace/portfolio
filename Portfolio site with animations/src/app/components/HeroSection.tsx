@@ -14,7 +14,7 @@ function LiveClock() {
         timeZone: "Asia/Kolkata",
         hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
       });
-      setTime(`IND — ${t.toUpperCase()}`);
+      setTime(`IST — ${t.toUpperCase()}`);
     };
     update();
     const id = setInterval(update, 1000);
@@ -177,7 +177,7 @@ export function HeroSection() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
           >
             <p className="font-inclusive-sans font-semibold text-[#212012] uppercase" style={{ fontSize: 12, letterSpacing: "0.48px" }}>
-              based in bangalore
+            📍 based in bangalore
             </p>
             <LiveClock />
           </motion.div>

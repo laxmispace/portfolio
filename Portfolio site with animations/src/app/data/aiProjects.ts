@@ -1,5 +1,8 @@
 export type AiProjectKind = "webapp" | "extension";
 
+/** Projects with hand-designed card artwork — see AiProjectFrame. */
+export type AiProjectFrameKey = "piano" | "job-tracker" | "breathing";
+
 export interface AiProject {
   id: number;
   /** Defaults to "webapp" when omitted. */
@@ -18,6 +21,8 @@ export interface AiProject {
   downloadUrl?: string;
   /** extension: YouTube embed URL for the "how to use" walkthrough. */
   videoUrl?: string;
+  /** When set, the card's image area renders the matching hand-designed frame. */
+  frameKey?: AiProjectFrameKey;
 }
 
 // A project is clickable/openable when it has something to actually show —
@@ -27,31 +32,22 @@ export function isOpenableAiProject(project: AiProject): boolean {
   return Boolean(project.url);
 }
 
+// Order matters: the homepage AI section features the first three *openable*
+// projects (see AiPlayground.tsx), so the ones with hand-designed frames lead.
 export const AI_PROJECTS: AiProject[] = [
   {
-    id: 0,
-    title: "Breathing app for anxiety",
+    id: 9,
+    title: "Browser piano",
     description:
-      "A guided breathing exercise app to help calm anxiety in the moment — open it and it just works.",
+      "A tiny playable piano that lives in a browser tab — mouse or computer keyboard, sound on, no install.",
     longDescription:
-      "A small web app that walks you through a paced breathing pattern with a calming visual guide. Built as a personal tool first — something to open on a hard day without having to think — then cleaned up enough to share. No sign-up, no tracking, just open it and breathe.",
-    tags: ["Wellness", "Interactive", "Web app"],
+      "A small piano you can play right in the browser — click the keys or use your computer keyboard, with a clean tactile keybed and nothing else in the way. Built on the Web Audio API on a slow afternoon because I wanted to noodle without opening a DAW. No sign-up, no tracking, just open it and play.",
+    tags: ["Web Audio", "Interactive", "Web app"],
     status: "Live",
-    statusColor: "#c3be6f",
-    accent: "#c3be6f",
-    url: "https://mycodedump.github.io/breathing-app/",
-  },
-  {
-    id: 1,
-    title: "Therapy app",
-    description: "A gentle, guided space to check in with yourself — built the same way the breathing app was.",
-    longDescription:
-      "A companion to the breathing app — a small web tool for checking in with how you're actually doing, built out of the same personal need. No sign-up, no tracking, just open it and use it.",
-    tags: ["Wellness", "Interactive", "Web app"],
-    status: "Live",
-    statusColor: "#dda1ae",
-    accent: "#dda1ae",
-    url: "https://mycodedump.github.io/therapy-app-/",
+    statusColor: "#c67d39",
+    accent: "#c67d39",
+    url: "https://mycodedump.github.io/piano/",
+    frameKey: "piano",
   },
   {
     id: 2,
@@ -67,6 +63,33 @@ export const AI_PROJECTS: AiProject[] = [
     // Served as a static file — drop the packaged extension at
     // public/downloads/job-hunt-tracker.zip (see public/downloads/README.md).
     downloadUrl: `${import.meta.env.BASE_URL}downloads/job-hunt-tracker.zip`,
+    frameKey: "job-tracker",
+  },
+  {
+    id: 0,
+    title: "Breathing app for anxiety",
+    description:
+      "A guided breathing exercise app to help calm anxiety in the moment — open it and it just works.",
+    longDescription:
+      "A small web app that walks you through a paced breathing pattern with a calming visual guide. Built as a personal tool first — something to open on a hard day without having to think — then cleaned up enough to share. No sign-up, no tracking, just open it and breathe.",
+    tags: ["Wellness", "Interactive", "Web app"],
+    status: "Live",
+    statusColor: "#c3be6f",
+    accent: "#c3be6f",
+    url: "https://mycodedump.github.io/breathing-app/",
+    frameKey: "breathing",
+  },
+  {
+    id: 1,
+    title: "Therapy app",
+    description: "A gentle, guided space to check in with yourself — built the same way the breathing app was.",
+    longDescription:
+      "A companion to the breathing app — a small web tool for checking in with how you're actually doing, built out of the same personal need. No sign-up, no tracking, just open it and use it.",
+    tags: ["Wellness", "Interactive", "Web app"],
+    status: "Live",
+    statusColor: "#dda1ae",
+    accent: "#dda1ae",
+    url: "https://mycodedump.github.io/therapy-app-/",
   },
   {
     id: 3,

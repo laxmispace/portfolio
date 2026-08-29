@@ -112,7 +112,7 @@ export interface CaseStudyInfo {
 }
 
 // ─── Section index definitions per case study ─────────────────────────────────
-const SECTIONS_BY_CS: Record<number, { id: string; label: string }[]> = {
+const SECTIONS_BY_CS: Record<number, { id: string; label: string; noNumber?: boolean }[]> = {
   0: [
     { id: "cs-problem", label: "Problem statement" },
     { id: "cs-hmw", label: "How might we" },
@@ -122,7 +122,7 @@ const SECTIONS_BY_CS: Record<number, { id: string; label: string }[]> = {
     { id: "cs-media", label: "Walkthrough" },
   ],
   1: [
-    { id: "cs-intro", label: "Introduction" },
+    { id: "cs-intro", label: "Introduction", noNumber: true },
     { id: "cs-landing", label: "Landing page" },
     { id: "cs-card", label: "FASTag card exploration" },
     { id: "cs-details", label: "All FASTag details" },
@@ -228,6 +228,10 @@ const CS_SPACING_CSS = `
     .cs-img { margin-left: -16px; margin-right: -16px; width: calc(100% + 32px) !important; border-radius: 0 !important; }
     .cs-img-frame { border-radius: 0 !important; }
   }
+  .cs-thumb-row { scrollbar-width: thin; scrollbar-color: rgba(115,89,51,0.35) transparent; scroll-padding: 4px; overscroll-behavior-x: contain; }
+  .cs-thumb-row::-webkit-scrollbar { height: 4px; }
+  .cs-thumb-row::-webkit-scrollbar-track { background: transparent; }
+  .cs-thumb-row::-webkit-scrollbar-thumb { background: rgba(115,89,51,0.3); border-radius: 4px; }
   .cs-bullets > li + li { margin-top: 8px; }
   .cs-bullets { list-style: none; }
   .cs-bullets > li { display: flex; gap: 8px; }
@@ -336,20 +340,18 @@ function SectionBlock({ id, children }: { id: string; children: React.ReactNode 
 // by an italic Caslon label and the value, each chip sliding in left→right on mount.
 type MetaChipShape = "square" | "diamond" | "circle" | "arrow";
 
+// Every marker reads left→right as: [lead shape] — [line] ▸ [diamond arrowhead].
+// The lead shape (square / diamond / circle) differentiates the rows; the "arrow"
+// row has no lead shape, just the line + arrowhead.
 function MetaChipMarker({ shape }: { shape: MetaChipShape }) {
   return (
-    <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", width: 20, height: 14, flexShrink: 0 }}>
-      <div style={{ width: 12, height: 1, backgroundColor: "#c67d39", flexShrink: 0 }} />
-      {shape === "square" && <div style={{ width: 8, height: 8, backgroundColor: "#c67d39", flexShrink: 0 }} />}
-      {shape === "diamond" && <div style={{ width: 7, height: 7, backgroundColor: "#c67d39", transform: "rotate(45deg)", flexShrink: 0 }} />}
-      {shape === "circle" && <div style={{ width: 8, height: 8, borderRadius: 8, backgroundColor: "#c67d39", flexShrink: 0 }} />}
-      {shape === "arrow" && (
-        <div style={{
-          width: 0, height: 0, flexShrink: 0,
-          borderTop: "4px solid transparent", borderBottom: "4px solid transparent",
-          borderLeft: "6px solid #c67d39",
-        }} />
-      )}
+    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 3, width: 26, height: 14, flexShrink: 0 }}>
+      {shape === "square" && <div style={{ width: 7, height: 7, backgroundColor: "#c67d39", flexShrink: 0 }} />}
+      {shape === "diamond" && <div style={{ width: 6, height: 6, backgroundColor: "#c67d39", transform: "rotate(45deg)", flexShrink: 0 }} />}
+      {shape === "circle" && <div style={{ width: 7, height: 7, borderRadius: 8, backgroundColor: "#c67d39", flexShrink: 0 }} />}
+      <div style={{ flex: 1, minWidth: 5, height: 1, backgroundColor: "#c67d39" }} />
+      {/* diamond arrowhead — a rotated square clipped to its leading half so it points right */}
+      <div style={{ width: 6, height: 6, backgroundColor: "#c67d39", transform: "rotate(45deg)", flexShrink: 0 }} />
     </div>
   );
 }
@@ -357,9 +359,9 @@ function MetaChipMarker({ shape }: { shape: MetaChipShape }) {
 function MetaChip({ shape, label, value, grow, delay }: { shape: MetaChipShape; label: string; value: string; grow?: boolean; delay: number }) {
   return (
     <motion.div
-      initial={{ x: -20, opacity: 0 }}
+      initial={{ x: -24, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
       style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, flex: grow ? 1 : "0 0 auto", minWidth: 0 }}
     >
       <MetaChipMarker shape={shape} />
@@ -480,6 +482,10 @@ function SubHeading({ children, mobile = false }: { children: React.ReactNode; m
 // the rest of the slides reduced to 60×40px (scaled down on mobile) clickable thumbnails.
 interface CarouselSlide {
   src?: string;
+  /** Interactive embed (e.g. a Figma prototype URL). Takes precedence over `src`
+      for both the staged frame and its thumbnail — the thumbnail shows a scaled,
+      non-interactive preview of the same embed. */
+  embed?: string;
   caption: string;
 }
 
@@ -509,7 +515,21 @@ function ImageCarousel({ slides, mobile = false, bgColor = "#e7ded5", maxWidth }
           gap: mobile ? 10 : 16,
           width: "100%",
         }}>
-          <StrokedImage src={current.src} alt={current.caption} bgColor={bgColor} strokeColor={strokeColor} aspectRatio="8 / 5" radius={8} iconSize={32} />
+          {current.embed ? (
+            <div style={{ position: "relative", width: "100%", aspectRatio: "8 / 5" }}>
+              <iframe
+                src={current.embed}
+                title={current.caption}
+                allowFullScreen
+                style={{
+                  width: "100%", height: "100%", display: "block",
+                  border: `1px solid ${strokeColor}`, borderRadius: 8, backgroundColor: bgColor,
+                }}
+              />
+            </div>
+          ) : (
+            <StrokedImage src={current.src} alt={current.caption} bgColor={bgColor} strokeColor={strokeColor} aspectRatio="8 / 5" radius={8} iconSize={32} />
+          )}
 
           <div style={{ display: "flex", flexDirection: "row", alignItems: "center", padding: mobile ? "0 12px" : "0 8px", gap: mobile ? 4 : 6, width: "100%", flexShrink: 0 }}>
             <div style={{ width: mobile ? 2 : 3, height: mobile ? 12 : 13, borderRadius: 4, backgroundColor: strokeColor, flexShrink: 0 }} />
@@ -537,7 +557,7 @@ function ImageCarousel({ slides, mobile = false, bgColor = "#e7ded5", maxWidth }
       {/* Thumbnails — always all N slides (N = the counter's total), active one highlighted.
           Never conditionally removed, so the row never reorders and every slide stays reachable. */}
       {slides.length > 1 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, padding: mobile ? "0 24px" : 0 }}>
+        <div className="cs-thumb-row" style={{ display: "flex", flexWrap: "nowrap", gap: 12, padding: mobile ? "0 24px" : 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           {slides.map((slide, i) => (
             <button
               key={i}
@@ -553,7 +573,21 @@ function ImageCarousel({ slides, mobile = false, bgColor = "#e7ded5", maxWidth }
                 transition: "opacity 0.15s ease",
               }}
             >
-              {slide.src ? (
+              {slide.embed ? (
+                <div style={{
+                  width: 800, height: 800 * (thumbH / thumbW),
+                  transform: `scale(${thumbW / 800})`, transformOrigin: "top left",
+                  pointerEvents: "none",
+                }}>
+                  <iframe
+                    src={slide.embed}
+                    title=""
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    style={{ width: "100%", height: "100%", border: "none", display: "block", backgroundColor: bgColor }}
+                  />
+                </div>
+              ) : slide.src ? (
                 <img src={slide.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               ) : (
                 <ThumbnailPlaceholder bgColor={bgColor} strokeColor={strokeColor} height="100%" iconSize={12} />
@@ -661,14 +695,14 @@ function StateTreatmentTable({ rows, mobile = false }: { rows: StateTreatmentRow
     <div className="cs-img" style={{ display: "flex", flexDirection: "column", width: "100%", border: "1px solid #DACCBE", borderRadius: 12, overflow: "hidden" }}>
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, width: "100%", backgroundColor: "#E3D9CE" }}>
         <p className="font-inclusive-sans font-medium" style={{
-          flex: 1, padding: mobile ? "12px 0 12px 12px" : "12px 0 12px 16px",
+          flex: 1, padding: mobile ? "10px 0 10px 12px" : "10px 0 10px 16px",
           fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: "#444444",
         }}>
           State
         </p>
         <JTBDColumnDivider />
         <p className="font-inclusive-sans font-medium" style={{
-          flex: 1, textAlign: "left", padding: mobile ? "12px 12px 12px 0" : "12px 16px 12px 0",
+          flex: 1, textAlign: "left", padding: mobile ? "10px 12px 10px 0" : "10px 16px 10px 0",
           fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: "#444444",
         }}>
           Treatment
@@ -1085,7 +1119,7 @@ function CS2Content({ isMobile }: { isMobile: boolean }) {
     <div className="cs-sections" style={{ display: "flex", flexDirection: "column" }}>
       <SectionBlock id="cs-intro">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>1. Introduction</SectionHeading>
+          <SectionHeading mobile={m}>Introduction</SectionHeading>
           <div className="cs-flow " style={{ display: "flex", flexDirection: "column"  }}>
             <BodyText mobile={m}>
               FASTag is mandatory for all four-wheelers on Indian highways, and ICICI Bank commands nearly 29% of the national FASTag market. Before this project, every one of those customers relied solely on iMobile or a third-party app to manage their tag.
@@ -1143,7 +1177,7 @@ function CS2Content({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-landing">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>2. Landing page</SectionHeading>
+          <SectionHeading mobile={m}>1. Landing page</SectionHeading>
           <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
             <BodyText mobile={m}>
               One landing page. Three user types. Multiple card states. Everything had to be readable at a glance — including for fleet owners managing 20+ FASTags simultaneously.
@@ -1160,6 +1194,10 @@ function CS2Content({ isMobile }: { isMobile: boolean }) {
             <ImageCarousel
               mobile={m}
               slides={[
+                {
+                  embed: "https://embed.figma.com/proto/zhkgGHFZUiEiSgc7WO4FQ6/Laxmi-s-portfolio---only-for-recruiters?node-id=105-28114&scaling=min-zoom&content-scaling=fixed&page-id=71%3A2831&embed-host=share",
+                  caption: "Interactive prototype — walk through the landing flow",
+                },
                 { src: imgLandingEmpty, caption: "New user with no FASTags" },
                 { src: imgLandingExisting, caption: "Existing user with ICICI Bank and other bank FASTag" },
                 { src: imgLandingScrolled, caption: "Critical usecase, scrolled state — callout for critical action" },
@@ -1187,7 +1225,7 @@ function CS2Content({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-card">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>3. FASTag card exploration</SectionHeading>
+          <SectionHeading mobile={m}>2. FASTag card exploration</SectionHeading>
           <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading mobile={m}>
               The problem
@@ -1249,7 +1287,7 @@ function CS2Content({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-details">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>4. All FASTag details</SectionHeading>
+          <SectionHeading mobile={m}>3. All FASTag details</SectionHeading>
           <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading mobile={m}>Three card types, one layout</SubHeading>
             <BodyText mobile={m}>
@@ -1313,7 +1351,7 @@ function CS2Content({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-recharge">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>5. FASTag recharge</SectionHeading>
+          <SectionHeading mobile={m}>4. FASTag recharge</SectionHeading>
           <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading mobile={m}>The problem with the first version</SubHeading>
             <BodyText mobile={m}>
@@ -1502,8 +1540,13 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
   }, []);
 
   const sections = caseStudy ? (SECTIONS_BY_CS[caseStudy.index] ?? []) : [];
+  // Running number for the index list — items flagged `noNumber` (e.g. Introduction)
+  // are skipped so the first *numbered* section reads as "1.".
+  const numberedSections = (() => {
+    let n = 0;
+    return sections.map((s) => ({ ...s, num: s.noNumber ? null : ++n }));
+  })();
   const related = CASE_STUDY_DATA.filter((cs) => cs.index !== caseStudy?.index);
-  const headerH = 112; // desktop header is a fixed height — see the DESKTOP LAYOUT header block below
 
   return (
     <AnimatePresence>
@@ -1555,7 +1598,7 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
             )}
 
             {/* Scrollable inner */}
-            <div ref={scrollableRef} style={{ height: "100%", overflowY: "auto", scrollbarWidth: "none" }}>
+            <div ref={scrollableRef} style={{ height: "100%", overflowY: "auto", scrollbarWidth: "none", display: "flex", flexDirection: "column" }}>
               <style>{CS_SPACING_CSS}</style>
 
               {/* ── MOBILE LAYOUT ── */}
@@ -1666,44 +1709,46 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
                 <>
                   <style>{`.cs-drawer::-webkit-scrollbar{display:none}`}</style>
 
-                  {/* Fixed-height header — kept constant so it never shifts the two-pane body below it
-                      (a shrinking header would push the static left column, which must never move) */}
-                  <div
+                  {/* Header — hugs the title with tight padding (no reserved dead space). It
+                      collapses on scroll: the title eases down a few px and the padding tightens,
+                      and the body below (flex:1) reclaims the freed height in the same motion. */}
+                  <motion.div
+                    animate={{ paddingTop: scrolled ? 16 : 24, paddingBottom: scrolled ? 12 : 16 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                     style={{
+                      flexShrink: 0,
                       position: "sticky", top: 0, zIndex: 10,
+                      boxSizing: "border-box",
                       backgroundColor: "#e3d9ce",
-                      padding: "36px 52px 20px 36px",
+                      paddingLeft: 36, paddingRight: 52,
+                      display: "flex", flexDirection: "column", justifyContent: "flex-end",
                       borderBottom: `1px solid ${scrolled ? "rgba(98,94,55,0.12)" : "transparent"}`,
                       transition: "border-color 0.3s ease",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                      <div style={{ backgroundColor: caseStudy.color, padding: "4px 12px", borderRadius: 100, display: "inline-flex" }}>
-                        <p className="font-inclusive-sans font-semibold" style={{ fontSize: 10, color: caseStudy.textColor, letterSpacing: "0.5px", textTransform: "uppercase" }}>
-                          {caseStudy.label}
-                        </p>
-                      </div>
-                      <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: "#c67d39", letterSpacing: "0.48px", textTransform: "uppercase" }}>
-                        {caseStudy.type}
-                      </p>
-                    </div>
-                    <p
+                    <motion.p
                       className="font-caslon not-italic"
-                      style={{ color: "#212012", fontWeight: 600, fontSize: "24px", lineHeight: "30px", paddingRight: 48, maxWidth: 720 }}
+                      animate={{ fontSize: scrolled ? "18px" : "24px" }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      style={{ color: "#212012", fontWeight: 600, lineHeight: "normal", paddingRight: 48, maxWidth: 680 }}
                     >
                       {caseStudy.title}
-                    </p>
-                  </div>
+                    </motion.p>
+                  </motion.div>
 
-                  {/* Two-pane body: left (index + listen) never scrolls; right pane owns its own scroll */}
-                  <div style={{ display: "flex", gap: 24, padding: "40px 36px 0", position: "relative", height: `calc(100vh - ${headerH}px)` }}>
+                  {/* Two-pane body: fills whatever height the header leaves. Left panel never
+                      scrolls; right pane owns its own scroll. 16px inset on the left panel's
+                      left/top/bottom, 36px gap to the right pane. */}
+                  <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 36, padding: "16px 36px 16px 16px", position: "relative", boxSizing: "border-box" }}>
 
-                    {/* Left column — static, does not scroll at all */}
+                    {/* Left panel — fixed-height sticky card. Never expands/contracts, never scrolls. */}
                     <div
                       style={{
-                        width: 200, flexShrink: 0,
+                        width: 212, flexShrink: 0, alignSelf: "stretch",
+                        position: "sticky", top: 16,
+                        backgroundColor: "#DACEBE", borderRadius: 16,
+                        padding: 12, boxSizing: "border-box", overflow: "hidden",
                         display: "flex", flexDirection: "column", justifyContent: "space-between",
-                        paddingBottom: 24,
                       }}
                     >
                       <LeftPanelAudio color={caseStudy.color} slug={caseStudy.slug} />
@@ -1712,7 +1757,7 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
                         <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: "rgba(33,32,18,0.4)", textTransform: "uppercase", marginBottom: 4 }}>
                           index
                         </p>
-                        {sections.map((s, si) => (
+                        {numberedSections.map((s) => (
                           <button
                             key={s.id}
                             onClick={() => scrollToSection(s.id)}
@@ -1727,7 +1772,7 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
                               className="font-inclusive-sans font-normal"
                               style={{ fontSize: 12, letterSpacing: "0.12px", color: activeSection === s.id ? "#212012" : "rgba(33,32,18,0.4)", transition: "color 0.2s ease" }}
                             >
-                              {si + 1}. {s.label}
+                              {s.num != null ? `${s.num}. ` : ""}{s.label}
                             </p>
                           </button>
                         ))}
@@ -1753,7 +1798,9 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
                         )}
                       </motion.div>
 
-                      <MetaChipStrip caseStudy={caseStudy} />
+                      {/* keyed on the case study so the chips re-run their left→right
+                          slide every time this screen is opened or switched */}
+                      <MetaChipStrip key={caseStudy.index} caseStudy={caseStudy} />
 
                       <Spacer size={32} />
 
