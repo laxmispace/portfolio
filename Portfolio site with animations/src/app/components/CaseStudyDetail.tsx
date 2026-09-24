@@ -12,22 +12,19 @@ import coverAnimationUrl from "../../assets/FASTag/videos/cover nw.json?url";
 // — base-aware so it resolves correctly whether served at "/" locally or "/portfolio/" on GitHub Pages.
 export const caseStudyAudioUrl = (slug: string) => `${import.meta.env.BASE_URL}audio/case-study/${slug}.mp3`;
 
-// ─── CS1 image assets (ICICI Bank) ────────────────────────────────────────────
-import imgStrip1A from "../../imports/FullScrollableForProjects-1/93e70105f7d066f588dc4dbef15d865a2e5d4066.png";
-import imgStrip1B from "../../imports/FullScrollableForProjects-1/79ccc98f7098129f020d71e6f7aa77cf20d01c6d.png";
-import imgStrip1C from "../../imports/FullScrollableForProjects-1/296d2045c1de41d68219d357e12fd47c6335460e.png";
-import imgStrip2A from "../../imports/FullScrollableForProjects-1/7935f8d2f4e0973372a5050d14b5451abd3ae9d6.png";
-import imgStrip2B from "../../imports/FullScrollableForProjects-1/4fa179900829b7a1fcc9ca7df6f34891f9f47e99.png";
-import imgFlowChart from "../../imports/FullScrollableForProjects-1/ae9b7127606624410916ea9ab4314f4b8d7b3e40.png";
-import imgModal1 from "../../imports/FullScrollableForProjects-1/d5a0fc82047b1a02298116147f6c89f8863132ac.png";
-import imgModal2 from "../../imports/FullScrollableForProjects-1/016ed0f122d38f391adcadaecde5fbde037d5beb.png";
-import imgModal3 from "../../imports/FullScrollableForProjects-1/5614b9f71f532ad5ce9933954383c9b423f997fe.png";
-import imgSingleCountry from "../../imports/FullScrollableForProjects-1/6773a4376e1e979186008a7e25d5231d66d8c312.png";
-import imgDest1 from "../../imports/FullScrollableForProjects-1/65bdc69ae16263dc2ada8c1d008928d7c8205260.png";
-import imgDest2 from "../../imports/FullScrollableForProjects-1/7431037695e857a6ef07aee719c3aa666f5c524d.png";
-import imgMulti1 from "../../imports/FullScrollableForProjects-1/4257ae666e8fd23dbd54e3d8a54fc8f6b1b2d6d8.png";
-import imgMulti2 from "../../imports/FullScrollableForProjects-1/884412cdbee05805549dd2ba16a622921deadd5b.png";
-import imgMulti3 from "../../imports/FullScrollableForProjects-1/5c80203c3c32b2840d077bcc316d0ae47b79c6f5.png";
+// ─── CS1 image assets (ICICI Bank iTravel) ────────────────────────────────────
+import imgEntryHasCard from "../../assets/Cards - CS/1/has cc.png";
+import imgEntryNoCard1 from "../../assets/Cards - CS/1/has no cc - 1.png";
+import imgEntryNoCard2 from "../../assets/Cards - CS/1/has no cc - 2.png";
+import imgTripSingleEmpty from "../../assets/Cards - CS/2/image 2928.png";
+import imgTripSingleFilled from "../../assets/Cards - CS/2/image 2929.png";
+import imgTripMultiEmpty from "../../assets/Cards - CS/2/Step 1 - 1.png";
+import imgTripMultiAdded from "../../assets/Cards - CS/2/Step 1 - 2.png";
+import imgTripMultiFilled from "../../assets/Cards - CS/2/Step 1 - 3.png";
+import imgPrefsDefault from "../../assets/Cards - CS/3/3 -1.png";
+import imgPrefsEditing from "../../assets/Cards - CS/3/3 - 2.png";
+import imgPrefsFilled from "../../assets/Cards - CS/3/3 - 3.png";
+import imgAutoExpiry from "../../assets/Cards - CS/3/image 2969.png";
 
 // ─── CS2 image assets (ICICI FASTag) ──────────────────────────────────────────
 import imgFastagNonIcici from "../../assets/FASTag/My FASTag/LP/1. NON UB FT.png";
@@ -114,11 +111,13 @@ export interface CaseStudyInfo {
 // ─── Section index definitions per case study ─────────────────────────────────
 const SECTIONS_BY_CS: Record<number, { id: string; label: string; noNumber?: boolean }[]> = {
   0: [
-    { id: "cs-problem", label: "Problem statement" },
-    { id: "cs-hmw", label: "How might we" },
-    { id: "cs-toggle", label: "Why not a toggle" },
-    { id: "cs-flow", label: "Getting users in" },
+    { id: "cs-problem", label: "The problem", noNumber: true },
+    { id: "cs-why", label: "Why the obvious fix wasn't enough", noNumber: true },
+    { id: "cs-entry", label: "Getting users in" },
     { id: "cs-trip", label: "Declaring the trip" },
+    { id: "cs-limits", label: "Setting limits" },
+    { id: "cs-expiry", label: "Auto-expiring controls" },
+    { id: "cs-wrapup", label: "Travel wrap-up" },
     { id: "cs-media", label: "Walkthrough" },
   ],
   1: [
@@ -450,21 +449,6 @@ function BodyText({ children, color = "#444" }: { children: React.ReactNode; col
   );
 }
 
-function OrangeBlockquote({ children, mobile = false }: { children: React.ReactNode; mobile?: boolean }) {
-  return (
-    <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-      <div style={{ width: 3, borderRadius: 4, backgroundColor: "#c67d39", alignSelf: "stretch", flexShrink: 0 }} />
-      <p className="font-caslon not-italic" style={{
-        fontSize: mobile ? 13 : 16,
-        lineHeight: mobile ? "19px" : "22px",
-        color: "#212012", flex: 1,
-      }}>
-        {children}
-      </p>
-    </div>
-  );
-}
-
 function SubHeading({ children, mobile = false }: { children: React.ReactNode; mobile?: boolean }) {
   return (
     <p className="font-inclusive-sans font-medium" style={{
@@ -486,7 +470,61 @@ interface CarouselSlide {
       for both the staged frame and its thumbnail — the thumbnail shows a scaled,
       non-interactive preview of the same embed. */
   embed?: string;
+  /** A set of phone screens laid out side by side inside the 8:5 frame (and its thumbnail). */
+  images?: string[];
   caption: string;
+}
+
+// Phone screens for a carousel slide. Scaled as one group to fit *inside* the frame on both
+// axes (object-fit: contain, but for the whole set): the tallest screen never exceeds the
+// frame's height and the row never exceeds its width, so nothing spills on narrow screens.
+// Works the same in the staged 8:5 frame and the 80×54 thumbnail.
+function CarouselPhoneSet({ images, stroke = true }: { images: string[]; stroke?: boolean }) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  const [natural, setNatural] = useState<Record<number, { w: number; h: number }>>({});
+
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setBox({ w: entry.contentRect.width, h: entry.contentRect.height }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const inset = 0.92; // breathing room inside the frame, as a share of each axis
+  const gap = box.w * 0.04;
+  const sizes = images.map((_, i) => natural[i]);
+  const ready = box.w > 0 && sizes.every(Boolean);
+  const scale = ready
+    ? Math.min(
+        (box.h * inset) / Math.max(...sizes.map((n) => n!.h)),
+        (box.w * inset - gap * (images.length - 1)) / sizes.reduce((sum, n) => sum + n!.w, 0),
+      )
+    : 0;
+
+  return (
+    <div ref={boxRef} style={{ width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap, overflow: "hidden" }}>
+      {images.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          onLoad={(e) => {
+            const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
+            setNatural((prev) => ({ ...prev, [i]: { w, h } }));
+          }}
+          style={{
+            display: "block", flexShrink: 0,
+            width: ready ? sizes[i]!.w * scale : 0,
+            height: ready ? sizes[i]!.h * scale : 0,
+            opacity: ready ? 1 : 0,
+            borderRadius: stroke ? 5 : 1, border: stroke ? "1px solid #ffffff" : "none", boxSizing: "border-box",
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
 function ImageCarousel({ slides, mobile = false, bgColor = "#e7ded5", maxWidth }: { slides: CarouselSlide[]; mobile?: boolean; bgColor?: string; maxWidth?: number }) {
@@ -526,6 +564,10 @@ function ImageCarousel({ slides, mobile = false, bgColor = "#e7ded5", maxWidth }
                   border: `1px solid ${strokeColor}`, borderRadius: 8, backgroundColor: bgColor,
                 }}
               />
+            </div>
+          ) : current.images ? (
+            <div style={{ width: "100%", aspectRatio: "8 / 5" }}>
+              <CarouselPhoneSet key={active} images={current.images} />
             </div>
           ) : (
             <StrokedImage src={current.src} alt={current.caption} bgColor={bgColor} strokeColor={strokeColor} aspectRatio="8 / 5" radius={8} iconSize={32} />
@@ -586,6 +628,10 @@ function ImageCarousel({ slides, mobile = false, bgColor = "#e7ded5", maxWidth }
                     aria-hidden="true"
                     style={{ width: "100%", height: "100%", border: "none", display: "block", backgroundColor: bgColor }}
                   />
+                </div>
+              ) : slide.images ? (
+                <div style={{ width: "100%", height: "100%", backgroundColor: bgColor }}>
+                  <CarouselPhoneSet images={slide.images} stroke={false} />
                 </div>
               ) : slide.src ? (
                 <img src={slide.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -825,115 +871,6 @@ function JTBDTable({ mobile = false }: { mobile?: boolean }) {
   );
 }
 
-function HMWBullet({ num, text, mobile = false }: { num: number; text: string; mobile?: boolean }) {
-  return (
-    <div style={{ backgroundColor: "rgba(198,125,57,0.1)", borderRadius: 8, border: "1px solid rgba(198,125,57,0.3)", overflow: "hidden", display: "flex", alignItems: "center" }}>
-      <div style={{ width: 3, backgroundColor: "#c67d39", alignSelf: "stretch", flexShrink: 0 }} />
-      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: mobile ? "10px 12px" : "12px 16px", flex: 1 }}>
-        <div style={{ width: 20, height: 20, borderRadius: 16, backgroundColor: "#c67d39", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          <p className="font-inclusive-sans font-bold text-white" style={{ fontSize: 12, lineHeight: "16px", letterSpacing: "0.12px" }}>{num}</p>
-        </div>
-        <p className="font-inclusive-sans font-normal" style={{
-          fontSize: mobile ? 12 : 13,
-          lineHeight: mobile ? "18px" : "16px",
-          color: "#444", letterSpacing: mobile ? "0.12px" : "0.13px",
-        }}>
-          {text}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Phone strip image frame ─────────────────────────────────────────────────
-// mobile=true: matches "frame_imge - reference" from Figma Viewport/Expanded
-// h-272, three 100×222 images at left-16/left-131/right-16 top-16, labels at top-246 in 8px
-function PhoneStrip({
-  images, labels, bgColor = "#e7ded5", height = 406, mobile = false,
-}: {
-  images: { src: string; top?: number; left?: number; right?: number; width?: number; height?: number }[];
-  labels?: { text: string; left: number; top?: number; bottom?: number }[];
-  bgColor?: string;
-  height?: number;
-  mobile?: boolean;
-}) {
-  if (mobile) {
-    // Figma "frame_imge - reference" layout
-    const mobilePos = [
-      { left: 16, right: undefined },
-      { left: 131, right: undefined },
-      { left: undefined, right: 16 },
-    ];
-    return (
-      <div className="cs-img" style={{
-        backgroundColor: bgColor, borderRadius: 8, overflow: "hidden",
-        position: "relative", height: 272, width: "100%", flexShrink: 0,
-      }}>
-        {images.slice(0, 3).map((img, i) => {
-          const pos = mobilePos[i] ?? { left: 16, right: undefined };
-          return (
-            <div
-              key={i}
-              className="cs-img-frame"
-              style={{
-                position: "absolute", top: 16,
-                left: pos.left, right: pos.right,
-                width: 100, height: 222,
-                borderRadius: 5, overflow: "hidden", pointerEvents: "none",
-              }}
-            >
-              <img src={img.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 5 }} />
-            </div>
-          );
-        })}
-        {labels?.slice(0, 3).map((label, i) => {
-          // anchor each label under its image: left-16 / left-131 / right-16
-          const pos = [
-            { left: 16,  right: undefined },
-            { left: 131, right: undefined },
-            { left: undefined, right: 16 },
-          ][i] ?? { left: 16, right: undefined };
-          return (
-            <div key={i} style={{
-              position: "absolute",
-              left: pos.left,
-              right: pos.right,
-              top: 246,
-              width: 100,
-              display: "flex", alignItems: "flex-start", gap: 4,
-            }}>
-              <div style={{ width: 3, borderRadius: 4, backgroundColor: "#c67d39", minHeight: 10, flexShrink: 0, alignSelf: "flex-start", marginTop: 2 }} />
-              <p className="font-inclusive-sans font-medium" style={{
-                fontSize: 8, color: "rgba(33,32,18,0.5)", letterSpacing: "0.08px",
-                wordBreak: "break-word", lineHeight: "11px",
-              }}>
-                {label.text}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // Desktop layout
-  return (
-    <div className="cs-img" style={{ backgroundColor: bgColor, borderRadius: 8, overflow: "hidden", position: "relative", height, width: "100%", flexShrink: 0 }}>
-      {images.map((img, i) => (
-        <div key={i} style={{ position: "absolute", top: img.top ?? 24, left: img.left, right: img.right, width: img.width ?? 150, height: img.height ?? 333, borderRadius: 5, overflow: "hidden", pointerEvents: "none" }}>
-          <img src={img.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 5 }} />
-        </div>
-      ))}
-      {labels?.map((label, i) => (
-        <div key={i} style={{ position: "absolute", left: label.left, top: label.top, bottom: label.bottom, display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 3, borderRadius: 4, backgroundColor: "#c67d39", height: "100%", minHeight: 14 }} />
-          <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: "rgba(33,32,18,0.5)", letterSpacing: "0.1px", whiteSpace: "nowrap" }}>{label.text}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 // ─── Audio player ─────────────────────────────────────────────────────────────
 function AudioPlayer({ color, slug }: { color: string; slug: string }) {
   const { playing, toggle, seekToFraction, available, progress, timeLabel } = useAudioPlayer(caseStudyAudioUrl(slug));
@@ -1004,110 +941,311 @@ function RelatedCard({ cs, onClick }: { cs: CaseStudyInfo; onClick: () => void }
   );
 }
 
-// ─── CS1 content ─────────────────────────────────────────────────────────────
-function CS1Content({ isMobile }: { isMobile: boolean }) {
-  const m = isMobile;
+// ─── CS1 content (ICICI Bank iTravel) — Figma "Frame 38" (584px column) ───────
+// Its own type scale, tighter than the shared helpers: 20/26 Caslon headings,
+// 14/20 Inclusive Sans body, 12px rhythm inside a section, 52px between sections.
+const CS1_ACCENT = "#C67D39";
+
+function CS1Heading({ children }: { children: React.ReactNode }) {
   return (
-    <div className="cs-sections" style={{ display: "flex", flexDirection: "column" }}>
+    <p className="font-caslon not-italic" style={{ fontSize: 20, lineHeight: "26px", fontWeight: 600, color: "#212012" }}>
+      {children}
+    </p>
+  );
+}
+
+function CS1Text({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: "#444444" }}>
+      {children}
+    </p>
+  );
+}
+
+function CS1Section({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <SectionBlock id={id}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{children}</div>
+    </SectionBlock>
+  );
+}
+
+function CS1Caption({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: CS1_ACCENT, flexShrink: 0 }} />
+      <p className="font-jakarta font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: "rgba(33,32,18,0.5)" }}>
+        {children}
+      </p>
+    </div>
+  );
+}
+
+// A phone screen, 150px wide at design size, 1px white stroke. It shrinks with its row
+// (never grows past 150px) and keeps its aspect ratio, so a row always fits its panel.
+function CS1Phone({ src, alt = "" }: { src: string; alt?: string }) {
+  return (
+    <div style={{ flex: "1 1 0", minWidth: 0, maxWidth: 150 }}>
+      <img
+        src={src}
+        alt={alt}
+        style={{ display: "block", width: "100%", height: "auto", border: "1px solid #FFFFFF", borderRadius: 5, boxSizing: "border-box" }}
+      />
+    </div>
+  );
+}
+
+// Row of CS1Phones. `gap` is a share of the row's width so spacing shrinks with the phones.
+function CS1PhoneRow({ children, gap }: { children: React.ReactNode; gap: string }) {
+  return <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap, width: "100%" }}>{children}</div>;
+}
+
+// Tan panel that holds phone screens.
+function CS1Panel({ children, padding }: { children: React.ReactNode; padding: string }) {
+  return (
+    <div className="cs-img" style={{ width: "100%", backgroundColor: "#E7DED5", borderRadius: 8, overflow: "hidden", padding, boxSizing: "border-box" }}>
+      {children}
+    </div>
+  );
+}
+
+function CS1HMWBox() {
+  const items = [
+    "Make activation easy and confidence-building",
+    "Get genuine transactions approved seamlessly",
+    "Give users one view for all international travel issues",
+  ];
+  return (
+    <div style={{
+      display: "flex", flexDirection: "row", alignItems: "stretch", gap: 12,
+      paddingRight: 16, overflow: "hidden",
+      backgroundColor: "rgba(198,125,57,0.1)", border: "1px solid rgba(198,125,57,0.3)", borderRadius: 8,
+    }}>
+      <div style={{ width: 3, backgroundColor: CS1_ACCENT, flexShrink: 0 }} />
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 2, padding: "8px 0", flex: 1 }}>
+        {items.map((text, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, padding: "8px 0" }}>
+            <div style={{ width: 20, height: 20, borderRadius: 16, backgroundColor: CS1_ACCENT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <p className="font-jakarta" style={{ fontWeight: 700, fontSize: 12, lineHeight: "16px", letterSpacing: "0.01em", color: "#FFFFFF" }}>{i + 1}</p>
+            </div>
+            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 13, lineHeight: "16px", color: "#444444" }}>{text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CS1Layer({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <span aria-hidden="true" style={{ fontSize: 16, lineHeight: "20px" }}>{icon}</span>
+        <p className="font-inclusive-sans" style={{ fontWeight: 600, fontSize: 16, lineHeight: "20px", color: "#735933" }}>{title}</p>
+      </div>
+      <CS1Text>{children}</CS1Text>
+    </div>
+  );
+}
+
+function CS1StateTable({ mobile }: { mobile: boolean }) {
+  const rows = [
+    ["App installed, has CC", "Auth → iTravel activation drawer"],
+    ["App installed, has no CC", "Auth → card application drawer — iTravel becomes the acquisition hook"],
+    ["App installed, session expired", "Re-auth → routes into above"],
+    ["App not installed", "Web promo page, both audiences"],
+  ];
+  const pad = mobile ? 12 : 16;
+  const head = { fontWeight: 600, fontSize: 12, lineHeight: "20px", textTransform: "uppercase" as const, color: "#444444" };
+  return (
+    <div className="cs-img" style={{ width: "100%", border: "1px solid #DACCBE", borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "row", gap: 16, backgroundColor: "#E3D9CE", padding: `8px ${pad}px` }}>
+        <p className="font-jakarta" style={{ ...head, flex: 1 }}>State</p>
+        <p className="font-inclusive-sans" style={{ ...head, flex: 1 }}>Outcome</p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#E7DED5", padding: `12px ${pad}px` }}>
+        {rows.map(([state, outcome], i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "row", gap: 16 }}>
+            <p className="font-jakarta" style={{ flex: 1, fontWeight: 600, fontSize: 12, lineHeight: "16px", color: "#444444" }}>{i + 1}. {state}</p>
+            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", color: "#444444" }}>{outcome}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CS1EntryPanel() {
+  return (
+    <div className="cs-img" style={{ width: "100%", backgroundColor: "#E7DED5", borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ padding: "12px 16px", backgroundColor: "#ECE5DF", borderBottom: "1px solid #E3D9CE" }}>
+        <p className="font-inclusive-sans font-normal" style={{ fontSize: 12, lineHeight: "16px", color: "rgba(33,32,18,0.8)" }}>
+          The drawer is a forced interstitial - the user clicked an ad specifically about iTravel, so making them navigate a dashboard first would be the actual friction.
+        </p>
+      </div>
+      <div style={{ padding: "17px 4% 16px" }}>
+        {/* 150 : 320 split with a 66px gap at design width — all proportional so it fits any width */}
+        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: "7%" }}>
+          <div style={{ flex: "150 1 0", minWidth: 0, maxWidth: 150, display: "flex", flexDirection: "column", gap: 12 }}>
+            <CS1PhoneRow gap="0">
+              <CS1Phone src={imgEntryHasCard} alt="iTravel activation drawer" />
+            </CS1PhoneRow>
+            <CS1Caption>State 1 - Has a credit card</CS1Caption>
+          </div>
+          <div style={{ flex: "320 1 0", minWidth: 0, maxWidth: 320, display: "flex", flexDirection: "column", gap: 9 }}>
+            <CS1PhoneRow gap="6.25%">
+              <CS1Phone src={imgEntryNoCard1} alt="Card application drawer" />
+              <CS1Phone src={imgEntryNoCard2} alt="Card application drawer, iTravel slide" />
+            </CS1PhoneRow>
+            <CS1Caption>State 2, 3, 4 - Does not have a credit card</CS1Caption>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CS1CroppedShot() {
+  return (
+    <div className="cs-img" style={{ width: "100%", height: 123, backgroundColor: "#E7DED5", borderRadius: 8, overflow: "hidden", display: "flex", justifyContent: "center", paddingTop: 16, boxSizing: "border-box" }}>
+      <img src={imgAutoExpiry} alt="Additional preferences — auto-disable after trip" style={{ width: 150, height: "auto", alignSelf: "flex-start", display: "block" }} />
+    </div>
+  );
+}
+
+function CS1Content({ isMobile }: { isMobile: boolean }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 52 }}>
       <SectionBlock id="cs-problem">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>1. THE PROBLEM</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
-            <BodyText mobile={m}>
-              ICICI Bank credit cards were declining 30% of international transactions. Not because the cards didn't work abroad (ICICI Bank cards have global acceptance across Visa and Mastercard) but because of a structural reason: by RBI mandate, every new or reissued card ships with international usage switched off by default.
-            </BodyText>
-            <BodyText mobile={m}>
-              It creates an almost invisible trap: a customer lands in Tokyo, taps their card at a convenience store, and gets declined with no idea why. The setting blocking them is buried three menus deep in Services - Card Controls.
-            </BodyText>
-            <PhoneStrip
-              mobile={m}
-              images={[{ src: imgStrip1A, left: 24 }, { src: imgStrip1B, left: 217 }, { src: imgStrip1C, left: 410 }]}
-              labels={[{ text: "Cards landing", left: 28, top: m ? undefined : 369 }, { text: "Manage card - scrolled", left: 221, top: m ? undefined : 369 }, { text: "Destination", left: 414, top: m ? undefined : 369 }]}
-            />
-          </div>
-        </div>
-      </SectionBlock>
-
-      <SectionBlock id="cs-hmw">
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <OrangeBlockquote mobile={m}>
-            We're facing a 30% decline rate on international transactions. We're building{" "}
-            <em>iTravel</em>, a unified hub where customers declare their travel plans and the bank automatically aligns card usage and fraud monitoring to that profile.
-          </OrangeBlockquote>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
-            <BodyText mobile={m}>My job was to take that mandate and three open-ended HMWs, and turn them into a complete, shippable product experience.</BodyText>
-            <HMWBullet mobile={m} num={1} text="HMW — make international card usage easy to turn on only when needed, so customers feel confident and in control while travelling." />
-            <HMWBullet mobile={m} num={2} text="HMW — ensure genuine international transactions get approved, so customers have a seamless payment experience and prefer their ICICI card." />
-            <HMWBullet mobile={m} num={3} text={`HMW — create a "one view" for all international transaction issues, so customer travel anxiety is addressed.`} />
-          </div>
-        </div>
-      </SectionBlock>
-
-      <SectionBlock id="cs-toggle">
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>3. Why this isn't just a toggle problem</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
-            <BodyText mobile={m}>{`It's tempting to read "30% decline" and reach for the obvious fix: surface the toggle more prominently. That fix would help, but it doesn't touch the harder layer: RBI's framework requires separate switches for International Cash, POS, ATM, and E-commerce.`}</BodyText>
-            <PhoneStrip
-              mobile={m}
-              images={[{ src: imgStrip2A, left: 120 }, { src: imgStrip2B, left: 313, height: 216 }]}
-              labels={m
-                ? [{ text: "All limits", left: 131 }, { text: "Entrypoint to iTravel", left: 16 }]
-                : [{ text: "All limits", left: 313, top: 252 }, { text: "Entrypoint to iTravel", left: 120, top: 369 }]}
-            />
-            <BodyText mobile={m}>The real problem wasn't "the toggle is hidden." The bank had no way of knowing a customer was about to travel, until they accidentally revealed it by getting declined. iTravel's job was to close that information gap before the trip.</BodyText>
-          </div>
-        </div>
-      </SectionBlock>
-
-      <SectionBlock id="cs-flow">
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>4. Getting users into the flow, before they ever need it</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
-            <BodyText mobile={m}>Most ICICI cardholders barely open the iMobile app — bill payments happen through third-party apps like CRED, PhonePe, GPay. If iTravel only lived inside the app, it would only reach people already looking for it.</BodyText>
-            <div className="cs-img">
-              <StrokedImage src={imgFlowChart} alt="Multi-channel entry points" aspectRatio="4032 / 2582" />
+          <CS1Heading>THE PROBLEM</CS1Heading>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <CS1Text>
+              30% of ICICI Bank international transactions were declining. The obvious fix - surface the toggle - would have helped. But I started from a different question: why does the decline happen at all, and what would actually prevent it?
+            </CS1Text>
+            <CS1Text>
+              The answer wasn't in the UI. It was in how RBI mandates work, how fraud engines evaluate transactions, and how travelers actually use their phones abroad. Every decision in iTravel came from reasoning through those layers first, then designing backward to the screen.
+            </CS1Text>
+            <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", letterSpacing: "0.01em", color: "#444444" }}>The PM briefed...</p>
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", gap: 8 }}>
+              <div style={{ width: 3, borderRadius: 4, backgroundColor: CS1_ACCENT, flexShrink: 0 }} />
+              <p className="font-caslon not-italic" style={{ flex: 1, padding: "8px 0", fontSize: 16, lineHeight: "20px", fontWeight: 600, color: "#212012" }}>
+                Build <em>iTravel</em>, a single, unified hub where customers declare their travel plans and the bank automatically aligns card usage and fraud monitoring to that profile.
+              </p>
             </div>
-            <SubHeading mobile={m}>Force modals for different user types</SubHeading>
-            <PhoneStrip
-              mobile={m}
-              images={[{ src: imgModal1, left: 24 }, { src: imgModal2, left: 240 }, { src: imgModal3, left: 410 }]}
-              labels={m
-                ? [{ text: "User 1 — Has a credit card", left: 16 }, { text: "User 2 — No credit card", left: 131 }]
-                : [{ text: "User 1 — Has a credit card", left: 24, top: 369 }, { text: "User 2 — No credit card", left: 240, bottom: 24 }]}
-            />
-            <BodyText mobile={m}>The interruption is earned by the entry point. This also reframed iTravel as a top-of-funnel acquisition feature — not only a friction fix for existing users.</BodyText>
+            <p className="font-inclusive-sans font-medium" style={{ fontSize: 14, lineHeight: "20px", color: "#444444" }}>Three HMWs:</p>
+            <CS1HMWBox />
           </div>
         </div>
       </SectionBlock>
 
-      <SectionBlock id="cs-trip">
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading mobile={m}>5. Declaring the trip — the part that does the real work</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
-            <SubHeading mobile={m}>Once inside the flow, the user declares:</SubHeading>
-            <ul className="font-inclusive-sans font-normal cs-bullets" style={{ fontSize: 14, lineHeight: "20px", color: "#444", letterSpacing: "0.14px", paddingLeft: m ? 12 : 16, paddingRight: m ? 12 : 16 }}>
-              <li><strong>Destination(s)</strong> — single or multi-country, with layover and transit stops</li>
-              <li><strong>Travel dates</strong> — start/end, with per-leg duration for multi-country trips</li>
-            </ul>
-            <PhoneStrip
-              mobile={m}
-              images={[{ src: imgSingleCountry, left: 24 }]}
-              labels={m
-                ? [{ text: "Single country, no layover", left: 16 }]
-                : [{ text: "User 1 — Has a credit card", left: 24, top: 369 }]}
-            />
-            <PhoneStrip
-              mobile={m}
-              height={908}
-              images={[{ src: imgDest1, left: 36, top: 53 }, { src: imgDest2, left: 216, top: 53 }, { src: imgMulti1, left: 36, top: 495 }]}
-              labels={m
-                ? [{ text: "Single country", left: 16 }, { text: "Multiple countries", left: 131 }]
-                : [{ text: "Single country, no layover", left: 36, top: 24 }, { text: "Multiple countries / layover", left: 36, bottom: 429 }]}
-            />
+      <SectionBlock id="cs-why">
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <CS1Heading>Why the obvious fix wasn't enough</CS1Heading>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <CS1Layer icon="📜" title="Layer 1 - RBI compliance">
+                Separate switches for POS, ATM, and e-commerce. Enabling one doesn't enable the others. A user who turns on POS can still get silently declined buying online.
+              </CS1Layer>
+              <CS1Layer icon="🚨" title="Layer 2 - Fraud engine logic">
+                The system doesn't just check if the toggle is on. It checks if the transaction looks geographically plausible for that cardholder.
+              </CS1Layer>
+              <CS1Layer icon="🔇" title="Layer 3 - Information gap">
+                The bank has no signal a customer is traveling until they're already declined.
+              </CS1Layer>
+            </div>
           </div>
+          <CS1Text>
+            iTravel was built to close Layer 3. Once the bank knows the trip in advance, Layers 1 and 2 can be handled automatically.
+          </CS1Text>
         </div>
       </SectionBlock>
+
+      <CS1Section id="cs-entry">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <CS1Heading>1. Getting users in before they need it</CS1Heading>
+          <CS1Text>
+            Most ICICI cardholders barely open iMobile - bill payments increasingly happen through CRED, PhonePe or other 3rd party apps. An in-app-only entry point reaches almost nobody.
+          </CS1Text>
+        </div>
+        <CS1StateTable mobile={isMobile} />
+        <Spacer size={40} />
+        <CS1EntryPanel />
+      </CS1Section>
+
+      <CS1Section id="cs-trip">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <CS1Heading>2. Declaring the trip</CS1Heading>
+          <CS1Text>
+            User declares destination, layover stops, travel dates, purpose, and multiple trips. The layover field wasn't in the brief - I proposed it.
+          </CS1Text>
+          <CS1Text>
+            Fraud engines check travel plausibility, not just whether a country is blocked. A card quiet for months, then swiping in Tokyo, looks like fraud. A declared trip -{" "}
+            <span className="font-caslon" style={{ color: CS1_ACCENT, fontSize: 16 }}>India → Singapore (layover) → Japan</span>{" "}
+            - gives the engine a trail. The Tokyo swipe stops looking anomalous.
+          </CS1Text>
+          <ImageCarousel
+            mobile={isMobile}
+            slides={[
+              { images: [imgTripSingleEmpty, imgTripSingleFilled], caption: "Travelling to a single country with no layover" },
+              { images: [imgTripMultiEmpty, imgTripMultiAdded, imgTripMultiFilled], caption: "Travelling to multiple countries, with a layover" },
+            ]}
+          />
+        </div>
+      </CS1Section>
+
+      <CS1Section id="cs-limits">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <CS1Heading>3. Setting limits without currency math</CS1Heading>
+          <CS1Text>
+            Card control limits shown as a slider with a live conversion-rate label for the destination currency.
+          </CS1Text>
+          <CS1Text>
+            Three problems solved at once: no mental currency math, prevents under-setting a limit that looks fine in INR but causes a mid-trip decline, and surfaces a natural credit-limit-increase prompt when intended spend exceeds the current limit.
+          </CS1Text>
+          <CS1Panel padding="16px 6%">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 512, margin: "0 auto" }}>
+              <CS1Caption>All states of preferences</CS1Caption>
+              <CS1PhoneRow gap="6%">
+                <CS1Phone src={imgPrefsDefault} alt="Preferences — default" />
+                <CS1Phone src={imgPrefsEditing} alt="Preferences — editing a limit" />
+                <CS1Phone src={imgPrefsFilled} alt="Preferences — filled" />
+              </CS1PhoneRow>
+            </div>
+          </CS1Panel>
+        </div>
+      </CS1Section>
+
+      <CS1Section id="cs-expiry">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <CS1Heading>4. Auto-expiring controls</CS1Heading>
+          <CS1Text>
+            RBI mandates manual activation but says nothing about deactivation. Left on indefinitely, the fraud exposure window stays open long after the trip ends.
+          </CS1Text>
+          <CS1Text>
+            Proposed auto-expiry tied to the declared travel dates - not RBI-required, my proposal. Shrinks the fraud window to exactly the trip and removes the hesitation of feeling like you're committing to this forever.
+          </CS1Text>
+          <CS1CroppedShot />
+        </div>
+      </CS1Section>
+
+      <CS1Section id="cs-wrapup">
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <CS1Heading>5. Travel wrap-up</CS1Heading>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <CS1Text>
+              After the trip: a fun summary - total spend, category breakdown, top merchants, country stamp added to a collection.
+            </CS1Text>
+            <CS1Text>
+              The data already exists in the bank's transaction records. iTravel provides the trigger - declared dates and destination tell the system which transactions to aggregate and when to surface the summary.
+            </CS1Text>
+            <CS1Text>
+              The stamp collection scales without manual asset creation. Each sticker uses dynamic fields - country code, currency, year visited - with one SVG illustration per country as the only per-country asset.
+            </CS1Text>
+          </div>
+        </div>
+        <CS1CroppedShot />
+      </CS1Section>
     </div>
   );
 }
@@ -1662,8 +1800,12 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
 
                   {/* Meta table + content */}
                   <div style={{ padding: "16px 16px 0", display: "flex", flexDirection: "column" }}>
-                    <MobileMetaTable cs={caseStudy} />
-                    <Spacer size={20} />
+                    {caseStudy.index !== 0 && (
+                      <>
+                        <MobileMetaTable cs={caseStudy} />
+                        <Spacer size={20} />
+                      </>
+                    )}
 
                     {/* Content */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
@@ -1787,7 +1929,7 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        style={{ backgroundColor: "#ffffff", borderRadius: 8, marginBottom: 32, overflow: "hidden" }}
+                        style={{ backgroundColor: "#ffffff", borderRadius: 8, marginBottom: caseStudy.index === 0 ? 24 : 32, overflow: "hidden" }}
                       >
                         {caseStudy.index === 1 ? (
                           <CoverAnimation radius={8} />
@@ -1800,9 +1942,12 @@ export function CaseStudyDetail({ caseStudy, onClose, onNavigate }: Props) {
 
                       {/* keyed on the case study so the chips re-run their left→right
                           slide every time this screen is opened or switched */}
-                      <MetaChipStrip key={caseStudy.index} caseStudy={caseStudy} />
-
-                      <Spacer size={32} />
+                      {caseStudy.index !== 0 && (
+                        <>
+                          <MetaChipStrip key={caseStudy.index} caseStudy={caseStudy} />
+                          <Spacer size={32} />
+                        </>
+                      )}
 
                       {caseStudy.index === 0
                         ? <CS1Content isMobile={false} />

@@ -8,7 +8,7 @@ import {
   ThumbnailPlaceholder,
   type CaseStudyInfo,
 } from "./CaseStudyDetail";
-import imgIciciLogo from "../../assets/Cards CS/ICICI logo.png";
+import imgIciciLogo from "../../assets/Cards - CS/ICICI logo.png";
 
 const DARK_H = 183;
 const CARD_H = 418;
