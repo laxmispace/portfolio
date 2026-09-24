@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   motion,
   useMotionValue,
@@ -6,6 +6,7 @@ import {
   animate,
   AnimatePresence,
 } from "motion/react";
+import { ArrowUpRight } from "lucide-react";
 
 export type NavSection = "home" | "projects" | "ai-playground" | "about";
 export type { NavSection as SideNavSection };
@@ -98,129 +99,41 @@ function NavIndicator({ section }: { section: NavSection }) {
   );
 }
 
-// ── Resume button: full-width, documents pop from behind on hover ──────────────
-const BUTTON_H = 38;
+// ── Bottom links: vertical stack, each with a ↗, magnifies on hover ───────────
+const BOTTOM_LINKS: { label: string; href: string }[] = [
+  { label: "download resume", href: "https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing" },
+  { label: "gmail",           href: "mailto:laxmimahajanwork@gmail.com" },
+  { label: "github",          href: "https://github.com/mycodedump" },
+  { label: "linkedin",        href: "https://in.linkedin.com/in/laxmi-mahajan" },
+];
 
-function ResumeButton() {
-  const [hov, setHov] = useState(false);
-
-  // Two document rectangles that pop from behind the button.
-  // They live in a zero-height layer anchored at the button's top edge (bottom: BUTTON_H).
-  // At rest: y=10 (tucked below button top edge, behind button via z-index).
-  // On hover: animate upward (y negative) so they appear above the button.
-  const DOC_W = 40;
-  const DOC_H = 52;
-
+function BottomLinks() {
   return (
     <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ position: "absolute", left: PAD, right: PAD, bottom: 72 }}
+      style={{
+        position: "absolute", bottom: 28, left: PAD, right: PAD,
+        display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12,
+      }}
     >
-      {/* Document layer — height:0, overflow:visible, z-index BELOW button */}
-      <div
-        style={{
-          position: "absolute",
-          left: 0, right: 0,
-          bottom: BUTTON_H,
-          height: 0,
-          overflow: "visible",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      >
-        {/* Back document: starts tucked behind button, slides up & rotates CCW */}
-        <motion.div
-          animate={{
-            y: hov ? -22 : 10,
-            opacity: hov ? 0.85 : 0,
-            rotate: hov ? -7 : 0,
-            scale: hov ? 1 : 0.8,
-          }}
-          transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1], delay: hov ? 0.04 : 0 }}
+      {BOTTOM_LINKS.map((l) => (
+        <motion.a
+          key={l.label}
+          href={l.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-inclusive-sans lowercase"
           style={{
-            position: "absolute",
-            bottom: 0,
-            left: "50%",
-            marginLeft: -(DOC_W / 2) - 6,  // shifted 6px left of centre
-            width: DOC_W,
-            height: DOC_H,
-            backgroundColor: "#d2ce93",
-            border: "1.5px solid #625e37",
-            borderRadius: 4,
+            display: "inline-flex", alignItems: "center", gap: 5,
+            fontSize: 13, letterSpacing: "0.02em", color: "#625e37",
+            textDecoration: "none", transformOrigin: "left center",
           }}
-        />
-        {/* Front document: slightly right of back, rotates CW */}
-        <motion.div
-          animate={{
-            y: hov ? -12 : 10,
-            opacity: hov ? 1 : 0,
-            rotate: hov ? 6 : 0,
-            scale: hov ? 1 : 0.8,
-          }}
-          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: "50%",
-            marginLeft: -(DOC_W / 2) + 4,  // shifted 4px right of centre
-            width: DOC_W,
-            height: DOC_H,
-            backgroundColor: "#ece6df",
-            border: "1.5px solid #625e37",
-            borderRadius: 4,
-          }}
-        />
-      </div>
-
-      {/* The actual button — z-index above documents so they hide behind it at rest */}
-      <motion.a
-        href="https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing"
-        target="_blank"
-        rel="noopener noreferrer"
-        animate={{ borderColor: hov ? "rgba(198,125,57,0)" : "rgba(198,125,57,1)" }}
-        transition={{ duration: 0.2 }}
-        style={{
-          width: "100%",
-          height: BUTTON_H,
-          position: "relative",
-          border: "1px solid #c67d39",
-          borderRadius: 8,
-          overflow: "hidden",
-          background: "none",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 2,
-          textDecoration: "none",
-        }}
-      >
-        {/* Dark fill sweeps from left on hover */}
-        <motion.div
-          animate={{ scaleX: hov ? 1 : 0 }}
-          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          style={{
-            position: "absolute", inset: 0,
-            backgroundColor: "#212012",
-            transformOrigin: "left center",
-          }}
-        />
-        {/* "Resume" — no copy change; text reduced to 12px */}
-        <span
-          className="font-inclusive-sans font-normal uppercase"
-          style={{
-            position: "relative", zIndex: 1,
-            fontSize: 12,
-            letterSpacing: "0.56px",
-            color: hov ? "#e3d9ce" : "#c67d39",
-            transition: "color 0.22s ease",
-            pointerEvents: "none",
-          }}
+          whileHover={{ scale: 1.12, color: "#212012" }}
+          transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
         >
-          Resume
-        </span>
-      </motion.a>
+          <ArrowUpRight size={14} strokeWidth={2} color="#c67d39" style={{ flexShrink: 0 }} />
+          {l.label}
+        </motion.a>
+      ))}
     </div>
   );
 }
@@ -365,36 +278,8 @@ export function SideNav({ activeSection, onNavigate, onAboutOpen }: SideNavProps
         </div>
       </div>
 
-      {/* ── Resume — full-width between PAD margins, with document-pop hover ── */}
-      <ResumeButton />
-
-      {/* ── Links — centre-aligned within the 195px sidebar ── */}
-      <div style={{
-        position: "absolute", bottom: 28, left: 0, right: 0,
-        display: "flex", justifyContent: "center", alignItems: "center", gap: 8,
-      }}>
-        <motion.a
-          href="https://in.linkedin.com/in/laxmi-mahajan"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-caslon lowercase underline"
-          style={{ fontSize: 14, color: "#625e37" }}
-          whileHover={{ color: "#212012", fontStyle: "italic" }}
-          transition={{ duration: 0.15 }}
-        >
-          linkedin
-        </motion.a>
-        <div style={{ width: 4, height: 4, borderRadius: "50%", backgroundColor: "#C3BE6F" }} />
-        <motion.a
-          href="mailto:laxmimahajanwork@gmail.com"
-          className="font-caslon lowercase underline"
-          style={{ fontSize: 14, color: "#625e37" }}
-          whileHover={{ color: "#212012", fontStyle: "italic" }}
-          transition={{ duration: 0.15 }}
-        >
-          gmail
-        </motion.a>
-      </div>
+      {/* ── Bottom links — vertical, arrowed, magnify on hover ── */}
+      <BottomLinks />
     </div>
   );
 }

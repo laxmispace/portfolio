@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion } from "motion/react";
 import type { NavSection } from "./SideNav";
 import { haptic, softTick } from "@/app/lib/feedback";
+import { MobileFab } from "./MobileFab";
 
 // Fixed order — items never reflow. Only the active row changes style.
 const NAV_ITEMS: { id: NavSection; label: string }[] = [
@@ -11,36 +12,20 @@ const NAV_ITEMS: { id: NavSection; label: string }[] = [
   { id: "tinkering",     label: "tinkering hobbies" },
 ];
 
-const LINKS: { label: string; href: string }[] = [
-  { label: "linkedin", href: "https://in.linkedin.com/in/laxmi-mahajan" },
-  { label: "gmail",    href: "mailto:laxmimahajanwork@gmail.com" },
-  { label: "resume",   href: "https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing" },
-  { label: "github",   href: "https://github.com/mycodedump" },
-];
+const BAND_H = 72;
+const BAND_W = 328;
 
-const NAV_WIDTH = "min(328px, calc(100vw - 32px))";
+// ── Ruler / scrubbing scale ──────────────────────────────────────────────────
+// A ragged stack of 13 thin rules. One "major" line per section (indices 2,5,8,
+// 11); the active section's line is the long dark one, its immediate neighbours
+// a touch darker, the rest faint. Drag or tap to scrub sections.
+const TOTAL_LINES = 13;
+const MAJOR_INDICES = [2, 5, 8, 11];
 
-// Minor ticks between each pair of section ticks — "like an inch scale".
-const MINOR_PER_GAP = 2;
-const STEP = MINOR_PER_GAP + 1;
-
-function lerpColor(t: number) {
-  // #c67d39 (inactive) → #625e37 (active)
-  const a = [198, 125, 57];
-  const b = [98, 94, 55];
-  const c = a.map((v, i) => Math.round(v + (b[i] - v) * t));
-  return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
-}
-
-// ── Ruler / scrubbing scale ─────────────────────────────────────────────────────
-// A number-less vertical rule. The tick on the active section swells + darkens;
-// its neighbours taper off (a little fish-eye). Drag or tap to scrub sections —
-// each new section gives a haptic tap + a soft notch sound.
 function SectionRuler({ count, activeIndex, onScrub }: { count: number; activeIndex: number; onScrub: (i: number) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const last = useRef(activeIndex);
-  const total = count + (count - 1) * MINOR_PER_GAP;
-  const activeTick = activeIndex * STEP;
+  const activeLine = MAJOR_INDICES[Math.min(Math.max(activeIndex, 0), count - 1)];
 
   const scrubTo = (clientY: number) => {
     const el = ref.current;
@@ -67,26 +52,29 @@ function SectionRuler({ count, activeIndex, onScrub }: { count: number; activeIn
         justifyContent: "space-between",
         alignItems: "flex-start",
         alignSelf: "stretch",
-        width: 16,
+        width: 80,
         flexShrink: 0,
         cursor: "ns-resize",
         touchAction: "none",
+        padding: "8px 0 4px",
       }}
     >
-      {Array.from({ length: total }).map((_, i) => {
-        const isMajor = i % STEP === 0;
-        const dist = Math.abs(i - activeTick) / STEP; // in section units
-        const m = Math.max(0, 1 - dist);
-        const e = m * m * (3 - 2 * m); // smoothstep falloff
-        const width = (isMajor ? 8 : 4) + e * (isMajor ? 8 : 4);
-        const height = isMajor ? 1.5 + e : 1;
-        const opacity = 0.28 + e * 0.72;
+      {Array.from({ length: TOTAL_LINES }).map((_, i) => {
+        const isMajor = MAJOR_INDICES.includes(i);
+        const isActive = i === activeLine;
+        const near = Math.abs(i - activeLine) === 1;
+        const width = isActive ? 80 : isMajor ? 72 : i % 2 === 0 ? 56 : 60;
+        const color = isActive
+          ? "#212012"
+          : near
+          ? "rgba(198,125,57,0.4)"
+          : "rgba(198,125,57,0.2)";
         return (
           <motion.span
             key={i}
-            animate={{ width, height, opacity, backgroundColor: lerpColor(e) }}
+            animate={{ width, backgroundColor: color }}
             transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: "block", borderRadius: 1, width, height }}
+            style={{ display: "block", height: 1, width }}
           />
         );
       })}
@@ -110,41 +98,40 @@ export function MobileBottomNav({
         left: 0,
         right: 0,
         bottom: 0,
-        height: 76,
-        zIndex: 10,
+        height: BAND_H,
+        zIndex: 9000,
         background: "#ECE6DF",
         display: "flex",
+        alignItems: "flex-start",
         justifyContent: "center",
       }}
     >
       <div
         style={{
-          position: "relative",
-          width: NAV_WIDTH,
-          height: "100%",
+          width: BAND_W,
+          maxWidth: "calc(100vw - 20px)",
+          height: BAND_H,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          padding: "8px 0",
-          overflow: "hidden",
+          flexDirection: "row",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          gap: 4,
         }}
       >
-        {/* Top fade — pinned to the top edge of the band */}
+        {/* Left group — ruler + section labels */}
         <div
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 10,
-            background: "linear-gradient(180deg, #ECE6DF 30%, rgba(236,230,223,0) 100%)",
-            pointerEvents: "none",
-            zIndex: 3,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "flex-start",
+            gap: 6,
+            flexGrow: 1,
+            minWidth: 0,
+            height: BAND_H,
+            isolation: "isolate",
+            overflow: "hidden",
           }}
-        />
-
-        {/* Ruler + left-aligned nav labels (clip if tight) */}
-        <div style={{ display: "flex", alignItems: "stretch", gap: 10, height: "100%", minWidth: 0 }}>
+        >
           <SectionRuler
             count={NAV_ITEMS.length}
             activeIndex={activeIndex}
@@ -153,13 +140,32 @@ export function MobileBottomNav({
 
           <div
             style={{
+              position: "relative",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
+              justifyContent: activeIndex >= 2 ? "flex-end" : "flex-start",
               alignItems: "flex-start",
+              gap: 4,
+              padding: "12px 0",
+              flexGrow: 1,
               minWidth: 0,
+              height: BAND_H,
             }}
           >
+            {/* Top fade */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 12,
+                background: "linear-gradient(180deg, #ECE6DF 30%, rgba(236,230,223,0) 100%)",
+                pointerEvents: "none",
+                zIndex: 2,
+              }}
+            />
+
             {NAV_ITEMS.map((item) => {
               const isActive = item.id === activeSection;
               return (
@@ -168,7 +174,7 @@ export function MobileBottomNav({
                   onClick={() => onNavigate(item.id)}
                   whileTap={{ scale: 0.96 }}
                   className="font-inclusive-sans"
-                  animate={{ color: isActive ? "#625e37" : "#c67d39" }}
+                  animate={{ color: isActive ? "#625E37" : "#C67D39" }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
                   style={{
                     background: "none",
@@ -177,11 +183,11 @@ export function MobileBottomNav({
                     cursor: "pointer",
                     whiteSpace: "nowrap",
                     textAlign: "left",
+                    textTransform: "uppercase",
                     fontWeight: isActive ? 500 : 400,
-                    fontSize: isActive ? 12 : 10,
+                    fontSize: isActive ? 14 : 10,
                     lineHeight: isActive ? "16px" : "12px",
                     letterSpacing: isActive ? "-0.02em" : "0.02em",
-                    textTransform: "uppercase",
                   }}
                 >
                   {item.label}
@@ -191,42 +197,20 @@ export function MobileBottomNav({
           </div>
         </div>
 
-        {/* ── External links — fixed to the right edge ── */}
+        {/* FAB group */}
         <div
           style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            bottom: 0,
             display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
+            flexDirection: "row",
             justifyContent: "center",
-            gap: 8,
+            alignItems: "center",
+            padding: "14px 0",
+            width: 44,
+            height: BAND_H,
+            flexShrink: 0,
           }}
         >
-          {LINKS.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-caslon"
-              style={{
-                fontWeight: 600,
-                fontSize: 11,
-                lineHeight: "14px",
-                letterSpacing: "0.01em",
-                textAlign: "right",
-                textDecoration: "underline",
-                textTransform: "lowercase",
-                color: "#625e37",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {l.label}
-            </a>
-          ))}
+          <MobileFab />
         </div>
       </div>
     </div>

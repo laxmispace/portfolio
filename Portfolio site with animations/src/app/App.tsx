@@ -10,7 +10,6 @@ import { TinkeringSection } from "./components/TinkeringSection";
 import { AiProjectsPage } from "./components/AiProjectsPage";
 import { PersonalSection } from "./components/PersonalSection";
 import { MobileBottomNav } from "./components/MobileBottomNav";
-import { CatMascot } from "./components/CatMascot";
 import { useIsMobile } from "./useIsMobile";
 import { softTick } from "./lib/feedback";
  
@@ -178,7 +177,7 @@ export default function App() {
         .m-scroll-inset {
           position: fixed !important;
           top: 0 !important; left: 0 !important; right: 0 !important;
-          height: calc(100dvh - 76px) !important;
+          height: calc(100dvh - 72px) !important;
           flex: none !important;
           width: 100% !important;
           z-index: 20 !important;
@@ -188,8 +187,8 @@ export default function App() {
         }
         .side-nav-hide { display: none !important; }
         .m-hide { display: none !important; }
-        .m-pad { padding-left: 16px !important; padding-right: 16px !important; }
-        .m-pad-section { padding: 48px 16px 64px !important; }
+        .m-pad { padding-left: 10px !important; padding-right: 10px !important; }
+        .m-pad-section { padding: 48px 10px 64px !important; }
         .m-col { flex-direction: column !important; }
         .m-full { width: 100% !important; min-width: unset !important; }
         .m-text-sm { font-size: 28px !important; line-height: 38px !important; }
@@ -258,9 +257,6 @@ export default function App() {
         )}
       </div>
     </div>
-
-    {/* Cat mascot — always present (walks the seam above the mobile nav band) */}
-    <CatMascot />
     </>
   );
 }

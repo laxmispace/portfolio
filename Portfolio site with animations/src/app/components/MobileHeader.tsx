@@ -100,7 +100,7 @@ export function MobileHeader() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "24px 16px 0",
+        padding: "24px 10px 0",
       }}
     >
       <MobileLogo />
