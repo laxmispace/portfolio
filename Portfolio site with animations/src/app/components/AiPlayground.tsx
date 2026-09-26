@@ -54,11 +54,12 @@ export function AiPlaygroundSection({ onViewAll }: { onViewAll?: () => void }) {
         style={{
           y: sectionY, scale: sectionScale,
           backgroundColor: "#212012", borderRadius: isMobile ? 12 : 16, overflow: "hidden",
-          padding: isMobile ? "32px 20px 28px" : "48px 40px 40px", display: "flex", flexDirection: "column", gap: 32,
+          // Mobile: no side padding so the project frames run edge to edge; text keeps its own inset.
+          padding: isMobile ? "32px 0 28px" : "48px 40px 40px", display: "flex", flexDirection: "column", gap: 32,
         }}
       >
         {/* Header */}
-        <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: "center", padding: isMobile ? "0 20px" : 0 }}>
           <p className="font-caslon not-italic text-center" style={{ color: "#e3d9ce", fontSize: isMobile ? 26 : 36, lineHeight: "normal" }}>
             sometimes i tinker with ai
           </p>
@@ -90,11 +91,10 @@ export function AiPlaygroundSection({ onViewAll }: { onViewAll?: () => void }) {
               >
                 <motion.div
                   style={{
-                    // Mobile follows the design: a fixed 240px-tall, full-bleed
-                    // frame. Web ties height to the flexing card via aspect-ratio
-                    // (~240 on a MacBook Air, scaling up/down from there).
+                    // Same 353:240 frame on web and mobile, so the artwork scales
+                    // identically. On mobile the frame runs edge to edge.
                     ...(isMobile
-                      ? { height: 240, borderRadius: 0, border: "none" }
+                      ? { aspectRatio: "353 / 240", borderRadius: 0, border: "none" }
                       : { aspectRatio: "353 / 240", borderRadius: 8, border: `1px solid ${project.accent}28` }),
                     backgroundColor: "rgba(227,217,206,0.07)",
                     position: "relative",
