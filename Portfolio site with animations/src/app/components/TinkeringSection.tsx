@@ -3,17 +3,8 @@ import { motion, useTransform, AnimatePresence } from "motion/react";
 import { useScrollProgress } from "../ScrollContext";
 import { useIsMobile } from "../useIsMobile";
 import { BLOG_POSTS, type BlogPost, type BlogCategory } from "./BlogDetail";
+import { BlogEditorialList, BlogStickyBoard } from "./BlogLayouts";
 
-const MARTEL = { fontFamily: "'Martel', serif", fontWeight: 600 };
-function withMartel(text: string) {
-  const parts = text.split("सुकून");
-  if (parts.length === 1) return text;
-  return parts.flatMap((part, i) =>
-    i < parts.length - 1
-      ? [part, <span key={i} style={MARTEL}>सुकून</span>]
-      : [part]
-  );
-}
 import { BlogPostDrawer } from "./BlogPostDrawer";
 import imgPhoto from "figma:asset/4dfdf49b488289ec55070ff65a3c23b4f7ef8355.png";
 
@@ -26,53 +17,16 @@ const blogUrl = (slug: string) => `${BLOG_BASE}${slug}`;
 const slugFromPath = (pathname: string) =>
   pathname.startsWith(BLOG_BASE) ? pathname.slice(BLOG_BASE.length).replace(/\/$/, "") : null;
 
-function BlogListItem({ post, isNewest, onClick }: { post: BlogPost; isNewest: boolean; onClick: () => void }) {
-  const [hov, setHov] = useState(false);
-
+// Label above each candidate layout while the two directions are being compared.
+function OptionLabel({ letter, name }: { letter: string; name: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-      onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ borderBottom: "1px solid rgba(33,32,18,0.1)", padding: "24px 0", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}
-    >
-      <div style={{ flex: 1 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-          {isNewest && (
-            <span style={{ backgroundColor: "#dda1ae", borderRadius: 20, padding: "2px 8px" }}>
-              <p className="font-inclusive-sans font-semibold" style={{ fontSize: 9, color: "#212012", letterSpacing: "0.5px", textTransform: "uppercase" }}>new</p>
-            </span>
-          )}
-          <span style={{ backgroundColor: "rgba(98,94,55,0.1)", borderRadius: 20, padding: "2px 10px" }}>
-            <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: "#625e37", letterSpacing: "0.3px", textTransform: "uppercase" }}>{post.category}</p>
-          </span>
-          <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", opacity: 0.55 }}>{post.date}</p>
-          <span style={{ color: "rgba(98,94,55,0.3)", fontSize: 10 }}>·</span>
-          <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", opacity: 0.45 }}>{post.readTime}</p>
-        </div>
-        <p
-          className="font-caslon not-italic"
-          style={{ fontSize: 24, lineHeight: "30px", color: "#212012", fontWeight: 600, marginBottom: 6, textDecoration: hov ? "underline" : "none", textUnderlineOffset: 3, transition: "text-decoration 0.1s" }}
-        >
-          {withMartel(post.title)}
-        </p>
-        <p className="font-inclusive-sans" style={{ fontSize: 14, lineHeight: "20px", color: "#625e37", opacity: 0.75 }}>
-          {post.subtitle}
-        </p>
-      </div>
-      <motion.p
-        animate={{ x: hov ? 5 : 0 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="font-caslon"
-        style={{ fontSize: 22, color: "rgba(33,32,18,0.25)", flexShrink: 0, marginTop: 4 }}
-      >
-        →
-      </motion.p>
-    </motion.div>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 8px" }}>
+      <span className="font-inclusive-sans font-semibold" style={{ fontSize: 10, letterSpacing: "0.5px", textTransform: "uppercase", color: "#212012", backgroundColor: "#dda1ae", borderRadius: 20, padding: "3px 9px" }}>
+        option {letter}
+      </span>
+      <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: "#625e37" }}>{name}</p>
+      <div style={{ flex: 1, height: 1, backgroundColor: "rgba(33,32,18,0.1)" }} />
+    </div>
   );
 }
 
@@ -227,16 +181,13 @@ export function TinkeringSection({ onDrawerChange }: { onDrawerChange?: (open: b
             </motion.div>
           </motion.div>
         ) : (
-          <div>
-            {filtered.map((post, i) => (
-              <BlogListItem
-                key={post.id}
-                post={post}
-                isNewest={!activeChip && i === 0}
-                onClick={() => openPost(post)}
-              />
-            ))}
-          </div>
+          <>
+            <OptionLabel letter="A" name="editorial hover list" />
+            <BlogEditorialList posts={filtered} isMobile={isMobile} onOpen={openPost} newestId={activeChip ? undefined : BLOG_POSTS[0]?.id} />
+
+            <OptionLabel letter="B" name="sticky-note board" />
+            <BlogStickyBoard posts={filtered} isMobile={isMobile} onOpen={openPost} newestId={activeChip ? undefined : BLOG_POSTS[0]?.id} />
+          </>
         )}
       </div>
     </section>

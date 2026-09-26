@@ -740,7 +740,7 @@ function AiProjectsRow({ isMobile, onViewAll }: { isMobile: boolean; onViewAll?:
               <div
                 style={{
                   ...(m
-                    ? { height: 200, borderRadius: 8 }
+                    ? { aspectRatio: "353 / 240", borderRadius: 8 }
                     : { aspectRatio: "353 / 240", borderRadius: 8 }),
                   border: `1px solid ${p.accent}33`,
                   backgroundColor: "rgba(33,32,18,0.04)",
@@ -1070,13 +1070,15 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                 </p>
 
                 {/* Photo collage: envelope stack backdrop + looping photo on top */}
-                <div style={{ position: "relative", display: "flex", justifyContent: "center", marginBottom: m ? 20 : 32 }}>
+                <div style={{ position: "relative", display: "flex", justifyContent: "center", paddingBottom: m ? 24 : 36 }}>
                   <div style={{ position: "relative", width: m ? "82%" : "72%", maxWidth: 500 }}>
                     <img src={envelopeStack} alt="" style={{ width: "100%", height: "auto", display: "block" }} />
                     <div
                       style={{
-                        position: "absolute", left: "46%", top: m ? "-12%" : "-16%",
-                        width: m ? "56%" : "48%", maxWidth: 320,
+                        // Same ratios on web and mobile: the photo is sized and placed as a share
+                        // of the envelope stack, so it stays aligned to it at every width.
+                        position: "absolute", left: "46%", top: "-16%",
+                        width: "48%", maxWidth: 320,
                         transform: "translateX(-50%) rotate(14deg)",
                         transformOrigin: "center top",
                       }}
@@ -1108,35 +1110,6 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                   </div>
                 </div>
 
-                <p className="font-inclusive-sans" style={{ fontSize: m ? 14 : 18, lineHeight: m ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: "#212012", maxWidth: 560, margin: "0 auto", marginBottom: m ? 24 : 32 }}>
-                  A small window into the things I return to outside of work — the books I read, the films I rewatch, and the songs on repeat.
-                </p>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: m ? 24 : 32 }}>
-                  <motion.span
-                    animate={{ opacity: [1, 0.25, 1] }}
-                    transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
-                    style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#212012", display: "inline-block", flexShrink: 0 }}
-                  />
-                  <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: "#625e37", letterSpacing: "0.4px", textTransform: "uppercase" }}>open to work</p>
-                </div>
-
-                {/* Books/Movies + Music player row */}
-                <div style={{ display: "flex", gap: m ? 16 : 24, flexDirection: m ? "column" : "row", alignItems: "flex-start", marginBottom: m ? 16 : 24 }}>
-                  <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
-                    <BooksAndMoviesCard isMobile={m} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
-                    <MusicPlayerCard isMobile={m} />
-                  </div>
-                </div>
-
-                {/* Resources — same card language as Books/Movies, aligned under it */}
-                <div style={{ display: "flex", marginBottom: m ? 24 : 36 }}>
-                  <div style={{ width: m ? "100%" : "calc(50% - 12px)" }}>
-                    <ResourcesCard isMobile={m} />
-                  </div>
-                </div>
                 </div>
               </div>
 
@@ -1177,6 +1150,32 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
 
               {/* ── Section B2: personal photo strip ── */}
               <PhotoFrameSection isMobile={m} />
+
+              {/* ── Section B3: things outside work — books/films, music, resources ── */}
+              <div style={{ backgroundColor: "#e3d9ce" }}>
+                <div style={{ backgroundColor: "#c3be6f", borderRadius: m ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${m ? 24 : 36}px ${contentPad}px 0` }}>
+                <p className="font-inclusive-sans" style={{ fontSize: m ? 14 : 18, lineHeight: m ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: "#212012", maxWidth: 560, margin: "0 auto", marginBottom: m ? 24 : 32 }}>
+                    A small window into the things I return to outside of work — the books I read, the films I rewatch, and the songs on repeat.
+                  </p>
+
+                  {/* Books/Movies + Music player row */}
+                  <div style={{ display: "flex", gap: m ? 16 : 24, flexDirection: m ? "column" : "row", alignItems: "flex-start", marginBottom: m ? 16 : 24 }}>
+                    <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
+                      <BooksAndMoviesCard isMobile={m} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
+                      <MusicPlayerCard isMobile={m} />
+                    </div>
+                  </div>
+
+                  {/* Resources — same card language as Books/Movies, aligned under it */}
+                  <div style={{ display: "flex", marginBottom: m ? 24 : 36 }}>
+                    <div style={{ width: m ? "100%" : "calc(50% - 12px)" }}>
+                      <ResourcesCard isMobile={m} />
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* ── Section C: olive AI-projects strip ── */}
               <div style={{ padding: `${m ? 24 : 36}px ${contentPad}px ${m ? 88 : 60}px` }}>

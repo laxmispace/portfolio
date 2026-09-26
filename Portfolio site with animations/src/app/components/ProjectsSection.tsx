@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useMotionValue } from "motion/react";
-import { useScrollProgress } from "../ScrollContext";
+import { useScrollProgress, useScrollContainer } from "../ScrollContext";
 import { useIsMobile } from "../useIsMobile";
 import {
   CaseStudyDetail,
@@ -16,9 +16,12 @@ const EXTRA_SCROLL = 700;
 const CORNER = "M17.6301 16.5H0C12.2624 16.1105 16.976 14.1809 17.6301 0V16.5Z";
 const TAB_LEFT = [34, 253, 472];
 
-// Mobile sticky-stack sizing (mirrors DARK_H/CARD_H but for the narrower phone layout)
+// Mobile sticky-stack sizing (mirrors DARK_H but for the narrower phone layout).
+// Mobile card height isn't fixed: every card hugs its content and the stack uses the tallest.
 const MOBILE_DARK_H = 90;
-const MOBILE_CARD_H = 478;
+const MOBILE_CARD_PAD = 16;
+// Each later card settles this far below the previous one, leaving its tab + a sliver visible.
+const STACK_STEP = 14;
 
 function IciciBankLogo() {
   return (
@@ -32,7 +35,7 @@ function IciciBankLogo() {
   );
 }
 
-function CardTab({ color, label }: { color: string; label: string }) {
+function CardTab({ color, label, compact = false }: { color: string; label: string; compact?: boolean }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-end" }}>
       <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: "relative", top: "-0.5px",left:"0.25px" }}>
@@ -45,13 +48,13 @@ function CardTab({ color, label }: { color: string; label: string }) {
       <div
         style={{
           backgroundColor: color,
-          padding: "8px 16px",
-          borderRadius: "16px 16px 0 0",
+          padding: compact ? "6px 12px" : "8px 16px",
+          borderRadius: compact ? "12px 12px 0 0" : "16px 16px 0 0",
           display: "flex",
           alignItems: "center",
         }}
       >
-        <p className="font-inclusive-sans font-medium text-[#212012] whitespace-nowrap" style={{ fontSize: 12, letterSpacing: "0.25px" }}>
+        <p className="font-inclusive-sans font-medium text-[#212012] whitespace-nowrap" style={{ fontSize: compact ? 11 : 12, letterSpacing: "0.25px" }}>
           {label}
         </p>
       </div>
@@ -156,6 +159,58 @@ function ClientBadge({ card }: { card: CardConfig }) {
   );
 }
 
+function CardTags({ card }: { card: CardConfig }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
+        UX + UI
+      </p>
+      <svg width="3" height="3" viewBox="0 0 3 3" fill="none">
+        <circle cx="1.5" cy="1.5" r="1.5" fill={card.dotColor} />
+      </svg>
+      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
+        Sole designer
+      </p>
+    </div>
+  );
+}
+
+// Thin rule + status left / "read case study →" right
+function CardFooter({ card, hovered }: { card: CardConfig; hovered: boolean }) {
+  return (
+    <div>
+      <div style={{ height: 1, backgroundColor: `${card.dotColor}30`, marginBottom: 12 }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+        <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 10, letterSpacing: "0.4px", color: card.statusColor, opacity: 0.65 }}>
+          {card.statusText}
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
+          <p
+            className="font-caslon"
+            style={{
+              fontSize: 14,
+              color: "#212012",
+              fontStyle: "italic",
+              textDecoration: hovered ? "underline" : "none",
+              transition: "text-decoration 0.1s",
+            }}
+          >
+            read case study
+          </p>
+          <motion.p
+            animate={{ x: hovered ? 4 : 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="font-caslon"
+            style={{ fontSize: 15, color: "#212012", lineHeight: 1 }}
+          >
+            →
+          </motion.p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CardBody({ card, hovered, onClick }: { card: CardConfig; hovered: boolean; onClick?: () => void }) {
   const imgBox = (
     <div style={{ flex: "676 0 0", borderRadius: 8, overflow: "hidden", alignSelf: "stretch" }}>
@@ -175,17 +230,7 @@ function CardBody({ card, hovered, onClick }: { card: CardConfig; hovered: boole
       {/* Top: badge + tags */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <ClientBadge card={card} />
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
-            UX + UI
-          </p>
-          <svg width="3" height="3" viewBox="0 0 3 3" fill="none">
-            <circle cx="1.5" cy="1.5" r="1.5" fill={card.dotColor} />
-          </svg>
-          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
-            Sole designer
-          </p>
-        </div>
+        <CardTags card={card} />
       </div>
 
       {/* Middle: title anchored to bottom of its flex zone */}
@@ -200,35 +245,7 @@ function CardBody({ card, hovered, onClick }: { card: CardConfig; hovered: boole
 
       {/* Bottom: thin rule + status left / read CTA right */}
       <div style={{ marginTop: 20 }}>
-        <div style={{ height: 1, backgroundColor: `${card.dotColor}30`, marginBottom: 12 }} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 10, letterSpacing: "0.4px", color: card.statusColor, opacity: 0.65 }}>
-            {card.statusText}
-          </p>
-          {/* Read CTA with hover effects */}
-          <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <p
-              className="font-caslon"
-              style={{
-                fontSize: 14,
-                color: "#212012",
-                fontStyle: "italic",
-                textDecoration: hovered ? "underline" : "none",
-                transition: "text-decoration 0.1s",
-              }}
-            >
-              read case study
-            </p>
-            <motion.p
-              animate={{ x: hovered ? 4 : 0 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="font-caslon"
-              style={{ fontSize: 15, color: "#212012", lineHeight: 1 }}
-            >
-              →
-            </motion.p>
-          </div>
-        </div>
+        <CardFooter card={card} hovered={hovered} />
       </div>
     </div>
   );
@@ -275,75 +292,61 @@ function CardWithTab({ card, onClick }: { card: CardConfig; onClick: () => void 
   );
 }
 
-// Curved tab connector matching Frame9-1 Figma design
-function TabCurve({ color }: { color: string }) {
+// ── Mobile card ────────────────────────────────────────────────────────────────
+// Same content as the web card (badge, tags, title, status + read CTA), stacked
+// vertically. The card hugs its content; `height` is the tallest card's height so
+// the three stack cleanly, and `onMeasure` reports this card's natural height.
+// Tabs sit left / centre / right (inset so both curves land on the card) so the
+// three stacked tabs never cover each other.
+const MOBILE_TAB_POS: React.CSSProperties[] = [
+  { left: 16 },
+  { left: "50%", transform: "translateX(-50%)" },
+  { right: 16 },
+];
+
+function MobileStackCard({
+  card, index, height, onMeasure, onClick,
+}: {
+  card: CardConfig; index: number; height?: number; onMeasure: (index: number, h: number) => void; onClick: () => void;
+}) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => onMeasure(index, el.offsetHeight + MOBILE_CARD_PAD * 2));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [index, onMeasure]);
+
   return (
-    <svg width={17.63} height={16.5} viewBox="0 0 17.6301 16.5" fill="none" style={{ display: "block", flexShrink: 0, position: "relative", top: "0.5px", left: "0.25px" }}>
-      <path d="M17.6301 16.5H0C12.2624 16.1105 16.976 14.1809 17.6301 0V16.5Z" fill={color} />
-    </svg>
-  );
-}
-
-// Tab positions: left | left+indent | right (matching Frame9-1 card layout)
-const TAB_ALIGN: Array<"left" | "indent" | "right"> = ["left", "indent", "right"];
-
-function MobileCardTab({ label, bgColor, align }: { label: string; bgColor: string; align: "left" | "indent" | "right" }) {
-  const isRight = align === "right";
-  const indentLeft = align === "indent" ? 16 : 0;
-  const indentRight = align === "right" ? 16 : 0;
-
-  return (
-    <div style={{ display: "flex", alignItems: "flex-end", justifyContent: isRight ? "flex-end" : "flex-start", paddingLeft: indentLeft, paddingRight: indentRight }}>
-      <TabCurve color={bgColor} />
-      <div style={{ background: bgColor, padding: "6px 20px",position: "relative", top: "1px", borderRadius: "12px 12px 0 0" }}>
-        <p className="font-inclusive-sans font-semibold uppercase" style={{ fontSize: 11, letterSpacing: "0.48px", color: "#212012", whiteSpace: "nowrap" }}>{label}</p>
+    <div style={{ position: "relative" }}>
+      <div style={{ position: "absolute", bottom: "calc(100% - 1px)", ...MOBILE_TAB_POS[index] }}>
+        <CardTab color={card.bgColor} label={card.label} compact />
       </div>
-      <svg width={17.63} height={16.5} viewBox="0 0 17.6301 16.5" fill="none" style={{ display: "block", flexShrink: 0, transform: "scaleX(-1)", position: "relative", top: "0.5px", left: "-0.25px" }}>
-        <path d="M17.6301 16.5H0C12.2624 16.1105 16.976 14.1809 17.6301 0V16.5Z" fill={bgColor} />
-      </svg>
-    </div>
-  );
-}
-
-// ── Mobile: sticky-stack card matching the desktop scroll-stack behavior ───────
-function MobileStackCard({ card, align, onClick }: { card: CardConfig; align: "left" | "indent" | "right"; onClick: () => void }) {
-  return (
-    <div>
-      <MobileCardTab label={card.label} bgColor={card.bgColor} align={align} />
       <div
         onClick={onClick}
         style={{
           backgroundColor: card.bgColor,
-          borderRadius: card.roundedAll ? 16 : "0 16px 0 0",
+          borderRadius: card.roundedAll ? 16 : "16px 16px 0 0",
           overflow: "hidden",
           cursor: "pointer",
-          height: MOBILE_CARD_H,
-          position: "relative",
+          height,
+          padding: MOBILE_CARD_PAD,
+          boxSizing: "border-box",
         }}
       >
-        {/* Image area: matches Figma top-20, left-16, h-172, rounded-4 */}
-        <div style={{ position: "absolute", top: 20, left: 16, right: 16, height: 172, borderRadius: 4, overflow: "hidden" }}>
-          <ThumbnailPlaceholder bgColor={card.imageBg} strokeColor={card.textColor} height="100%" iconSize={28} />
-        </div>
-
-        {/* Content area: top-212, left-16 */}
-        <div style={{ position: "absolute", top: 212, left: 16, right: 16 }}>
-          {/* Category tags */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-            <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: "#212012" }}>UX + UI</p>
-            <div style={{ width: 4, height: 4, borderRadius: "50%", backgroundColor: "#212012", opacity: 0.5, flexShrink: 0 }} />
-            <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: "#212012" }}>Sole designer</p>
+        <div ref={contentRef} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ height: 172, borderRadius: 8, overflow: "hidden" }}>
+            <ThumbnailPlaceholder bgColor={card.imageBg} strokeColor={card.textColor} height="100%" iconSize={28} />
           </div>
-
-          {/* Title */}
-          <p className="font-caslon not-italic" style={{ fontSize: 22, lineHeight: "28px", color: "#212012", fontWeight: 600, marginBottom: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <ClientBadge card={card} />
+            <CardTags card={card} />
+          </div>
+          <p className="font-caslon not-italic" style={{ fontSize: 22, lineHeight: "28px", color: "#212012", fontWeight: 600 }}>
             {card.cardTitle}
           </p>
-
-          {/* Status */}
-          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: card.statusColor }}>
-            {card.statusText}
-          </p>
+          <CardFooter card={card} hovered={false} />
         </div>
       </div>
     </div>
@@ -410,77 +413,93 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
 
   const scrollYProgress = useScrollProgress(outerRef, ["start start", "end end"]);
 
-  const card2Y = useMotionValue(typeof window !== "undefined" ? window.innerHeight - DARK_H : 620);
-  const card3Y = useMotionValue(typeof window !== "undefined" ? window.innerHeight - DARK_H : 620);
-  const mobileCard2Y = useMotionValue(typeof window !== "undefined" ? window.innerHeight - MOBILE_DARK_H : 620);
-  const mobileCard3Y = useMotionValue(typeof window !== "undefined" ? window.innerHeight - MOBILE_DARK_H : 620);
+  // The stack is exactly as tall as its content: header + two stack steps + one card,
+  // so the dark container ends where the last (pink) card ends. It pins centred in the
+  // visible scroll area (not the window — on mobile that's shorter than 100vh).
+  const scrollEl = useScrollContainer();
+  const [viewportH, setViewportH] = useState(typeof window !== "undefined" ? window.innerHeight : 800);
+  useEffect(() => {
+    if (!scrollEl) return;
+    const ro = new ResizeObserver(() => setViewportH(scrollEl.clientHeight));
+    ro.observe(scrollEl);
+    return () => ro.disconnect();
+  }, [scrollEl]);
+
+  const [mobileHeights, setMobileHeights] = useState<number[]>([]);
+  const onMeasure = useCallback((index: number, h: number) => {
+    setMobileHeights((prev) => (prev[index] === h ? prev : Object.assign([...prev], { [index]: h })));
+  }, []);
+  const mobileCardH = mobileHeights.length ? Math.max(...mobileHeights.filter(Boolean)) : 0;
+
+  const headerH = isMobile ? MOBILE_DARK_H : DARK_H;
+  const cardH = isMobile ? mobileCardH : CARD_H;
+  const stackH = headerH + STACK_STEP * 2 + cardH;
+  // Cards 2/3 wait just below the container's bottom edge (clipped), then slide up.
+  const offY = STACK_STEP * 2 + cardH;
+
+  const card2Y = useMotionValue(offY);
+  const card3Y = useMotionValue(offY);
 
   useEffect(() => {
     const update = (v: number) => {
-      const offY = window.innerHeight - DARK_H;
       const t2 = v <= 0 ? 0 : v >= 0.4 ? 1 : v / 0.4;
-      card2Y.set(offY + (14 - offY) * t2);
+      card2Y.set(offY + (STACK_STEP - offY) * t2);
       const t3 = v <= 0.5 ? 0 : v >= 0.9 ? 1 : (v - 0.5) / 0.4;
-      card3Y.set(offY + (28 - offY) * t3);
-
-      const mobileOffY = window.innerHeight - MOBILE_DARK_H;
-      mobileCard2Y.set(mobileOffY + (14 - mobileOffY) * t2);
-      mobileCard3Y.set(mobileOffY + (28 - mobileOffY) * t3);
+      card3Y.set(offY + (STACK_STEP * 2 - offY) * t3);
     };
-
-    const onResize = () => update(scrollYProgress.get());
     const unsubScroll = scrollYProgress.on("change", update);
-    window.addEventListener("resize", onResize);
     update(scrollYProgress.get());
+    return unsubScroll;
+  }, [scrollYProgress, card2Y, card3Y, offY]);
 
-    return () => {
-      unsubScroll();
-      window.removeEventListener("resize", onResize);
-    };
-  }, [scrollYProgress, card2Y, card3Y, mobileCard2Y, mobileCard3Y]);
+  const stackContainer = (children: React.ReactNode) => (
+    <div
+      ref={outerRef}
+      style={{ height: stackH + EXTRA_SCROLL, position: "relative", overflow: "clip" }}
+    >
+      <div
+        style={{
+          position: "sticky",
+          top: Math.max(0, (viewportH - stackH) / 2),
+          height: stackH,
+          overflow: "hidden",
+          backgroundColor: "#212012",
+          borderRadius: 16,
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
 
   if (isMobile) {
+    const layer = (i: number) => (
+      <MobileStackCard
+        card={CARDS[i]}
+        index={i}
+        height={mobileCardH || undefined}
+        onMeasure={onMeasure}
+        onClick={() => openCase(CASE_STUDY_DATA[i])}
+      />
+    );
     return (
       <>
         <CaseStudyDetail caseStudy={selectedCase} onClose={closeCase} onNavigate={openCase} />
 
-        <div
-          ref={outerRef}
-          style={{ height: `calc(100vh + ${EXTRA_SCROLL}px)`, position: "relative", overflow: "clip" }}
-        >
-          <div
-            style={{
-              position: "sticky",
-              top: 0,
-              height: "100vh",
-              overflow: "hidden",
-              backgroundColor: "#212012",
-              borderRadius: "16px",
-            }}
-          >
+        {stackContainer(
+          <>
             <p
-              className="font-caslon uppercase text-center"
+              className="font-caslon text-center"
               style={{ position: "absolute", top: 24, left: 0, right: 0, color: "#e3d9ce", fontSize: 24, lineHeight: "30px" }}
             >
               select projects
             </p>
 
-            {/* CS1 */}
-            <div style={{ position: "absolute", top: MOBILE_DARK_H, left: 10, right: 10, zIndex: 1 }}>
-              <MobileStackCard card={CARDS[0]} align={TAB_ALIGN[0]} onClick={() => openCase(CASE_STUDY_DATA[0])} />
-            </div>
-
-            {/* CS2 */}
-            <motion.div style={{ position: "absolute", top: MOBILE_DARK_H, left: 10, right: 10, zIndex: 2, y: mobileCard2Y }}>
-              <MobileStackCard card={CARDS[1]} align={TAB_ALIGN[1]} onClick={() => openCase(CASE_STUDY_DATA[1])} />
-            </motion.div>
-
-            {/* CS3 */}
-            <motion.div style={{ position: "absolute", top: MOBILE_DARK_H, left: 10, right: 10, zIndex: 3, y: mobileCard3Y }}>
-              <MobileStackCard card={CARDS[2]} align={TAB_ALIGN[2]} onClick={() => openCase(CASE_STUDY_DATA[2])} />
-            </motion.div>
-          </div>
-        </div>
+            <div style={{ position: "absolute", top: MOBILE_DARK_H, left: 0, right: 0, zIndex: 1 }}>{layer(0)}</div>
+            <motion.div style={{ position: "absolute", top: MOBILE_DARK_H, left: 0, right: 0, zIndex: 2, y: card2Y }}>{layer(1)}</motion.div>
+            <motion.div style={{ position: "absolute", top: MOBILE_DARK_H, left: 0, right: 0, zIndex: 3, y: card3Y }}>{layer(2)}</motion.div>
+          </>
+        )}
       </>
     );
   }
@@ -493,22 +512,10 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
         onNavigate={openCase}
       />
 
-      <div
-        ref={outerRef}
-        style={{ height: `calc(100vh + ${EXTRA_SCROLL}px)`, position: "relative", overflow: "clip" }}
-      >
-        <div
-          style={{
-            position: "sticky",
-            top: 0,
-            height: "100vh",
-            overflow: "hidden",
-            backgroundColor: "#212012",
-            borderRadius: "16px",
-          }}
-        >
+      {stackContainer(
+        <>
           <p
-            className="font-caslon uppercase text-center"
+            className="font-caslon text-center"
             style={{ position: "absolute", top: 48, left: 0, right: 0, color: "#e3d9ce", fontSize: 48, lineHeight: "56px" }}
           >
             select projects
@@ -528,8 +535,8 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
           <motion.div style={{ position: "absolute", top: DARK_H, left: 0, right: 0, zIndex: 3, y: card3Y }}>
             <CardWithTab card={CARDS[2]} onClick={() => openCase(CASE_STUDY_DATA[2])} />
           </motion.div>
-        </div>
-      </div>
+        </>
+      )}
     </>
   );
 }

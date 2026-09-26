@@ -1,2 +1,6 @@
 node_modules/
 dist/
+
+# local secrets (CASE_STUDY_PASSWORD)
+.env.local
+*.local

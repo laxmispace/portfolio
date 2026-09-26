@@ -12,11 +12,9 @@ import pianoImg from "../../assets/ai-projects/piano.png";
 import jobTrackerImg from "../../assets/ai-projects/job-tracker.png";
 import breathingImg from "../../assets/ai-projects/breathing.png";
 
-// The left-aligned decorative grid is authored at 240×240 with 30px cells.
-// It's pinned to the top-left corner at its natural size so the cells stay a
-// consistent size regardless of how tall the card is; the card's own
-// `overflow: hidden` clips whatever falls outside. On the 240px-tall mobile
-// frame that's the whole thing; on the taller/shorter web frame it just crops.
+// The decorative grid is authored at 240×240 with 30px cells. On web it's pinned
+// to the corner at its natural size and the card's `overflow: hidden` crops it.
+// On mobile the grid fills the frame's full height and scales with it.
 const GRID_SIZE = 240;
 
 const gridBase: CSSProperties = {
@@ -28,46 +26,27 @@ const gridBase: CSSProperties = {
   userSelect: "none",
 };
 
+const gridBaseMobile: CSSProperties = {
+  ...gridBase,
+  width: "auto",
+  height: "100%",
+  aspectRatio: "1 / 1",
+};
+
 const FRAME_BG: Record<AiProjectFrameKey, string> = {
   piano: "#C67D39",
   "job-tracker": "#C3BE6F",
   breathing: "#DDA1AE",
 };
 
-// Foreground photo placement. Web is tuned by eye against the flexing card;
-// mobile follows the 328×240 design frame (percentages so it tracks the real
-// card width). Base transforms live in AiProjectFrame.css so the hover scale
-// can compose with them without the two fighting over `transform`.
-const PHOTO: Record<AiProjectFrameKey, { web: CSSProperties; mobile: CSSProperties }> = {
-  piano: {
-    web: { right: "-6%", top: "50%", height: "72%", width: "auto" },
-    mobile: { right: "-18.3%", top: "50%", width: "97.6%", height: "61.7%", objectFit: "cover" },
-  },
-  "job-tracker": {
-    web: { right: "-4%", bottom: 0, width: "72%", height: "auto", borderRadius: "8px 0 0 0" },
-    mobile: {
-      right: "-41.2%",
-      bottom: "-33.75%",
-      width: "122.9%",
-      height: "108.3%",
-      objectFit: "cover",
-      objectPosition: "top left",
-      borderRadius: "8px 0 0 0",
-    },
-  },
-  breathing: {
-    web: { left: "50%", bottom: 0, height: "84%", width: "auto" },
-    mobile: {
-      left: "50%",
-      top: 34,
-      width: "44.5%",
-      height: "109.2%",
-      objectFit: "cover",
-      border: "2px solid #FFFFFF",
-      borderRadius: "8px 8px 0 0",
-      boxSizing: "border-box",
-    },
-  },
+// Foreground photo placement, shared by web and mobile. Each photo keeps its natural
+// aspect ratio (one side is `auto`) and is sized as a share of the frame, so it scales
+// with the card instead of being cropped or blown up past it. Base transforms live in
+// AiProjectFrame.css so the hover scale composes with them.
+const PHOTO: Record<AiProjectFrameKey, CSSProperties> = {
+  piano: { right: "-6%", top: "50%", height: "72%", width: "auto" },
+  "job-tracker": { right: "-4%", bottom: 0, width: "72%", height: "auto", borderRadius: "8px 0 0 0" },
+  breathing: { left: "50%", bottom: 0, height: "84%", width: "auto" },
 };
 
 function FrameImg({ src, style, className }: { src: string; style: CSSProperties; className?: string }) {
@@ -96,7 +75,8 @@ export function AiProjectFrame({
   frameKey: AiProjectFrameKey;
   isMobile?: boolean;
 }) {
-  const photo = isMobile ? PHOTO[frameKey].mobile : PHOTO[frameKey].web;
+  const photo = PHOTO[frameKey];
+  const grid = isMobile ? gridBaseMobile : gridBase;
 
   return (
     <div
@@ -110,20 +90,20 @@ export function AiProjectFrame({
     >
       {frameKey === "piano" && (
         <>
-          <FrameImg src={gridPiano} style={{ ...gridBase, left: 0 }} />
+          <FrameImg src={gridPiano} style={{ ...grid, left: 0 }} />
           <FrameImg src={pianoImg} className="aipf-photo aipf-photo--piano" style={photo} />
         </>
       )}
 
       {frameKey === "job-tracker" && (
         <>
-          <FrameImg src={gridJobTracker} style={{ ...gridBase, left: 0 }} />
+          <FrameImg src={gridJobTracker} style={{ ...grid, left: 0 }} />
           <FrameImg src={jobTrackerImg} className="aipf-photo aipf-photo--job" style={photo} />
           <FrameImg
             src={logoJobTracker}
             style={
               isMobile
-                ? { top: 20, right: 19.78, width: 32.22, height: "auto" }
+                ? { top: "8.33%", right: "5.67%", width: "13.6%", height: "auto" } // 20, 20, 48 on a 353×240 card
                 : { top: 20, right: 20, width: 48, height: "auto" }
             }
           />
@@ -132,8 +112,8 @@ export function AiProjectFrame({
 
       {frameKey === "breathing" && (
         <>
-          <FrameImg src={gridBreathingLeft} style={{ ...gridBase, left: 0 }} />
-          <FrameImg src={gridBreathingRight} style={{ ...gridBase, right: 0 }} />
+          <FrameImg src={gridBreathingLeft} style={{ ...grid, left: 0 }} />
+          <FrameImg src={gridBreathingRight} style={{ ...grid, right: 0 }} />
           <FrameImg src={breathingImg} className="aipf-photo aipf-photo--breathing" style={photo} />
         </>
       )}
