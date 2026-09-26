@@ -6,9 +6,11 @@ import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { useAudioPlayer } from "@/app/hooks/useAudioPlayer";
 import { Spacer, ThumbnailPlaceholder, StrokedImage, SectionBlock, SectionHeading, BodyText } from "./CaseStudyPrimitives";
 import { CaseStudyGate, useProtectedCaseStudies } from "./CaseStudyGate";
+import "./CaseStudy.css";
 
 // ─── CS2 cover (ICICI FASTag) — animated cover, native size 1800×1200 (3:2) ───
 import coverAnimationUrl from "@/assets/case-studies/fastag/videos/cover-nw.json?url";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 // Pre-generated ElevenLabs narration lives in public/audio/ (see scripts/generate-voiceovers.mjs)
 // — base-aware so it resolves correctly whether served at "/" locally or "/portfolio/" on GitHub Pages.
@@ -70,10 +72,10 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     index: 0,
     slug: "icici-bank-onboarding",
     label: "CASE STUDY 1",
-    color: "#c3be6f",
-    textColor: "#625e37",
-    imageBg: "#d2ce93",
-    dotColor: "#C3BE6F",
+    color: colors.olive,
+    textColor: colors.oliveDeep,
+    imageBg: colors.oliveLight,
+    dotColor: colors.olive,
     title: "Redesigning how 10M+ ICICI Bank cardholders activate their card for international travel",
     type: "UX + UI",
     role: "Sole designer",
@@ -90,10 +92,10 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     index: 1,
     slug: "icici-fastag-platform",
     label: "CASE STUDY 2",
-    color: "#c67d39",
-    textColor: "#212012",
-    imageBg: "#d19761",
-    dotColor: "#C67D39",
+    color: colors.orange,
+    textColor: colors.ink,
+    imageBg: colors.orangeLight,
+    dotColor: colors.orange,
     title: "Bringing India's most-used toll payment system to ICICI's web platform — for the first time.",
     type: "UX + UI",
     role: "Sole designer",
@@ -110,10 +112,10 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     index: 2,
     slug: "ai-design-experiments",
     label: "CASE STUDY 3",
-    color: "#dda1ae",
-    textColor: "#212012",
-    imageBg: "#ebc7cf",
-    dotColor: "#DDA1AE",
+    color: colors.pink,
+    textColor: colors.ink,
+    imageBg: colors.pinkLight,
+    dotColor: colors.pink,
     title: "AI-assisted design experiments — compressing the exploratory phase",
     type: "UX Research + Prototyping",
     role: "Sole designer",
@@ -127,61 +129,6 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     overview: "Explored how generative AI can augment design without stripping creative ownership — 3× faster first prototypes.",
   },
 ];
-
-// ─── Shared spacing system ─────────────────────────────────────────────────────
-// .cs-sections  → wraps top-level SectionBlocks: 40px between main sections
-// .cs-flow      → wraps a section's content: 16px default rhythm between paragraphs,
-//                 24px before a title-2/title-3, 12px after a title-2/title-3,
-//                 20px between two consecutive image containers (.cs-img)
-// .cs-bullets   → wraps a bullet <ul>: 8px between bullet points
-// .cs-mt-*      → optional override: add alongside any child's className to force
-//                 a specific margin-top instead of the default cs-flow rhythm,
-//                 e.g. className="cs-t2 cs-mt-40". Scale: 4, 8, 12, 16, 20, 24, 40.
-// <Spacer />    → drop it anywhere inside .cs-flow instead of reaching for margin-top.
-//                 It's an empty div whose height IS the gap — the rule below cancels
-//                 cs-flow's automatic rhythm on the spacer itself and on whatever comes
-//                 right after it, so the space you see is exactly `size`px, never added
-//                 on top of the 16px default. Scale: 4, 8, 12, 16, 20, 24, 40.
-const CS_SPACING_CSS = `
-  .cs-sections > * + * { margin-top: 40px; }
-  .cs-flow > * + * { margin-top: 16px; }
-  .cs-flow > * + .cs-t2, .cs-flow > * + .cs-t3 { margin-top: 24px; }
-  .cs-flow > .cs-t2 + *, .cs-flow > .cs-t3 + * { margin-top: 16px; }
-  .cs-flow > .cs-p + .cs-p { margin-top: 20px; }
-  .cs-flow > * + .cs-img { margin-top: 24px; }
-  .cs-flow > .cs-img + * { margin-top: 24px; }
-  .cs-flow > .cs-img + .cs-img { margin-top: 20px; }
-  @media (max-width: 768px) {
-    .cs-img { margin-left: -16px; margin-right: -16px; width: calc(100% + 32px) !important; border-radius: 0 !important; }
-    .cs-img-frame { border-radius: 0 !important; }
-  }
-  .cs-thumb-row { scrollbar-width: thin; scrollbar-color: rgba(115,89,51,0.35) transparent; scroll-padding: 4px; overscroll-behavior-x: contain; }
-  .cs-thumb-row::-webkit-scrollbar { height: 4px; }
-  .cs-thumb-row::-webkit-scrollbar-track { background: transparent; }
-  .cs-thumb-row::-webkit-scrollbar-thumb { background: rgba(115,89,51,0.3); border-radius: 4px; }
-  .cs-bullets > li + li { margin-top: 8px; }
-  .cs-bullets { list-style: none; }
-  .cs-bullets > li { display: flex; gap: 8px; }
-  .cs-bullets > li::before {
-    content: "→";
-    font-family: 'Libre Caslon Condensed', serif;
-    font-size: 1em;
-    flex-shrink: 0;
-  }
-  .cs-bullets strong { font-weight: 500; }
-  .cs-bullets li span { font-weight: 400; font-size: calc(1em - 2px); }
-  .cs-bullets-accent > li::before { color: #735933; }
-  .cs-mt-4 { margin-top: 4px !important; }
-  .cs-mt-8 { margin-top: 8px !important; }
-  .cs-mt-12 { margin-top: 12px !important; }
-  .cs-mt-16 { margin-top: 16px !important; }
-  .cs-mt-20 { margin-top: 20px !important; }
-  .cs-mt-24 { margin-top: 24px !important; }
-  .cs-mt-40 { margin-top: 40px !important; }
-  .cs-flow > .cs-spacer, .cs-flow > .cs-spacer + * { margin-top: 0 !important; }
-`;
-
-
 
 // ─── FASTag cover: Lottie animation, native 1800×1200 (3:2) ──────────────────
 // Width fills its container; height hugs the animation's own aspect ratio,
@@ -206,12 +153,12 @@ type MetaChipShape = "square" | "diamond" | "circle" | "arrow";
 function MetaChipMarker({ shape }: { shape: MetaChipShape }) {
   return (
     <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 3, width: 26, height: 14, flexShrink: 0 }}>
-      {shape === "square" && <div style={{ width: 7, height: 7, backgroundColor: "#c67d39", flexShrink: 0 }} />}
-      {shape === "diamond" && <div style={{ width: 6, height: 6, backgroundColor: "#c67d39", transform: "rotate(45deg)", flexShrink: 0 }} />}
-      {shape === "circle" && <div style={{ width: 7, height: 7, borderRadius: 8, backgroundColor: "#c67d39", flexShrink: 0 }} />}
-      <div style={{ flex: 1, minWidth: 5, height: 1, backgroundColor: "#c67d39" }} />
+      {shape === "square" && <div style={{ width: 7, height: 7, backgroundColor: colors.orange, flexShrink: 0 }} />}
+      {shape === "diamond" && <div style={{ width: 6, height: 6, backgroundColor: colors.orange, transform: "rotate(45deg)", flexShrink: 0 }} />}
+      {shape === "circle" && <div style={{ width: 7, height: 7, borderRadius: 8, backgroundColor: colors.orange, flexShrink: 0 }} />}
+      <div style={{ flex: 1, minWidth: 5, height: 1, backgroundColor: colors.orange }} />
       {/* diamond arrowhead — a rotated square clipped to its leading half so it points right */}
-      <div style={{ width: 6, height: 6, backgroundColor: "#c67d39", transform: "rotate(45deg)", flexShrink: 0 }} />
+      <div style={{ width: 6, height: 6, backgroundColor: colors.orange, transform: "rotate(45deg)", flexShrink: 0 }} />
     </div>
   );
 }
@@ -226,8 +173,8 @@ function MetaChip({ shape, label, value, grow, delay }: { shape: MetaChipShape; 
     >
       <MetaChipMarker shape={shape} />
       <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-end", gap: 4, minWidth: 0 }}>
-        <p className="font-caslon" style={{ fontStyle: "italic", fontSize: 14, lineHeight: "18px", color: "#c67d39", flexShrink: 0 }}>{label}</p>
-        <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "17px", color: "#212012" }}>{value}</p>
+        <p className="font-caslon" style={{ fontStyle: "italic", fontSize: 14, lineHeight: "18px", color: colors.orange, flexShrink: 0 }}>{label}</p>
+        <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "17px", color: colors.ink }}>{value}</p>
       </div>
     </motion.div>
   );
@@ -260,8 +207,8 @@ function MobileMetaTable({ cs }: { cs: CaseStudyInfo }) {
   ];
   return (
     <div style={{
-      backgroundColor: "#e7ded5", borderRadius: 12,
-      border: "1px solid rgba(33,32,18,0.1)",
+      backgroundColor: colors.sandPanel, borderRadius: 12,
+      border: `1px solid ${withAlpha(colors.ink, 0.1)}`,
       padding: 16, display: "flex", flexDirection: "column", gap: 12,
       fontSize: 10, letterSpacing: "0.4px",
     }}>
@@ -270,13 +217,13 @@ function MobileMetaTable({ cs }: { cs: CaseStudyInfo }) {
           <div style={{
             width: 60, flexShrink: 0,
             fontFamily: "'Inclusive Sans', sans-serif", fontWeight: 500,
-            color: "#c67d39", lineHeight: "normal",
+            color: colors.orange, lineHeight: "normal",
           }}>
             {row.label}
           </div>
           <div style={{
             flex: 1, fontFamily: "'Inclusive Sans', sans-serif", fontWeight: 500,
-            color: "#444444", lineHeight: "normal", wordBreak: "break-word",
+            color: colors.body, lineHeight: "normal", wordBreak: "break-word",
           }}>
             {row.value}
           </div>
@@ -291,7 +238,7 @@ function AudioPlayer({ color, slug }: { color: string; slug: string }) {
   const { playing, toggle, seekToFraction, available, progress, timeLabel } = useAudioPlayer(caseStudyAudioUrl(slug));
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>
-      <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: "rgba(227,217,206,0.5)", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+      <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: withAlpha(colors.sand, 0.5), letterSpacing: "0.5px", textTransform: "uppercase" }}>
         Listen to this case study
       </p>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -300,21 +247,21 @@ function AudioPlayer({ color, slug }: { color: string; slug: string }) {
           disabled={!available}
           style={{ width: 34, height: 34, borderRadius: "50%", backgroundColor: color, border: "none", cursor: available ? "pointer" : "not-allowed", opacity: available ? 1 : 0.4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
         >
-          {playing ? <Pause size={14} fill="#212012" color="#212012" /> : <Play size={14} fill="#212012" color="#212012" />}
+          {playing ? <Pause size={14} fill={colors.ink} color={colors.ink} /> : <Play size={14} fill={colors.ink} color={colors.ink} />}
         </button>
         <div
           onClick={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             seekToFraction((e.clientX - rect.left) / rect.width);
           }}
-          style={{ flex: 1, height: 2, backgroundColor: "rgba(227,217,206,0.18)", borderRadius: 1, position: "relative", cursor: available ? "pointer" : "default" }}
+          style={{ flex: 1, height: 2, backgroundColor: withAlpha(colors.sand, 0.18), borderRadius: 1, position: "relative", cursor: available ? "pointer" : "default" }}
         >
           <div style={{ width: `${progress * 100}%`, height: "100%", backgroundColor: color, borderRadius: 1 }} />
         </div>
-        <p className="font-inclusive-sans" style={{ fontSize: 11, color: "rgba(227,217,206,0.4)", letterSpacing: "0.1px", flexShrink: 0 }}>
+        <p className="font-inclusive-sans" style={{ fontSize: 11, color: withAlpha(colors.sand, 0.4), letterSpacing: "0.1px", flexShrink: 0 }}>
           {available ? timeLabel : "narration coming soon"}
         </p>
-        <Volume2 size={13} color="rgba(227,217,206,0.35)" style={{ flexShrink: 0 }} />
+        <Volume2 size={13} color={withAlpha(colors.sand, 0.35)} style={{ flexShrink: 0 }} />
       </div>
     </div>
   );
@@ -324,11 +271,11 @@ function VideoFrame({ cs }: { cs: CaseStudyInfo }) {
   return (
     <div style={{ flex: "0 0 320px", height: 180, borderRadius: 8, overflow: "hidden", position: "relative" }}>
       <ThumbnailPlaceholder bgColor={cs.imageBg} strokeColor={cs.textColor} height="100%" iconSize={0} />
-      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: "rgba(33,32,18,0.55)" }}>
-        <div style={{ width: 48, height: 48, borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.92)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Play size={20} fill="#212012" color="#212012" />
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: withAlpha(colors.ink, 0.55) }}>
+        <div style={{ width: 48, height: 48, borderRadius: "50%", backgroundColor: withAlpha(colors.white, 0.92), display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Play size={20} fill={colors.ink} color={colors.ink} />
         </div>
-        <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", letterSpacing: "0.1px", textAlign: "center" }}>Case study walkthrough</p>
+        <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: withAlpha(colors.white, 0.65), letterSpacing: "0.1px", textAlign: "center" }}>Case study walkthrough</p>
       </div>
     </div>
   );
@@ -347,10 +294,10 @@ function RelatedCard({ cs, onClick }: { cs: CaseStudyInfo; onClick: () => void }
         <ThumbnailPlaceholder bgColor={cs.imageBg} strokeColor={cs.textColor} height={110} iconSize={24} />
       </div>
       <div style={{ padding: "14px 20px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ display: "inline-flex", backgroundColor: "rgba(33,32,18,0.12)", padding: "4px 12px", borderRadius: 100, alignSelf: "flex-start" }}>
+        <div style={{ display: "inline-flex", backgroundColor: withAlpha(colors.ink, 0.12), padding: "4px 12px", borderRadius: 100, alignSelf: "flex-start" }}>
           <p className="font-inclusive-sans font-semibold" style={{ fontSize: 10, color: cs.textColor, letterSpacing: "0.5px", textTransform: "uppercase" }}>{cs.label}</p>
         </div>
-        <p className="font-caslon" style={{ fontSize: 17, lineHeight: "23px", color: "#212012", fontWeight: 600 }}>{cs.title}</p>
+        <p className="font-caslon" style={{ fontSize: 17, lineHeight: "23px", color: colors.ink, fontWeight: 600 }}>{cs.title}</p>
       </div>
     </motion.div>
   );
@@ -361,18 +308,18 @@ function PlaceholderCaseStudy({ cs, isMobile }: { cs: CaseStudyInfo; isMobile: b
   const s3ids = ["cs-problem", "cs-process", "cs-findings"];
   const ids = s3ids;
   const labels = ["Problem Statement", "Process", "Key Findings"];
-  const placeholders = [{ h: 264, bg: "#ffffff" }, { h: 200, bg: cs.imageBg }, { h: 200, bg: cs.imageBg }];
+  const placeholders = [{ h: 264, bg: colors.white }, { h: 200, bg: cs.imageBg }, { h: 200, bg: cs.imageBg }];
 
   return (
-    <div className="cs-sections" style={{ display: "flex", flexDirection: "column" }}>
+    <div className="case-study-sections" style={{ display: "flex", flexDirection: "column" }}>
       {ids.map((id, i) => (
         <SectionBlock key={id} id={id}>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <SectionHeading isMobile={isMobile}>{i + 1}. {labels[i]}</SectionHeading>
-            <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
+            <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
               <BodyText isMobile={isMobile}>{cs.overview}</BodyText>
-              <div className="cs-img">
-                <StrokedImage bgColor={placeholders[i].bg === "#ffffff" ? cs.imageBg : placeholders[i].bg} strokeColor={cs.textColor} height={placeholders[i].h} iconSize={32} />
+              <div className="case-study-media">
+                <StrokedImage bgColor={placeholders[i].bg === colors.white ? cs.imageBg : placeholders[i].bg} strokeColor={cs.textColor} height={placeholders[i].h} iconSize={32} />
               </div>
             </div>
           </div>
@@ -387,7 +334,7 @@ function LeftPanelAudio({ color, slug }: { color: string; slug: string }) {
   const { playing, toggle, available, timeLabel } = useAudioPlayer(caseStudyAudioUrl(slug));
   return (
     <div style={{ paddingTop: 4 }}>
-      <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: "rgba(33,32,18,0.4)", textTransform: "uppercase", marginBottom: 8 }}>
+      <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 8 }}>
         listen
       </p>
       <button
@@ -395,20 +342,20 @@ function LeftPanelAudio({ color, slug }: { color: string; slug: string }) {
         disabled={!available}
         style={{
           display: "flex", alignItems: "center", gap: 8,
-          backgroundColor: playing ? color : "rgba(33,32,18,0.06)",
+          backgroundColor: playing ? color : withAlpha(colors.ink, 0.06),
           border: "none", borderRadius: 10, padding: "10px 14px",
           cursor: available ? "pointer" : "not-allowed", opacity: available ? 1 : 0.5,
           transition: "background 0.2s", width: "100%",
         }}
       >
-        <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: playing ? "rgba(255,255,255,0.3)" : color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {playing ? <Pause size={12} color="#212012" fill="#212012" /> : <Play size={12} color="#212012" fill="#212012" />}
+        <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: playing ? withAlpha(colors.white, 0.3) : color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          {playing ? <Pause size={12} color={colors.ink} fill={colors.ink} /> : <Play size={12} color={colors.ink} fill={colors.ink} />}
         </div>
         <div style={{ textAlign: "left" }}>
-          <p className="font-inclusive-sans font-semibold" style={{ fontSize: 12, color: "#212012", lineHeight: "15px" }}>
+          <p className="font-inclusive-sans font-semibold" style={{ fontSize: 12, color: colors.ink, lineHeight: "15px" }}>
             {!available ? "Narration coming soon" : playing ? "Playing..." : "Hear this case study"}
           </p>
-          <p className="font-inclusive-sans" style={{ fontSize: 10, color: "rgba(33,32,18,0.5)", marginTop: 1 }}>
+          <p className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.5), marginTop: 1 }}>
             {available ? (playing ? timeLabel : "audio narrative") : "check back soon"}
           </p>
         </div>
@@ -500,7 +447,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={onClose}
-            style={{ position: "fixed", inset: 0, zIndex: 499, backgroundColor: "rgba(33,32,18,0.6)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }}
+            style={{ position: "fixed", inset: 0, zIndex: 499, backgroundColor: withAlpha(colors.ink, 0.6), backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" }}
           />
 
           {/* Drawer */}
@@ -515,7 +462,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
               width: isMobile ? "100%" : 880,
               zIndex: 500,
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
-              backgroundColor: "#e3d9ce",
+              backgroundColor: colors.sand,
               overflow: "hidden",
             }}
           >
@@ -526,11 +473,11 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                 style={{
                   position: "absolute", top: 20, right: 20, zIndex: 20,
                   width: 36, height: 36, borderRadius: "50%",
-                  border: "1px solid rgba(98,94,55,0.2)",
-                  backgroundColor: "rgba(227,217,206,0.85)",
+                  border: `1px solid ${withAlpha(colors.oliveDeep, 0.2)}`,
+                  backgroundColor: withAlpha(colors.sand, 0.85),
                   backdropFilter: "blur(8px)",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer", color: "#212012",
+                  cursor: "pointer", color: colors.ink,
                 }}
               >
                 <X size={16} />
@@ -539,7 +486,6 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
 
             {/* Scrollable inner */}
             <div ref={scrollableRef} style={{ height: "100%", overflowY: "auto", scrollbarWidth: "none", display: "flex", flexDirection: "column" }}>
-              <style>{CS_SPACING_CSS}</style>
 
               {/* ── MOBILE LAYOUT ── */}
               {isMobile ? (
@@ -548,9 +494,9 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                   {/* Sticky mobile header: title + X */}
                   <div style={{
                     position: "sticky", top: 0, zIndex: 10,
-                    backgroundColor: "#e3d9ce",
+                    backgroundColor: colors.sand,
                     padding: "16px 16px 12px",
-                    borderBottom: scrolled ? "1px solid rgba(33,32,18,0.1)" : "1px solid transparent",
+                    borderBottom: scrolled ? `1px solid ${withAlpha(colors.ink, 0.1)}` : "1px solid transparent",
                     transition: "border-color 0.3s ease",
                   }}>
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -558,7 +504,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         className="font-caslon not-italic"
                         animate={{ fontSize: scrolled ? "16px" : "22px" }}
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        style={{ flex: 1, lineHeight: "normal", color: "#212012", fontWeight: 600 }}
+                        style={{ flex: 1, lineHeight: "normal", color: colors.ink, fontWeight: 600 }}
                       >
                         {caseStudy.title}
                       </motion.p>
@@ -566,20 +512,20 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         onClick={onClose}
                         style={{
                           width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
-                          border: "1px solid rgba(33,32,18,0.15)",
-                          backgroundColor: "rgba(227,217,206,0.6)",
+                          border: `1px solid ${withAlpha(colors.ink, 0.15)}`,
+                          backgroundColor: withAlpha(colors.sand, 0.6),
                           display: "flex", alignItems: "center", justifyContent: "center",
                           cursor: "pointer",
                         }}
                       >
-                        <X size={14} color="#212012" />
+                        <X size={14} color={colors.ink} />
                       </button>
                     </div>
                     <Spacer size={8} />
                   </div>
 
                   {/* Hero: FASTag gets its animated cover, others keep the 264px placeholder */}
-                  <div style={{ backgroundColor: "#ffffff", overflow: "hidden", flexShrink: 0 }}>
+                  <div style={{ backgroundColor: colors.white, overflow: "hidden", flexShrink: 0 }}>
                     {caseStudy.index === 1 ? (
                       <CoverAnimation />
                     ) : (
@@ -616,7 +562,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
                       viewport={{ once: true }}
-                      style={{ backgroundColor: "#212012", borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", gap: 16 }}
+                      style={{ backgroundColor: colors.ink, borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", gap: 16 }}
                     >
                       {/* Audio player full-width on mobile */}
                       <AudioPlayer color={caseStudy.color} slug={caseStudy.slug} />
@@ -626,7 +572,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
 
                     {/* Related case studies — vertical stack on mobile */}
                     <div>
-                      <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, letterSpacing: "0.5px", color: "rgba(33,32,18,0.4)", textTransform: "uppercase", marginBottom: 12 }}>
+                      <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 12 }}>
                         Read more
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -640,7 +586,6 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
               ) : (
                 /* ── DESKTOP LAYOUT ── */
                 <>
-                  <style>{`.cs-drawer::-webkit-scrollbar{display:none}`}</style>
 
                   {/* Header — hugs the title with tight padding (no reserved dead space). It
                       collapses on scroll: the title eases down a few px and the padding tightens,
@@ -652,10 +597,10 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       flexShrink: 0,
                       position: "sticky", top: 0, zIndex: 10,
                       boxSizing: "border-box",
-                      backgroundColor: "#e3d9ce",
+                      backgroundColor: colors.sand,
                       paddingLeft: 36, paddingRight: 52,
                       display: "flex", flexDirection: "column", justifyContent: "flex-end",
-                      borderBottom: `1px solid ${scrolled ? "rgba(98,94,55,0.12)" : "transparent"}`,
+                      borderBottom: `1px solid ${scrolled ? withAlpha(colors.oliveDeep, 0.12) : "transparent"}`,
                       transition: "border-color 0.3s ease",
                     }}
                   >
@@ -663,7 +608,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       className="font-caslon not-italic"
                       animate={{ fontSize: scrolled ? "18px" : "24px" }}
                       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      style={{ color: "#212012", fontWeight: 600, lineHeight: "normal", paddingRight: 48, maxWidth: 680 }}
+                      style={{ color: colors.ink, fontWeight: 600, lineHeight: "normal", paddingRight: 48, maxWidth: 680 }}
                     >
                       {caseStudy.title}
                     </motion.p>
@@ -687,7 +632,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       <LeftPanelAudio color={caseStudy.color} slug={caseStudy.slug} />
 
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: "rgba(33,32,18,0.4)", textTransform: "uppercase", marginBottom: 4 }}>
+                        <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 4 }}>
                           index
                         </p>
                         {numberedSections.map((s) => (
@@ -703,7 +648,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                             />
                             <p
                               className="font-inclusive-sans font-normal"
-                              style={{ fontSize: 12, letterSpacing: "0.12px", color: activeSection === s.id ? "#212012" : "rgba(33,32,18,0.4)", transition: "color 0.2s ease" }}
+                              style={{ fontSize: 12, letterSpacing: "0.12px", color: activeSection === s.id ? colors.ink : withAlpha(colors.ink, 0.4), transition: "color 0.2s ease" }}
                             >
                               {s.num != null ? `${s.num}. ` : ""}{s.label}
                             </p>
@@ -713,14 +658,13 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                     </div>
 
                     {/* Right pane — the only thing that scrolls */}
-                    <div ref={rightPaneRef} className="cs-right-pane" style={{ flex: 1, minWidth: 0, maxWidth: 900, overflowY: "auto", overflowX: "hidden", scrollbarWidth: "none" }}>
-                      <style>{`.cs-right-pane::-webkit-scrollbar{display:none}`}</style>
+                    <div ref={rightPaneRef} style={{ flex: 1, minWidth: 0, maxWidth: 900, overflowY: "auto", overflowX: "hidden", scrollbarWidth: "none" }}>
 
                       <motion.div
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        style={{ backgroundColor: "#ffffff", borderRadius: 8, marginBottom: caseStudy.index === 0 ? 24 : 32, overflow: "hidden" }}
+                        style={{ backgroundColor: colors.white, borderRadius: 8, marginBottom: caseStudy.index === 0 ? 24 : 32, overflow: "hidden" }}
                       >
                         {caseStudy.index === 1 ? (
                           <CoverAnimation radius={8} />
@@ -756,7 +700,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                         viewport={{ once: true, margin: "-5%" }}
-                        style={{ marginBottom: 8, backgroundColor: "#212012", borderRadius: 16, padding: 24, display: "flex", gap: 20, alignItems: "center", scrollMarginTop: 88 }}
+                        style={{ marginBottom: 8, backgroundColor: colors.ink, borderRadius: 16, padding: 24, display: "flex", gap: 20, alignItems: "center", scrollMarginTop: 88 }}
                       >
                         <VideoFrame cs={caseStudy} />
                         <AudioPlayer color={caseStudy.color} slug={caseStudy.slug} />
@@ -770,7 +714,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         viewport={{ once: true }}
                         style={{ padding: "48px 0 60px" }}
                       >
-                        <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, letterSpacing: "0.5px", color: "rgba(33,32,18,0.4)", textTransform: "uppercase", marginBottom: 16 }}>
+                        <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 16 }}>
                           Read more
                         </p>
                         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>

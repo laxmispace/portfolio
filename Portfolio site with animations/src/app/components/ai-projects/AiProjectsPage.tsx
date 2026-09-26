@@ -3,14 +3,11 @@ import { motion } from "motion/react";
 import { AI_PROJECTS, isOpenableAiProject, type AiProject } from "@/app/data/aiProjects";
 import { AiProjectDrawer } from "./AiProjectDrawer";
 import { ANIMATION_DEMOS } from "./AnimationDemos";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
-// Palette (from the reference spec)
-const INK = "#212012";        // page background — the "dark green" the bubbles live in
-const OLIVE = "#625E37";      // the raised container that sits on top of the dark green
-const CREAM = "#E3D9CE";      // card surface
-const ORANGE = "#C67D39";     // the animated lab mark
-const BUBBLE_FILL = "rgba(227,217,206,0.10)";
-const BUBBLE_STROKE = "rgba(227,217,206,0.16)";
+// Bubble colours (sand at low opacity over the ink page)
+const BUBBLE_FILL = withAlpha(colors.sand, 0.1);
+const BUBBLE_STROKE = withAlpha(colors.sand, 0.16);
 
 function prefersReducedMotion() {
   return (
@@ -120,8 +117,8 @@ function BubbleField() {
             width: p.size,
             height: p.size,
             borderRadius: "50%",
-            background: "rgba(227,217,206,0.14)",
-            border: "1px solid rgba(227,217,206,0.20)",
+            background: withAlpha(colors.sand, 0.14),
+            border: `1px solid ${withAlpha(colors.sand, 0.2)}`,
             pointerEvents: "none",
           }}
         />
@@ -148,7 +145,7 @@ function LabMark() {
         width: 64,
         height: 64,
         borderRadius: 8,
-        background: ORANGE,
+        background: colors.orange,
         position: "relative",
         overflow: "hidden",
         flexShrink: 0,
@@ -194,7 +191,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "project", label: "Project Lab" },
 ];
 
-const GOO_ID = "aipf-tab-goo";
+const GOO_ID = "ai-projects-tab-goo";
 
 // The gooey filter itself — dropped once into the page. Blur + a hard alpha
 // contrast so overlapping opaque shapes fuse into a metaball / liquid blob.
@@ -299,8 +296,8 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
               fontSize: 16,
               lineHeight: "20px",
               textTransform: "uppercase",
-              color: CREAM,
-              background: on ? "transparent" : "rgba(227,217,206,0.1)",
+              color: colors.sand,
+              background: on ? "transparent" : withAlpha(colors.sand, 0.1),
               border: "none",
               borderRadius: 999,
               padding: "8px 12px",
@@ -323,7 +320,7 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
 const CARD_BASIS = "calc((100% - 32px) / 3)";
 
 const demoShell: React.CSSProperties = {
-  background: CREAM,
+  background: colors.sand,
   borderRadius: 12,
   minHeight: 480,
   padding: 24,
@@ -356,7 +353,7 @@ function AiProjectCard({
       whileHover={clickable ? { backgroundColor: "#ece3d8" } : undefined}
       onClick={onClick}
       style={{
-        background: CREAM,
+        background: colors.sand,
         borderRadius: 12,
         padding: "20px 24px",
         width: "100%",
@@ -369,11 +366,11 @@ function AiProjectCard({
     >
       <p
         className="font-caslon"
-        style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: INK }}
+        style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.ink }}
       >
         {project.title}
       </p>
-      <p className="font-inclusive-sans" style={{ fontSize: 14, lineHeight: "20px", color: "rgba(33,32,18,0.6)" }}>
+      <p className="font-inclusive-sans" style={{ fontSize: 14, lineHeight: "20px", color: withAlpha(colors.ink, 0.6) }}>
         {project.description}
       </p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -386,8 +383,8 @@ function AiProjectCard({
               letterSpacing: "0.3px",
               padding: "3px 10px",
               borderRadius: 999,
-              color: "rgba(33,32,18,0.55)",
-              background: "rgba(33,32,18,0.06)",
+              color: withAlpha(colors.ink, 0.55),
+              background: withAlpha(colors.ink, 0.06),
               whiteSpace: "nowrap",
             }}
           >
@@ -419,8 +416,8 @@ function AnimationDemoCard({
           borderRadius: 8,
           overflow: "hidden",
           marginBottom: 20,
-          background: "rgba(33,32,18,0.05)",
-          border: "1px solid rgba(33,32,18,0.06)",
+          background: withAlpha(colors.ink, 0.05),
+          border: `1px solid ${withAlpha(colors.ink, 0.06)}`,
         }}
       >
         <Component />
@@ -433,7 +430,7 @@ function AnimationDemoCard({
             fontSize: 10,
             letterSpacing: "1.4px",
             textTransform: "uppercase",
-            color: "rgba(33,32,18,0.4)",
+            color: withAlpha(colors.ink, 0.4),
           }}
         >
           {number} · animation
@@ -442,11 +439,11 @@ function AnimationDemoCard({
 
       <p
         className="font-caslon"
-        style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: INK, marginBottom: 8 }}
+        style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.ink, marginBottom: 8 }}
       >
         {title}
       </p>
-      <p className="font-inclusive-sans" style={{ fontSize: 14, lineHeight: "20px", color: "rgba(33,32,18,0.6)" }}>
+      <p className="font-inclusive-sans" style={{ fontSize: 14, lineHeight: "20px", color: withAlpha(colors.ink, 0.6) }}>
         {tagline}
       </p>
     </motion.div>
@@ -476,8 +473,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
   const projectView = tab === "project";
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", background: INK, overflowX: "hidden" }}>
-      <style>{`.aipf-scroll::-webkit-scrollbar{display:none}`}</style>
+    <div style={{ position: "relative", minHeight: "100vh", background: colors.ink, overflowX: "hidden" }}>
 
       <GooDefs />
       <BubbleField />
@@ -498,11 +494,11 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
             <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
               <p
                 className="font-caslon"
-                style={{ fontStyle: "normal", fontSize: 24, lineHeight: "28px", fontWeight: 600, color: CREAM }}
+                style={{ fontStyle: "normal", fontSize: 24, lineHeight: "28px", fontWeight: 600, color: colors.sand }}
               >
                 This is my <span style={{ fontStyle: "italic" }}>personal lab</span>
               </p>
-              <p className="font-inclusive-sans" style={{ fontSize: 16, lineHeight: "20px", color: CREAM }}>
+              <p className="font-inclusive-sans" style={{ fontSize: 16, lineHeight: "20px", color: colors.sand }}>
                 where risk is zero and satisfaction is total
               </p>
             </div>
@@ -515,12 +511,11 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
       {/* The raised olive container — full-bleed, painted on top of the bubble layer.
           Projects fill it edge to edge; the animation grid keeps a 36px inset. */}
       <main
-        className="aipf-scroll"
         style={{
           position: "relative",
           zIndex: 1,
           marginTop: 40,
-          background: OLIVE,
+          background: colors.oliveDeep,
           borderRadius: "24px 24px 0 0",
           overflow: "hidden",
           padding: projectView ? 0 : 36,

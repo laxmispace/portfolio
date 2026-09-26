@@ -23,6 +23,7 @@ import stripPhoto5 from "@/assets/stack-images/optimized/20260425-202946-1.jpg";
 import stripPhoto6 from "@/assets/stack-images/optimized/20260803-120723-1.jpg";
 import stripPhoto7 from "@/assets/stack-images/optimized/img-20250816-120031-492-1.jpg";
 import stripPhoto8 from "@/assets/stack-images/optimized/img-20260321-190702-856-1.jpg";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 // ── Work experience data ───────────────────────────────────────────────────────
 
@@ -150,9 +151,9 @@ function BooksPanel({ activeIdx }: { activeIdx: number }) {
         );
       })}
       <div style={{ position: "absolute", bottom: 9, left: 64, display: "flex", alignItems: "center", gap: 4 }}>
-        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: "#735933" }}>{activeIdx + 1}</span>
-        <span style={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: "rgba(115,89,51,0.3)" }} />
-        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: "rgba(115,89,51,0.5)" }}>{total}</span>
+        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: colors.brown }}>{activeIdx + 1}</span>
+        <span style={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: withAlpha(colors.brown, 0.3) }} />
+        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: withAlpha(colors.brown, 0.5) }}>{total}</span>
       </div>
     </div>
   );
@@ -209,9 +210,9 @@ function MoviesPanel({ activeIdx }: { activeIdx: number }) {
       <MovieImage key={`center-${activeIdx}`} src={MOVIES[activeIdx].poster} alt={MOVIES[activeIdx].title} slot="center" />
       <MovieImage key={`right-${nextIdx}`} src={MOVIES[nextIdx].poster} alt={MOVIES[nextIdx].title} slot="right" />
       <div style={{ position: "absolute", bottom: 8, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 4 }}>
-        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: "#735933" }}>{activeIdx + 1}</span>
-        <span style={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: "rgba(115,89,51,0.3)" }} />
-        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: "rgba(115,89,51,0.5)" }}>{total}</span>
+        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: colors.brown }}>{activeIdx + 1}</span>
+        <span style={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: withAlpha(colors.brown, 0.3) }} />
+        <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: withAlpha(colors.brown, 0.5) }}>{total}</span>
       </div>
     </div>
   );
@@ -236,8 +237,8 @@ function BooksAndMoviesCard({ isMobile }: { isMobile: boolean }) {
   const isBooks = tab === "books";
   const textRef = useRef<HTMLDivElement>(null);
 
-  const bg = isBooks ? "#ebc7ce" : "#e3d9ce";
-  const arrowFill = isBooks ? "#D07C8D" : "#C67D39";
+  const bg = isBooks ? colors.pinkLight : colors.sand;
+  const arrowFill = isBooks ? "#D07C8D" : colors.orange;
   const currentBook = BOOKS[bookIdx];
   const currentMovie = MOVIES[movieIdx];
 
@@ -264,14 +265,14 @@ function BooksAndMoviesCard({ isMobile }: { isMobile: boolean }) {
           <button
             onClick={() => setTab("books")}
             className="font-caslon"
-            style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: isBooks ? "italic" : "normal", textDecoration: isBooks ? "underline" : "none", background: "none", border: "none", padding: 0, cursor: "pointer", color: "#212012" }}
+            style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: isBooks ? "italic" : "normal", textDecoration: isBooks ? "underline" : "none", background: "none", border: "none", padding: 0, cursor: "pointer", color: colors.ink }}
           >
             Books
           </button>
           <button
             onClick={() => setTab("movies")}
             className="font-caslon"
-            style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: !isBooks ? "italic" : "normal", textDecoration: !isBooks ? "underline" : "none", background: "none", border: "none", padding: 0, cursor: "pointer", color: "#212012" }}
+            style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: !isBooks ? "italic" : "normal", textDecoration: !isBooks ? "underline" : "none", background: "none", border: "none", padding: 0, cursor: "pointer", color: colors.ink }}
           >
             Movies
           </button>
@@ -280,12 +281,12 @@ function BooksAndMoviesCard({ isMobile }: { isMobile: boolean }) {
         <div style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
           <div ref={textRef} style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
             {isBooks && currentBook.reading && (
-              <span style={{ alignSelf: "flex-start", backgroundColor: "#dda1ae", borderRadius: 20, padding: "2px 8px", marginBottom: 2 }}>
-                <span className="font-inclusive-sans font-semibold" style={{ fontSize: 9, letterSpacing: "0.5px", textTransform: "uppercase", color: "#212012" }}>reading now</span>
+              <span style={{ alignSelf: "flex-start", backgroundColor: colors.pink, borderRadius: 20, padding: "2px 8px", marginBottom: 2 }}>
+                <span className="font-inclusive-sans font-semibold" style={{ fontSize: 9, letterSpacing: "0.5px", textTransform: "uppercase", color: colors.ink }}>reading now</span>
               </span>
             )}
-            <p className="font-caslon not-italic" style={{ fontSize: 16, lineHeight: "20px", fontWeight: 600, color: "#212012" }}>{title}</p>
-            <p className="font-inclusive-sans uppercase" style={{ fontSize: 12, lineHeight: "16px", color: "rgba(33,32,18,0.5)" }}>{subtitle}</p>
+            <p className="font-caslon not-italic" style={{ fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>{title}</p>
+            <p className="font-inclusive-sans uppercase" style={{ fontSize: 12, lineHeight: "16px", color: withAlpha(colors.ink, 0.5) }}>{subtitle}</p>
           </div>
           <NextArrowButton onClick={nextItem} fill={arrowFill} />
         </div>
@@ -353,14 +354,14 @@ function ResourcesCard({ isMobile }: { isMobile: boolean }) {
       <ResourcesPanel activeIdx={idx} />
 
       <div style={{ position: "absolute", left: 170, top: 16, right: isMobile ? 12 : 16, height: 156, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-        <p className="font-caslon" style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: "italic", color: "#212012" }}>
+        <p className="font-caslon" style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: "italic", color: colors.ink }}>
           worth your time
         </p>
 
         <div style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
           <div ref={textRef} style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-            <p className="font-caslon not-italic" style={{ fontSize: 16, lineHeight: "20px", fontWeight: 600, color: "#212012" }}>{current.title}</p>
-            <p className="font-inclusive-sans uppercase" style={{ fontSize: 12, lineHeight: "16px", color: "rgba(33,32,18,0.5)" }}>{current.kind}</p>
+            <p className="font-caslon not-italic" style={{ fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>{current.title}</p>
+            <p className="font-inclusive-sans uppercase" style={{ fontSize: 12, lineHeight: "16px", color: withAlpha(colors.ink, 0.5) }}>{current.kind}</p>
           </div>
           <NextArrowButton onClick={() => setIdx((i) => (i + 1) % RESOURCES.length)} fill="#8a8a5f" />
         </div>
@@ -402,23 +403,23 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
     <div style={{ textAlign: "center", padding: isMobile ? "8px 20px" : 0 }}>
       {status === "no-playback" ? (
         <>
-          <p className="font-inclusive-sans" style={{ fontSize: 13, color: "#625e37" }}>Nothing playing right now</p>
-          <p className="font-inclusive-sans" style={{ fontSize: 11, color: "rgba(33,32,18,0.5)", marginTop: 4 }}>Start a track on Spotify, then check back</p>
-          <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: "rgba(33,32,18,0.4)", background: "none", border: "none", cursor: "pointer", marginTop: 10, textDecoration: "underline" }}>
+          <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>Nothing playing right now</p>
+          <p className="font-inclusive-sans" style={{ fontSize: 11, color: withAlpha(colors.ink, 0.5), marginTop: 4 }}>Start a track on Spotify, then check back</p>
+          <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.4), background: "none", border: "none", cursor: "pointer", marginTop: 10, textDecoration: "underline" }}>
             disconnect spotify
           </button>
         </>
       ) : status === "connecting" ? (
-        <p className="font-inclusive-sans" style={{ fontSize: 13, color: "#625e37" }}>Connecting…</p>
+        <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>Connecting…</p>
       ) : (
         <>
-          <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", marginBottom: 12 }}>
+          <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, marginBottom: 12 }}>
             {status === "error" ? errorMessage : "See what I'm actually listening to"}
           </p>
           <button
             onClick={connect}
             className="font-inclusive-sans font-medium"
-            style={{ fontSize: 13, color: "#fff", backgroundColor: "#1db954", border: "none", borderRadius: 20, padding: "10px 20px", cursor: "pointer" }}
+            style={{ fontSize: 13, color: colors.white, backgroundColor: "#1db954", border: "none", borderRadius: 20, padding: "10px 20px", cursor: "pointer" }}
           >
             Connect Spotify
           </button>
@@ -430,7 +431,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
   if (isMobile) {
     // Mobile: slim horizontal bar, album art peeking from the left edge.
     return (
-      <div style={{ position: "relative", width: "100%", height: 120, borderRadius: 16, overflow: "hidden", backgroundColor: "#e3d9ce", border: "1px solid #d1c0ae" }}>
+      <div style={{ position: "relative", width: "100%", height: 120, borderRadius: 16, overflow: "hidden", backgroundColor: colors.sand, border: `1px solid ${colors.sandLine}` }}>
         {status === "connected" && track ? (
           <>
             <div style={{ position: "absolute", width: 160, height: 160, left: -81, top: "calc(50% - 80px)" }}>
@@ -456,26 +457,26 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
             <div style={{ position: "absolute", left: 103, right: 16, top: "50%", transform: "translateY(-50%)", display: "flex", flexDirection: "column", gap: 24 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p className="font-inclusive-sans" style={{ fontSize: 10, lineHeight: "12px", letterSpacing: "0.02em", textTransform: "uppercase", color: "#625e37", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <p className="font-inclusive-sans" style={{ fontSize: 10, lineHeight: "12px", letterSpacing: "0.02em", textTransform: "uppercase", color: colors.oliveDeep, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {track.artist}
                   </p>
-                  <p className="font-caslon not-italic" style={{ fontSize: 14, lineHeight: "18px", letterSpacing: "-0.02em", fontWeight: 600, color: "#212012", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <p className="font-caslon not-italic" style={{ fontSize: 14, lineHeight: "18px", letterSpacing: "-0.02em", fontWeight: 600, color: colors.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {track.name}
                   </p>
                 </div>
                 <button
                   onClick={togglePlay}
                   aria-label={track.isPlaying ? "Pause" : "Play"}
-                  style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(98,94,55,0.2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ flexShrink: 0, width: 32, height: 32, borderRadius: 16, backgroundColor: withAlpha(colors.oliveDeep, 0.2), border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
                 >
                   {track.isPlaying ? (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <rect x="4" y="3" width="3" height="10" rx="1" fill="#625E37" />
-                      <rect x="9" y="3" width="3" height="10" rx="1" fill="#625E37" />
+                      <rect x="4" y="3" width="3" height="10" rx="1" fill={colors.oliveDeep} />
+                      <rect x="9" y="3" width="3" height="10" rx="1" fill={colors.oliveDeep} />
                     </svg>
                   ) : (
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M5 3L13 8L5 13V3Z" fill="#625E37" />
+                      <path d="M5 3L13 8L5 13V3Z" fill={colors.oliveDeep} />
                     </svg>
                   )}
                 </button>
@@ -483,20 +484,20 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <div onClick={handleSeek} style={{ position: "relative", height: 6, display: "flex", alignItems: "center", cursor: "pointer" }}>
-                  <div style={{ position: "absolute", width: "100%", height: 2, backgroundColor: "#c3be6f", borderRadius: 2 }} />
-                  <div style={{ position: "absolute", left: 0, height: 2, borderRadius: 2, backgroundColor: "#c67d39", width: `${Math.max(2, (track.progressMs / track.durationMs) * 100)}%` }} />
+                  <div style={{ position: "absolute", width: "100%", height: 2, backgroundColor: colors.olive, borderRadius: 2 }} />
+                  <div style={{ position: "absolute", left: 0, height: 2, borderRadius: 2, backgroundColor: colors.orange, width: `${Math.max(2, (track.progressMs / track.durationMs) * 100)}%` }} />
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <p className="font-inclusive-sans" style={{ fontSize: 8, lineHeight: "10px", color: "#625e37" }}>
+                  <p className="font-inclusive-sans" style={{ fontSize: 8, lineHeight: "10px", color: colors.oliveDeep }}>
                     {formatTime(track.progressMs)} / {formatTime(track.durationMs)}
                   </p>
-                  <Volume2 size={16} color="#625e37" />
+                  <Volume2 size={16} color={colors.oliveDeep} />
                 </div>
               </div>
             </div>
 
             {errorMessage && (
-              <p className="font-inclusive-sans" style={{ position: "absolute", bottom: 4, left: 103, fontSize: 9, color: "#c67d39" }}>{errorMessage}</p>
+              <p className="font-inclusive-sans" style={{ position: "absolute", bottom: 4, left: 103, fontSize: 9, color: colors.orange }}>{errorMessage}</p>
             )}
           </>
         ) : (
@@ -513,7 +514,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
     <div
       style={{
         position: "relative", borderRadius: 16, overflow: "hidden",
-        backgroundColor: "#e3d9ce", border: "1px solid #d1c0ae",
+        backgroundColor: colors.sand, border: `1px solid ${colors.sandLine}`,
         height: 400, display: "flex", flexDirection: "column", justifyContent: "flex-end",
       }}
     >
@@ -545,10 +546,10 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
         {status === "connected" && track ? (
           <>
             <div style={{ textAlign: "center" }}>
-              <p className="font-inclusive-sans" style={{ fontSize: 12, letterSpacing: "0.02em", textTransform: "uppercase", color: "#625e37" }}>
+              <p className="font-inclusive-sans" style={{ fontSize: 12, letterSpacing: "0.02em", textTransform: "uppercase", color: colors.oliveDeep }}>
                 {track.artist}
               </p>
-              <p className="font-caslon not-italic" style={{ fontSize: 24, fontWeight: 600, color: "#212012", marginTop: 4 }}>
+              <p className="font-caslon not-italic" style={{ fontSize: 24, fontWeight: 600, color: colors.ink, marginTop: 4 }}>
                 {track.name}
               </p>
             </div>
@@ -556,7 +557,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
               <button
                 onClick={togglePlay}
                 aria-label={track.isPlaying ? "Pause" : "Play"}
-                style={{ flexShrink: 0, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", cursor: "pointer", color: "#625e37" }}
+                style={{ flexShrink: 0, width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", cursor: "pointer", color: colors.oliveDeep }}
               >
                 {track.isPlaying ? (
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -570,22 +571,22 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
                 )}
               </button>
               <div onClick={handleSeek} style={{ position: "relative", flex: 1, height: 10, display: "flex", alignItems: "center", cursor: "pointer" }}>
-                <div style={{ position: "absolute", width: "100%", height: 2, backgroundColor: "#c3be6f", borderRadius: 2 }} />
+                <div style={{ position: "absolute", width: "100%", height: 2, backgroundColor: colors.olive, borderRadius: 2 }} />
                 <div
                   style={{
-                    position: "absolute", left: 0, height: 2, borderRadius: 2, backgroundColor: "#c67d39",
+                    position: "absolute", left: 0, height: 2, borderRadius: 2, backgroundColor: colors.orange,
                     width: `${Math.max(2, (track.progressMs / track.durationMs) * 100)}%`,
                   }}
                 />
               </div>
-              <p className="font-inclusive-sans font-medium" style={{ fontSize: 12, color: "#212012", whiteSpace: "nowrap", flexShrink: 0 }}>
-                {formatTime(track.progressMs)} <span style={{ color: "rgba(33,32,18,0.5)" }}>/ {formatTime(track.durationMs)}</span>
+              <p className="font-inclusive-sans font-medium" style={{ fontSize: 12, color: colors.ink, whiteSpace: "nowrap", flexShrink: 0 }}>
+                {formatTime(track.progressMs)} <span style={{ color: withAlpha(colors.ink, 0.5) }}>/ {formatTime(track.durationMs)}</span>
               </p>
             </div>
             {errorMessage && (
-              <p className="font-inclusive-sans" style={{ fontSize: 11, color: "#c67d39", textAlign: "center", marginTop: -12 }}>{errorMessage}</p>
+              <p className="font-inclusive-sans" style={{ fontSize: 11, color: colors.orange, textAlign: "center", marginTop: -12 }}>{errorMessage}</p>
             )}
-            <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: "rgba(33,32,18,0.4)", background: "none", border: "none", cursor: "pointer", marginTop: -12, textDecoration: "underline" }}>
+            <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.4), background: "none", border: "none", cursor: "pointer", marginTop: -12, textDecoration: "underline" }}>
               disconnect spotify
             </button>
           </>
@@ -615,8 +616,8 @@ function YearPill({ period }: { period: string }) {
       className="font-inclusive-sans font-medium"
       style={{
         display: "inline-flex", alignItems: "center", whiteSpace: "nowrap",
-        border: "1px solid rgba(33,32,18,0.22)", borderRadius: 20,
-        padding: "3px 10px", fontSize: 11, letterSpacing: "0.2px", color: "#212012",
+        border: `1px solid ${withAlpha(colors.ink, 0.22)}`, borderRadius: 20,
+        padding: "3px 10px", fontSize: 11, letterSpacing: "0.2px", color: colors.ink,
       }}
     >
       {yearRange(period)}
@@ -629,14 +630,14 @@ function ExperienceRow({ exp, index, isMobile }: { exp: typeof EXPERIENCE[0]; in
   const bulletsBlock = (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {exp.bullets.map((b, i) => (
-        <p key={i} className="font-inclusive-sans" style={{ fontSize: isMobile ? 13 : 13.5, lineHeight: isMobile ? "19px" : "18px", letterSpacing: "-0.02em", color: "#212012", opacity: 0.85 }}>
+        <p key={i} className="font-inclusive-sans" style={{ fontSize: isMobile ? 13 : 13.5, lineHeight: isMobile ? "19px" : "18px", letterSpacing: "-0.02em", color: colors.ink, opacity: 0.85 }}>
           {b}
         </p>
       ))}
       {exp.skills.length > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
           {exp.skills.map((s) => (
-            <span key={s} className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: "#625e37", backgroundColor: "rgba(98,94,55,0.1)", padding: "3px 10px", borderRadius: 20 }}>
+            <span key={s} className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: colors.oliveDeep, backgroundColor: withAlpha(colors.oliveDeep, 0.1), padding: "3px 10px", borderRadius: 20 }}>
               {s}
             </span>
           ))}
@@ -647,10 +648,10 @@ function ExperienceRow({ exp, index, isMobile }: { exp: typeof EXPERIENCE[0]; in
 
   const recommendationBlock = exp.recommendation ? (
     <div>
-      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 10, letterSpacing: "0.4px", color: "#c67d39" }}>
+      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 10, letterSpacing: "0.4px", color: colors.orange }}>
         Recommendation
       </p>
-      <p className="font-caslon not-italic" style={{ fontSize: 15, color: "#212012", marginTop: 4 }}>
+      <p className="font-caslon not-italic" style={{ fontSize: 15, color: colors.ink, marginTop: 4 }}>
         {exp.recommendation.name}, {exp.recommendation.title}
       </p>
     </div>
@@ -668,8 +669,8 @@ function ExperienceRow({ exp, index, isMobile }: { exp: typeof EXPERIENCE[0]; in
           <>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
               <div>
-                <p className="font-inclusive-sans font-semibold" style={{ fontSize: 16, color: "#625e37" }}>{exp.role}</p>
-                <p className="font-inclusive-sans" style={{ fontSize: 13, color: "#625e37", marginTop: 2 }}>{exp.company} · {exp.location}</p>
+                <p className="font-inclusive-sans font-semibold" style={{ fontSize: 16, color: colors.oliveDeep }}>{exp.role}</p>
+                <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep, marginTop: 2 }}>{exp.company} · {exp.location}</p>
               </div>
               <div style={{ flexShrink: 0 }}><YearPill period={exp.period} /></div>
             </div>
@@ -681,8 +682,8 @@ function ExperienceRow({ exp, index, isMobile }: { exp: typeof EXPERIENCE[0]; in
             {/* Left column fills the row height so the recommendation pins to its bottom edge */}
             <div style={{ width: 270, flexShrink: 0, display: "flex", flexDirection: "column" }}>
               <div>
-                <p className="font-inclusive-sans font-semibold" style={{ fontSize: 16, color: "#625e37" }}>{exp.role}</p>
-                <p className="font-inclusive-sans" style={{ fontSize: 14, color: "#625e37", marginTop: 2 }}>{exp.company} · {exp.location}</p>
+                <p className="font-inclusive-sans font-semibold" style={{ fontSize: 16, color: colors.oliveDeep }}>{exp.role}</p>
+                <p className="font-inclusive-sans" style={{ fontSize: 14, color: colors.oliveDeep, marginTop: 2 }}>{exp.company} · {exp.location}</p>
                 <div style={{ marginTop: 10 }}><YearPill period={exp.period} /></div>
               </div>
               {recommendationBlock && (
@@ -693,7 +694,7 @@ function ExperienceRow({ exp, index, isMobile }: { exp: typeof EXPERIENCE[0]; in
           </div>
         )}
       </div>
-      {index < EXPERIENCE.length - 1 && <div style={{ height: 1, backgroundColor: "#d1c0ae" }} />}
+      {index < EXPERIENCE.length - 1 && <div style={{ height: 1, backgroundColor: colors.sandLine }} />}
     </motion.div>
   );
 }
@@ -706,14 +707,14 @@ function AiProjectsRow({ isMobile, onViewAll }: { isMobile: boolean; onViewAll?:
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: isMobile ? 12 : 16 }}>
-        <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 16, letterSpacing: "0.02em", color: "#625e37" }}>
+        <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 16, letterSpacing: "0.02em", color: colors.oliveDeep }}>
           AI projects I've been tinkering with...
         </p>
         {onViewAll && (
           <button
             onClick={onViewAll}
             className="font-inclusive-sans font-medium"
-            style={{ fontSize: 12, color: "#c67d39", textDecoration: "underline", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}
+            style={{ fontSize: 12, color: colors.orange, textDecoration: "underline", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}
           >
             View all
           </button>
@@ -738,7 +739,7 @@ function AiProjectsRow({ isMobile, onViewAll }: { isMobile: boolean; onViewAll?:
                     ? { aspectRatio: "353 / 240", borderRadius: 8 }
                     : { aspectRatio: "353 / 240", borderRadius: 8 }),
                   border: `1px solid ${p.accent}33`,
-                  backgroundColor: "rgba(33,32,18,0.04)",
+                  backgroundColor: withAlpha(colors.ink, 0.04),
                   position: "relative",
                   overflow: "hidden",
                   marginBottom: 12,
@@ -750,10 +751,10 @@ function AiProjectsRow({ isMobile, onViewAll }: { isMobile: boolean; onViewAll?:
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: p.accent, opacity: 0.5 }} />
                 )}
               </div>
-              <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 16 : 18, lineHeight: isMobile ? "21px" : "22px", fontWeight: 600, color: "#212012" }}>
+              <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 16 : 18, lineHeight: isMobile ? "21px" : "22px", fontWeight: 600, color: colors.ink }}>
                 {p.title}
               </p>
-              <p className="font-inclusive-sans" style={{ fontSize: 13, lineHeight: "18px", color: "#212012", opacity: 0.6, marginTop: 4 }}>
+              <p className="font-inclusive-sans" style={{ fontSize: 13, lineHeight: "18px", color: colors.ink, opacity: 0.6, marginTop: 4 }}>
                 {p.description}
               </p>
             </motion.div>
@@ -907,7 +908,7 @@ function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
   return (
     <div
       style={{
-        background: "linear-gradient(180deg, #EBC7CE 0%, #E3D9CE 66.83%)",
+        background: `linear-gradient(180deg, ${colors.pinkLight} 0%, ${colors.sand} 66.83%)`,
         padding: `${isMobile ? 24 : 28}px 0 ${isMobile ? 28 : 36}px`,
         overflow: "hidden",
       }}
@@ -915,14 +916,14 @@ function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
       {/* Centred heading + short vertical rule */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: `0 ${isMobile ? 18 : 36}px`, marginBottom: isMobile ? 22 : 30 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-          <p className="font-caslon not-italic" style={{ fontSize: 24, lineHeight: "28px", textAlign: "center", color: "#212012", fontWeight: 600 }}>
+          <p className="font-caslon not-italic" style={{ fontSize: 24, lineHeight: "28px", textAlign: "center", color: colors.ink, fontWeight: 600 }}>
             Outside of work
           </p>
-          <p className="font-caslon" style={{ fontSize: 24, lineHeight: "28px", fontStyle: "italic", textAlign: "center", color: "rgba(33,32,18,0.5)" }}>
+          <p className="font-caslon" style={{ fontSize: 24, lineHeight: "28px", fontStyle: "italic", textAlign: "center", color: withAlpha(colors.ink, 0.5) }}>
             a few frames
           </p>
         </div>
-        <span style={{ width: 2, height: 36, backgroundColor: "#212012" }} />
+        <span style={{ width: 2, height: 36, backgroundColor: colors.ink }} />
       </div>
 
       {/* Looping film-strip track — fixed height, deliberately wider than the drawer */}
@@ -953,10 +954,10 @@ function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
               ref={(el) => { frameRefs.current[i] = el; }}
               style={{
                 flex: "0 0 auto",
-                backgroundColor: "#FFFFFF",
+                backgroundColor: colors.white,
                 borderRadius: 4,
                 overflow: "hidden",
-                boxShadow: "0 4px 14px rgba(33,32,18,0.14)",
+                boxShadow: `0 4px 14px ${withAlpha(colors.ink, 0.14)}`,
                 willChange: "height, opacity",
               }}
             >
@@ -1009,7 +1010,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={onClose}
-            style={{ position: "fixed", inset: 0, zIndex: 499, backgroundColor: "rgba(33,32,18,0.35)", backdropFilter: "blur(4px)" }}
+            style={{ position: "fixed", inset: 0, zIndex: 499, backgroundColor: withAlpha(colors.ink, 0.35), backdropFilter: "blur(4px)" }}
           />
 
           {/* Drawer */}
@@ -1023,7 +1024,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
               position: "fixed", right: 0, top: 0, bottom: 0,
               width: drawerWidth, zIndex: 500,
               borderRadius: drawerBorderRadius,
-              backgroundColor: "#c3be6f",
+              backgroundColor: colors.olive,
               overflow: "hidden",
               display: "flex",
               flexDirection: "column",
@@ -1035,21 +1036,21 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
               style={{
                 position: "absolute", top: isMobile ? 14 : 20, right: isMobile ? 14 : 20, zIndex: 20,
                 width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, borderRadius: "50%",
-                backgroundColor: "rgba(255,255,255,0.45)", border: "none",
+                backgroundColor: withAlpha(colors.white, 0.45), border: "none",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                 transition: "background 0.15s",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.7)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.45)"; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = withAlpha(colors.white, 0.7); }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = withAlpha(colors.white, 0.45); }}
             >
-              <X size={15} color="#212012" />
+              <X size={15} color={colors.ink} />
             </button>
 
             {/* Scrollable content */}
             <div style={{ flex: 1, overflowY: "auto", scrollbarWidth: "none" }}>
 
               {/* ── Section A: olive hero ── */}
-              <div style={{ position: "relative", backgroundColor: "#c3be6f" }}>
+              <div style={{ position: "relative", backgroundColor: colors.olive }}>
                 <div
                   style={{
                     position: "absolute", top: 40, left: 0, right: 0, bottom: 0,
@@ -1058,7 +1059,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                   }}
                 />
                 <div style={{ position: "relative", zIndex: 1, padding: `${isMobile ? 20 : 36}px ${contentPad}px 0` }}>
-                <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 26 : 36, lineHeight: isMobile ? "32px" : "47px", letterSpacing: "-0.02em", color: "#212012", fontWeight: 600, marginBottom: isMobile ? 20 : 28 }}>
+                <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 26 : 36, lineHeight: isMobile ? "32px" : "47px", letterSpacing: "-0.02em", color: colors.ink, fontWeight: 600, marginBottom: isMobile ? 20 : 28 }}>
                   About me
                 </p>
 
@@ -1107,8 +1108,8 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
               </div>
 
               {/* ── Section B: tan work-experience shelf ── */}
-              <div style={{ backgroundColor: "#e3d9ce", borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px` }}>
-                <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 32, letterSpacing: "-0.02em", color: "#212012", fontWeight: 600, marginBottom: isMobile ? 8 : 12 }}>
+              <div style={{ backgroundColor: colors.sand, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px` }}>
+                <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 32, letterSpacing: "-0.02em", color: colors.ink, fontWeight: 600, marginBottom: isMobile ? 8 : 12 }}>
                   Work experience
                 </p>
                 <div style={{ minWidth: 0 }}>
@@ -1117,7 +1118,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                   ))}
                 </div>
 
-                <div style={{ height: 1, backgroundColor: "#d1c0ae", margin: `${isMobile ? 16 : 20}px 0` }} />
+                <div style={{ height: 1, backgroundColor: colors.sandLine, margin: `${isMobile ? 16 : 20}px 0` }} />
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: isMobile ? "space-between" : "flex-start", gap: isMobile ? 12 : 28 }}>
                   {[
@@ -1133,7 +1134,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                       whileHover={{ y: -1 }}
                       transition={{ duration: 0.15 }}
                       className="font-inclusive-sans font-medium"
-                      style={{ fontSize: 14, color: "#c67d39", textDecoration: "none" }}
+                      style={{ fontSize: 14, color: colors.orange, textDecoration: "none" }}
                     >
                       {label}
                     </motion.a>
@@ -1145,9 +1146,9 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
               <PhotoFrameSection isMobile={isMobile} />
 
               {/* ── Section B3: things outside work — books/films, music, resources ── */}
-              <div style={{ backgroundColor: "#e3d9ce" }}>
-                <div style={{ backgroundColor: "#c3be6f", borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
-                <p className="font-inclusive-sans" style={{ fontSize: isMobile ? 14 : 18, lineHeight: isMobile ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: "#212012", maxWidth: 560, margin: "0 auto", marginBottom: isMobile ? 24 : 32 }}>
+              <div style={{ backgroundColor: colors.sand }}>
+                <div style={{ backgroundColor: colors.olive, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
+                <p className="font-inclusive-sans" style={{ fontSize: isMobile ? 14 : 18, lineHeight: isMobile ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: colors.ink, maxWidth: 560, margin: "0 auto", marginBottom: isMobile ? 24 : 32 }}>
                     A small window into the things I return to outside of work — the books I read, the films I rewatch, and the songs on repeat.
                   </p>
 

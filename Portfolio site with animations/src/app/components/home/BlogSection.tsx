@@ -5,6 +5,7 @@ import { BLOG_POSTS, BLOG_CATEGORIES, type BlogPost, type BlogCategory } from "@
 import { BlogEditorialList, BlogStickyBoard } from "@/app/components/blog/BlogLayouts";
 
 import { BlogPostDrawer } from "@/app/components/blog/BlogPostDrawer";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 
 // Blog post slug in the URL, e.g. /portfolio/blog/sukoon
@@ -18,11 +19,11 @@ const slugFromPath = (pathname: string) =>
 function OptionLabel({ letter, name }: { letter: string; name: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 8px" }}>
-      <span className="font-inclusive-sans font-semibold" style={{ fontSize: 10, letterSpacing: "0.5px", textTransform: "uppercase", color: "#212012", backgroundColor: "#dda1ae", borderRadius: 20, padding: "3px 9px" }}>
+      <span className="font-inclusive-sans font-semibold" style={{ fontSize: 10, letterSpacing: "0.5px", textTransform: "uppercase", color: colors.ink, backgroundColor: colors.pink, borderRadius: 20, padding: "3px 9px" }}>
         option {letter}
       </span>
-      <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: "#625e37" }}>{name}</p>
-      <div style={{ flex: 1, height: 1, backgroundColor: "rgba(33,32,18,0.1)" }} />
+      <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: colors.oliveDeep }}>{name}</p>
+      <div style={{ flex: 1, height: 1, backgroundColor: withAlpha(colors.ink, 0.1) }} />
     </div>
   );
 }
@@ -89,10 +90,10 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
 
       <div style={{ padding: isMobile ? "28px 16px 60px" : "40px 40px 80px" }}>
         <div style={{ marginBottom: 28 }}>
-          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: "#625e37", marginBottom: 8 }}>
+          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: colors.oliveDeep, marginBottom: 8 }}>
             i write, sometimes
           </p>
-          <p className="font-caslon not-italic" style={{ fontSize: 36, lineHeight: "44px", color: "#212012", fontWeight: 600 }}>
+          <p className="font-caslon not-italic" style={{ fontSize: 36, lineHeight: "44px", color: colors.ink, fontWeight: 600 }}>
             ideas that probably<br />should stay in my notes app
           </p>
         </div>
@@ -100,8 +101,8 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
         {/* Pink chip filter bar */}
         <div
           style={{
-            backgroundColor: "rgba(221,161,174,0.14)",
-            border: "1px solid rgba(221,161,174,0.3)",
+            backgroundColor: withAlpha(colors.pink, 0.14),
+            border: `1px solid ${withAlpha(colors.pink, 0.3)}`,
             borderRadius: 14,
             padding: "10px 16px",
             display: "flex",
@@ -119,13 +120,13 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
               key={chip}
               onClick={() => setActiveChip(activeChip === chip ? null : chip)}
               style={{
-                background: activeChip === chip ? "#dda1ae" : "rgba(221,161,174,0.2)",
-                border: `1px solid ${activeChip === chip ? "#dda1ae" : "rgba(221,161,174,0.38)"}`,
+                background: activeChip === chip ? colors.pink : withAlpha(colors.pink, 0.2),
+                border: `1px solid ${activeChip === chip ? colors.pink : withAlpha(colors.pink, 0.38)}`,
                 borderRadius: 20, padding: "5px 12px", cursor: "pointer",
                 transition: "background 0.15s, border-color 0.15s",
               }}
             >
-              <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: activeChip === chip ? "#212012" : "#a06070" }}>
+              <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: activeChip === chip ? colors.ink : "#a06070" }}>
                 {chip}
               </p>
             </button>
@@ -146,7 +147,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
         </div>
 
         {BLOG_POSTS.length > 0 && (
-          <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", opacity: 0.4, marginBottom: 4 }}>
+          <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.4, marginBottom: 4 }}>
             {filtered.length} essay{filtered.length !== 1 ? "s" : ""}{activeChip ? ` in "${activeChip}"` : " · opinions on design, systems, and fintech"}
           </p>
         )}
@@ -159,10 +160,10 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             style={{ paddingTop: 48, paddingBottom: 32, textAlign: "center" }}
           >
-            <p className="font-caslon not-italic" style={{ fontSize: 28, color: "#212012", fontWeight: 600, marginBottom: 8, lineHeight: "36px" }}>
+            <p className="font-caslon not-italic" style={{ fontSize: 28, color: colors.ink, fontWeight: 600, marginBottom: 8, lineHeight: "36px" }}>
               <em>working on something worth reading</em>
             </p>
-            <p className="font-inclusive-sans" style={{ fontSize: 13, color: "#625e37", opacity: 0.6, lineHeight: "20px" }}>
+            <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep, opacity: 0.6, lineHeight: "20px" }}>
               check back soon - the drafts are living their best life in my notes app
             </p>
             <motion.div

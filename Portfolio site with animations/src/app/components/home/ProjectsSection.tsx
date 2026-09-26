@@ -5,6 +5,7 @@ import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { CaseStudyDrawer, CASE_STUDY_DATA, type CaseStudyInfo } from "@/app/components/case-study/CaseStudyDrawer";
 import { ThumbnailPlaceholder } from "@/app/components/case-study/CaseStudyPrimitives";
 import imgIciciLogo from "@/assets/case-studies/icici-logo.png";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 const DESKTOP_HEADER_HEIGHT = 183;
 const DESKTOP_CARD_HEIGHT = 418;
@@ -46,7 +47,7 @@ function CardTab({ color, label, compact = false }: { color: string; label: stri
           alignItems: "center",
         }}
       >
-        <p className="font-inclusive-sans font-medium text-[#212012] whitespace-nowrap" style={{ fontSize: compact ? 11 : 12, letterSpacing: "0.25px" }}>
+        <p className="font-inclusive-sans font-medium text-ink whitespace-nowrap" style={{ fontSize: compact ? 11 : 12, letterSpacing: "0.25px" }}>
           {label}
         </p>
       </div>
@@ -79,52 +80,52 @@ interface CardConfig {
 
 const CASE_STUDY_CARDS: CardConfig[] = [
   {
-    bgColor: "#c3be6f",
-    imageBg: "#d2ce93",
-    dotColor: "#625e37",
-    textColor: "#625e37",
+    bgColor: colors.olive,
+    imageBg: colors.oliveLight,
+    dotColor: colors.oliveDeep,
+    textColor: colors.oliveDeep,
     label: "CASE STUDY 1",
     tabLeft: DESKTOP_TAB_LEFT[0],
     imageLeft: true,
     roundedAll: false,
     clientName: "ICICI Bank",
-    clientBadgeBg: "rgba(98,94,55,0.15)",
+    clientBadgeBg: withAlpha(colors.oliveDeep, 0.15),
     isIcici: true,
     cardTitle: "Redesigning how 10M+ ICICI Bank cardholders activate their card for international travel",
     statusText: "under development • 2026",
-    statusColor: "#625e37",
+    statusColor: colors.oliveDeep,
   },
   {
-    bgColor: "#c67d39",
-    imageBg: "#d19761",
-    dotColor: "#212012",
-    textColor: "#212012",
+    bgColor: colors.orange,
+    imageBg: colors.orangeLight,
+    dotColor: colors.ink,
+    textColor: colors.ink,
     label: "CASE STUDY 2",
     tabLeft: DESKTOP_TAB_LEFT[1],
     imageLeft: false,
     roundedAll: false,
     clientName: "ICICI Bank",
-    clientBadgeBg: "rgba(33,32,18,0.12)",
+    clientBadgeBg: withAlpha(colors.ink, 0.12),
     isIcici: false,
     cardTitle: "Bringing India's most-used toll payment system to ICICI's web platform — for the first time",
     statusText: "under development • 2026",
-    statusColor: "#212012",
+    statusColor: colors.ink,
   },
   {
-    bgColor: "#dda1ae",
-    imageBg: "#ebc7cf",
-    dotColor: "#212012",
-    textColor: "#212012",
+    bgColor: colors.pink,
+    imageBg: colors.pinkLight,
+    dotColor: colors.ink,
+    textColor: colors.ink,
     label: "CASE STUDY 3",
     tabLeft: DESKTOP_TAB_LEFT[2],
     imageLeft: true,
     roundedAll: true,
     clientName: "Viisa • Freelance",
-    clientBadgeBg: "rgba(33,32,18,0.1)",
+    clientBadgeBg: withAlpha(colors.ink, 0.1),
     isIcici: false,
     cardTitle: "AI experiments — exploring what's possible with LLMs",
     statusText: "Completed • 2023",
-    statusColor: "#212012",
+    statusColor: colors.ink,
   },
 ];
 
@@ -181,7 +182,7 @@ function CardFooter({ card, hovered }: { card: CardConfig; hovered: boolean }) {
             className="font-caslon"
             style={{
               fontSize: 14,
-              color: "#212012",
+              color: colors.ink,
               fontStyle: "italic",
               textDecoration: hovered ? "underline" : "none",
               transition: "text-decoration 0.1s",
@@ -193,7 +194,7 @@ function CardFooter({ card, hovered }: { card: CardConfig; hovered: boolean }) {
             animate={{ x: hovered ? 4 : 0 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="font-caslon"
-            style={{ fontSize: 15, color: "#212012", lineHeight: 1 }}
+            style={{ fontSize: 15, color: colors.ink, lineHeight: 1 }}
           >
             →
           </motion.p>
@@ -229,7 +230,7 @@ function CardBody({ card, hovered, onClick }: { card: CardConfig; hovered: boole
       <div style={{ flex: 1, display: "flex", alignItems: "flex-end", padding: "16px 0 0" }}>
         <p
           className="font-caslon not-italic"
-          style={{ fontSize: 30, lineHeight: "37px", color: "#212012", fontWeight: 600 }}
+          style={{ fontSize: 30, lineHeight: "37px", color: colors.ink, fontWeight: 600 }}
         >
           {card.cardTitle}
         </p>
@@ -335,7 +336,7 @@ function MobileStackCard({
             <ClientBadge card={card} />
             <CardTags card={card} />
           </div>
-          <p className="font-caslon not-italic" style={{ fontSize: 22, lineHeight: "28px", color: "#212012", fontWeight: 600 }}>
+          <p className="font-caslon not-italic" style={{ fontSize: 22, lineHeight: "28px", color: colors.ink, fontWeight: 600 }}>
             {card.cardTitle}
           </p>
           <CardFooter card={card} hovered={false} />
@@ -455,7 +456,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
           top: Math.max(0, (viewportH - stackH) / 2),
           height: stackH,
           overflow: "hidden",
-          backgroundColor: "#212012",
+          backgroundColor: colors.ink,
           borderRadius: 16,
         }}
       >
@@ -482,7 +483,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
           <>
             <p
               className="font-caslon text-center"
-              style={{ position: "absolute", top: 24, left: 0, right: 0, color: "#e3d9ce", fontSize: 24, lineHeight: "30px" }}
+              style={{ position: "absolute", top: 24, left: 0, right: 0, color: colors.sand, fontSize: 24, lineHeight: "30px" }}
             >
               select projects
             </p>
@@ -508,7 +509,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
         <>
           <p
             className="font-caslon text-center"
-            style={{ position: "absolute", top: 48, left: 0, right: 0, color: "#e3d9ce", fontSize: 48, lineHeight: "56px" }}
+            style={{ position: "absolute", top: 48, left: 0, right: 0, color: colors.sand, fontSize: 48, lineHeight: "56px" }}
           >
             select projects
           </p>

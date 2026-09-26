@@ -80,6 +80,7 @@ import imgRechargeNew2 from "@/assets/case-studies/fastag/recharge/new/2.png";
 import imgRechargeNew3 from "@/assets/case-studies/fastag/recharge/new/3.png";
 import imgRechargeNew4 from "@/assets/case-studies/fastag/recharge/new/4.png";
 import imgRechargeNew5 from "@/assets/case-studies/fastag/recharge/new/5.png";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 
 // ─── JTBD table (CS2 "Users and JTBD") — matches Figma "Frame 1597884686" 1:1 ──
@@ -105,22 +106,22 @@ const JTBD_GROUPS: JtbdGroup[] = [
 
 function JtbdTable({ isMobile = false }: { isMobile?: boolean }) {
   return (
-    <div className="cs-img" style={{
+    <div className="case-study-media" style={{
       display: "flex", flexDirection: "column",
       width: "100%",
-      border: "1px solid #DACCBE", borderRadius: 12, overflow: "hidden",
+      border: `1px solid ${colors.sandBorder}`, borderRadius: 12, overflow: "hidden",
     }}>
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, width: "100%", backgroundColor: "#E3D9CE" }}>
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, width: "100%", backgroundColor: colors.sand }}>
         <p className="font-inclusive-sans font-medium" style={{
           flex: 1, padding: isMobile ? "12px 0 12px 12px" : "12px 0 12px 16px",
-          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: "#444444",
+          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: colors.body,
         }}>
           JTBD
         </p>
         <TableColumnDivider />
         <p className="font-inclusive-sans font-medium" style={{
           flex: 1, textAlign: "left", padding: isMobile ? "12px 12px 12px 0" : "12px 16px 12px 0",
-          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: "#444444",
+          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: colors.body,
         }}>
           Context
         </p>
@@ -131,29 +132,29 @@ function JtbdTable({ isMobile = false }: { isMobile?: boolean }) {
           <div style={{
             display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 12,
             width: "100%", padding: isMobile ? "6px 12px" : "6px 16px",
-            backgroundColor: "#E3D9CE",
+            backgroundColor: colors.sand,
           }}>
-            <div style={{ boxSizing: "border-box", width: 1, height: 0, border: "1px solid #735933", flexShrink: 0 }} />
+            <div style={{ boxSizing: "border-box", width: 1, height: 0, border: `1px solid ${colors.brown}`, flexShrink: 0 }} />
             <p className="font-inclusive-sans font-normal" style={{
               height: 12, fontSize: 10, lineHeight: "12px", display: "flex", alignItems: "flex-end", justifyContent: "center",
-              textAlign: "center", letterSpacing: "1px", textTransform: "uppercase", color: "#735933", flexShrink: 0,
+              textAlign: "center", letterSpacing: "1px", textTransform: "uppercase", color: colors.brown, flexShrink: 0,
             }}>
               {group.label}
             </p>
-            <div style={{ boxSizing: "border-box", width: 1, height: 0, border: "1px solid #735933", flexShrink: 0 }} />
+            <div style={{ boxSizing: "border-box", width: 1, height: 0, border: `1px solid ${colors.brown}`, flexShrink: 0 }} />
           </div>
           <div style={{
             display: "flex", flexDirection: "column",
-            width: "100%", backgroundColor: "#E7DED5",
+            width: "100%", backgroundColor: colors.sandPanel,
             padding: isMobile ? "10px 14px" : "12px 16px", gap: 12,
           }}>
             {group.rows.map((row, ri) => (
               <div key={ri} style={{ display: "flex", flexDirection: "row", gap: 12 }}>
-                <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 12, lineHeight: "16px", letterSpacing: "0.25px", color: "#444444" }}>
+                <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 12, lineHeight: "16px", letterSpacing: "0.25px", color: colors.body }}>
                   {row.job}
                 </p>
                 <TableColumnDivider />
-                <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", letterSpacing: "0.25px", color: "#444444" }}>
+                <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", letterSpacing: "0.25px", color: colors.body }}>
                   {row.context}
                 </p>
               </div>
@@ -168,11 +169,10 @@ function JtbdTable({ isMobile = false }: { isMobile?: boolean }) {
 // ─── CS1 content (ICICI Bank iTravel) — Figma "Frame 38" (584px column) ───────
 // Its own type scale, tighter than the shared helpers: 20/26 Caslon headings,
 // 14/20 Inclusive Sans body, 12px rhythm inside a section, 52px between sections.
-const ITRAVEL_ACCENT = "#C67D39";
 
 function ItravelHeading({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-caslon not-italic" style={{ fontSize: 20, lineHeight: "26px", fontWeight: 600, color: "#212012" }}>
+    <p className="font-caslon not-italic" style={{ fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.ink }}>
       {children}
     </p>
   );
@@ -180,7 +180,7 @@ function ItravelHeading({ children }: { children: React.ReactNode }) {
 
 function ItravelText({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: "#444444" }}>
+    <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>
       {children}
     </p>
   );
@@ -197,8 +197,8 @@ function ItravelSection({ id, children }: { id: string; children: React.ReactNod
 function ItravelCaption({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6 }}>
-      <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: ITRAVEL_ACCENT, flexShrink: 0 }} />
-      <p className="font-jakarta font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: "rgba(33,32,18,0.5)" }}>
+      <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
+      <p className="font-jakarta font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: withAlpha(colors.ink, 0.5) }}>
         {children}
       </p>
     </div>
@@ -213,7 +213,7 @@ function ItravelPhone({ src, alt = "" }: { src: string; alt?: string }) {
       <img
         src={src}
         alt={alt}
-        style={{ display: "block", width: "100%", height: "auto", border: "1px solid #FFFFFF", borderRadius: 5, boxSizing: "border-box" }}
+        style={{ display: "block", width: "100%", height: "auto", border: `1px solid ${colors.white}`, borderRadius: 5, boxSizing: "border-box" }}
       />
     </div>
   );
@@ -227,7 +227,7 @@ function ItravelPhoneRow({ children, gap }: { children: React.ReactNode; gap: st
 // Tan panel that holds phone screens.
 function ItravelPanel({ children, padding }: { children: React.ReactNode; padding: string }) {
   return (
-    <div className="cs-img" style={{ width: "100%", backgroundColor: "#E7DED5", borderRadius: 8, overflow: "hidden", padding, boxSizing: "border-box" }}>
+    <div className="case-study-media" style={{ width: "100%", backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden", padding, boxSizing: "border-box" }}>
       {children}
     </div>
   );
@@ -243,16 +243,16 @@ function ItravelHmwBox() {
     <div style={{
       display: "flex", flexDirection: "row", alignItems: "stretch", gap: 12,
       paddingRight: 16, overflow: "hidden",
-      backgroundColor: "rgba(198,125,57,0.1)", border: "1px solid rgba(198,125,57,0.3)", borderRadius: 8,
+      backgroundColor: withAlpha(colors.orange, 0.1), border: `1px solid ${withAlpha(colors.orange, 0.3)}`, borderRadius: 8,
     }}>
-      <div style={{ width: 3, backgroundColor: ITRAVEL_ACCENT, flexShrink: 0 }} />
+      <div style={{ width: 3, backgroundColor: colors.orange, flexShrink: 0 }} />
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 2, padding: "8px 0", flex: 1 }}>
         {items.map((text, i) => (
           <div key={i} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, padding: "8px 0" }}>
-            <div style={{ width: 20, height: 20, borderRadius: 16, backgroundColor: ITRAVEL_ACCENT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <p className="font-jakarta" style={{ fontWeight: 700, fontSize: 12, lineHeight: "16px", letterSpacing: "0.01em", color: "#FFFFFF" }}>{i + 1}</p>
+            <div style={{ width: 20, height: 20, borderRadius: 16, backgroundColor: colors.orange, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <p className="font-jakarta" style={{ fontWeight: 700, fontSize: 12, lineHeight: "16px", letterSpacing: "0.01em", color: colors.white }}>{i + 1}</p>
             </div>
-            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 13, lineHeight: "16px", color: "#444444" }}>{text}</p>
+            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 13, lineHeight: "16px", color: colors.body }}>{text}</p>
           </div>
         ))}
       </div>
@@ -265,7 +265,7 @@ function ItravelLayer({ icon, title, children }: { icon: string; title: string; 
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
         <span aria-hidden="true" style={{ fontSize: 16, lineHeight: "20px" }}>{icon}</span>
-        <p className="font-inclusive-sans" style={{ fontWeight: 600, fontSize: 16, lineHeight: "20px", color: "#735933" }}>{title}</p>
+        <p className="font-inclusive-sans" style={{ fontWeight: 600, fontSize: 16, lineHeight: "20px", color: colors.brown }}>{title}</p>
       </div>
       <ItravelText>{children}</ItravelText>
     </div>
@@ -280,18 +280,18 @@ function ItravelStateTable({ mobile }: { mobile: boolean }) {
     ["App not installed", "Web promo page, both audiences"],
   ];
   const pad = mobile ? 12 : 16;
-  const head = { fontWeight: 600, fontSize: 12, lineHeight: "20px", textTransform: "uppercase" as const, color: "#444444" };
+  const head = { fontWeight: 600, fontSize: 12, lineHeight: "20px", textTransform: "uppercase" as const, color: colors.body };
   return (
-    <div className="cs-img" style={{ width: "100%", border: "1px solid #DACCBE", borderRadius: 12, overflow: "hidden" }}>
-      <div style={{ display: "flex", flexDirection: "row", gap: 16, backgroundColor: "#E3D9CE", padding: `8px ${pad}px` }}>
+    <div className="case-study-media" style={{ width: "100%", border: `1px solid ${colors.sandBorder}`, borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "row", gap: 16, backgroundColor: colors.sand, padding: `8px ${pad}px` }}>
         <p className="font-jakarta" style={{ ...head, flex: 1 }}>State</p>
         <p className="font-inclusive-sans" style={{ ...head, flex: 1 }}>Outcome</p>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#E7DED5", padding: `12px ${pad}px` }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, backgroundColor: colors.sandPanel, padding: `12px ${pad}px` }}>
         {rows.map(([state, outcome], i) => (
           <div key={i} style={{ display: "flex", flexDirection: "row", gap: 16 }}>
-            <p className="font-jakarta" style={{ flex: 1, fontWeight: 600, fontSize: 12, lineHeight: "16px", color: "#444444" }}>{i + 1}. {state}</p>
-            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", color: "#444444" }}>{outcome}</p>
+            <p className="font-jakarta" style={{ flex: 1, fontWeight: 600, fontSize: 12, lineHeight: "16px", color: colors.body }}>{i + 1}. {state}</p>
+            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", color: colors.body }}>{outcome}</p>
           </div>
         ))}
       </div>
@@ -301,9 +301,9 @@ function ItravelStateTable({ mobile }: { mobile: boolean }) {
 
 function ItravelEntryPanel() {
   return (
-    <div className="cs-img" style={{ width: "100%", backgroundColor: "#E7DED5", borderRadius: 8, overflow: "hidden" }}>
-      <div style={{ padding: "12px 16px", backgroundColor: "#ECE5DF", borderBottom: "1px solid #E3D9CE" }}>
-        <p className="font-inclusive-sans font-normal" style={{ fontSize: 12, lineHeight: "16px", color: "rgba(33,32,18,0.8)" }}>
+    <div className="case-study-media" style={{ width: "100%", backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ padding: "12px 16px", backgroundColor: "#ECE5DF", borderBottom: `1px solid ${colors.sand}` }}>
+        <p className="font-inclusive-sans font-normal" style={{ fontSize: 12, lineHeight: "16px", color: withAlpha(colors.ink, 0.8) }}>
           The drawer is a forced interstitial - the user clicked an ad specifically about iTravel, so making them navigate a dashboard first would be the actual friction.
         </p>
       </div>
@@ -331,7 +331,7 @@ function ItravelEntryPanel() {
 
 function ItravelCroppedShot() {
   return (
-    <div className="cs-img" style={{ width: "100%", height: 123, backgroundColor: "#E7DED5", borderRadius: 8, overflow: "hidden", display: "flex", justifyContent: "center", paddingTop: 16, boxSizing: "border-box" }}>
+    <div className="case-study-media" style={{ width: "100%", height: 123, backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden", display: "flex", justifyContent: "center", paddingTop: 16, boxSizing: "border-box" }}>
       <img src={imgAutoExpiry} alt="Additional preferences — auto-disable after trip" style={{ width: 150, height: "auto", alignSelf: "flex-start", display: "block" }} />
     </div>
   );
@@ -350,14 +350,14 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
             <ItravelText>
               The answer wasn't in the UI. It was in how RBI mandates work, how fraud engines evaluate transactions, and how travelers actually use their phones abroad. Every decision in iTravel came from reasoning through those layers first, then designing backward to the screen.
             </ItravelText>
-            <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", letterSpacing: "0.01em", color: "#444444" }}>The PM briefed...</p>
+            <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", letterSpacing: "0.01em", color: colors.body }}>The PM briefed...</p>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", gap: 8 }}>
-              <div style={{ width: 3, borderRadius: 4, backgroundColor: ITRAVEL_ACCENT, flexShrink: 0 }} />
-              <p className="font-caslon not-italic" style={{ flex: 1, padding: "8px 0", fontSize: 16, lineHeight: "20px", fontWeight: 600, color: "#212012" }}>
+              <div style={{ width: 3, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
+              <p className="font-caslon not-italic" style={{ flex: 1, padding: "8px 0", fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>
                 Build <em>iTravel</em>, a single, unified hub where customers declare their travel plans and the bank automatically aligns card usage and fraud monitoring to that profile.
               </p>
             </div>
-            <p className="font-inclusive-sans font-medium" style={{ fontSize: 14, lineHeight: "20px", color: "#444444" }}>Three HMWs:</p>
+            <p className="font-inclusive-sans font-medium" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>Three HMWs:</p>
             <ItravelHmwBox />
           </div>
         </div>
@@ -405,7 +405,7 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
           </ItravelText>
           <ItravelText>
             Fraud engines check travel plausibility, not just whether a country is blocked. A card quiet for months, then swiping in Tokyo, looks like fraud. A declared trip -{" "}
-            <span className="font-caslon" style={{ color: ITRAVEL_ACCENT, fontSize: 16 }}>India → Singapore (layover) → Japan</span>{" "}
+            <span className="font-caslon" style={{ color: colors.orange, fontSize: 16 }}>India → Singapore (layover) → Japan</span>{" "}
             - gives the engine a trail. The Tokyo swipe stops looking anomalous.
           </ItravelText>
           <ImageCarousel
@@ -477,11 +477,11 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
 // ─── CS2 content (ICICI FASTag) ───────────────────────────────────────────────
 export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
   return (
-    <div className="cs-sections" style={{ display: "flex", flexDirection: "column" }}>
+    <div className="case-study-sections" style={{ display: "flex", flexDirection: "column" }}>
       <SectionBlock id="cs-intro">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <SectionHeading isMobile={isMobile}>Introduction</SectionHeading>
-          <div className="cs-flow " style={{ display: "flex", flexDirection: "column"  }}>
+          <div className="case-study-flow " style={{ display: "flex", flexDirection: "column"  }}>
             <BodyText isMobile={isMobile}>
               FASTag is mandatory for all four-wheelers on Indian highways, and ICICI Bank commands nearly 29% of the national FASTag market. Before this project, every one of those customers relied solely on iMobile or a third-party app to manage their tag.
             </BodyText>
@@ -503,28 +503,28 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
             <SubHeading isMobile={isMobile}>
               That's exactly why the card works the way it does:
             </SubHeading>
-            <ul className="font-inclusive-sans font-normal cs-bullets cs-bullets-accent" style={{ fontSize: 16, lineHeight: "24px", color: "#444", letterSpacing: "0.15px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
+            <ul className="font-inclusive-sans font-normal case-study-bullets case-study-bullets--accent" style={{ fontSize: 16, lineHeight: "24px", color: colors.body, letterSpacing: "0.15px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
               <li>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: "#735933" }}>Vehicle number and model</strong>
+                  <strong style={{ color: colors.brown }}>Vehicle number and model</strong>
                   <span>You can scan it in under 2-seconds, no reading needed.</span>
                 </div>
               </li>
               <li>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: "#735933" }}>Balance</strong>
+                  <strong style={{ color: colors.brown }}>Balance</strong>
                   <span>It's the biggest thing on the card, impossible to miss.</span>
                 </div>
               </li>
               <li>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: "#735933" }}>Recharge</strong>
+                  <strong style={{ color: colors.brown }}>Recharge</strong>
                   <span>One tap, always there, always in the same spot no matter the card state.</span>
                 </div>
               </li>
               <li>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: "#735933" }}>Everything else</strong>
+                  <strong style={{ color: colors.brown }}>Everything else</strong>
                   <span>Tucked behind the three-dot menu or the detail page, out of the way until you actually need it.</span>
                 </div>
               </li>
@@ -539,14 +539,14 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
       <SectionBlock id="cs-landing">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <SectionHeading isMobile={isMobile}>1. Landing page</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
+          <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <BodyText isMobile={isMobile}>
               One landing page. Three user types. Multiple card states. Everything had to be readable at a glance — including for fleet owners managing 20+ FASTags simultaneously.
             </BodyText>
             <SubHeading isMobile={isMobile}>
               There are 3 user types:
             </SubHeading>
-            <ul className="font-inclusive-sans font-normal cs-bullets" style={{ fontSize: 14, lineHeight: "20px", color: "#444", letterSpacing: "0.14px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
+            <ul className="font-inclusive-sans font-normal case-study-bullets" style={{ fontSize: 14, lineHeight: "20px", color: colors.body, letterSpacing: "0.14px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
               <li>New user</li>
               <li>Existing users (ICICI Bank and non-ICICI Bank)</li>
               <li>Fleet owners (ICICI Bank and non-ICICI Bank)</li>
@@ -587,7 +587,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
       <SectionBlock id="cs-card">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <SectionHeading isMobile={isMobile}>2. FASTag card exploration</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
+          <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>
               The problem
             </SubHeading>
@@ -649,7 +649,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
       <SectionBlock id="cs-details">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <SectionHeading isMobile={isMobile}>3. All FASTag details</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
+          <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>Three card types, one layout</SubHeading>
             <BodyText isMobile={isMobile}>
               The detail page is structurally identical across all three FASTag types. What changes is the right column — the service set available to that specific tag.
@@ -713,7 +713,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
       <SectionBlock id="cs-recharge">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <SectionHeading isMobile={isMobile}>4. FASTag recharge</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
+          <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>The problem with the first version</SubHeading>
             <BodyText isMobile={isMobile}>
               The mobile reference flows had three separate recharge experiences depending on where the user came from — ICICI FASTag, linked non-ICICI, and first-time non-linked. Some were modals, some full-page, each with different data points. The same action looked different every time and the client pushed for an experience of keeping them as is. It was unsustainable to maintain, and expensive to build.
@@ -727,7 +727,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
             <SubHeading isMobile={isMobile}>
               The vehicle type determines what's shown within that standard flow:
             </SubHeading>
-            <ul className="font-inclusive-sans font-normal cs-bullets" style={{ fontSize: 14, lineHeight: "20px", color: "#444", letterSpacing: "0.14px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
+            <ul className="font-inclusive-sans font-normal case-study-bullets" style={{ fontSize: 14, lineHeight: "20px", color: colors.body, letterSpacing: "0.14px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
               <li>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <strong>For a linked vehicle</strong>
@@ -761,7 +761,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
       <SectionBlock id="cs-reflection">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <SectionHeading isMobile={isMobile}>Currently <em>in-development</em>, but what I took away...</SectionHeading>
-          <div className="cs-flow" style={{ display: "flex", flexDirection: "column" }}>
+          <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <BodyText isMobile={isMobile}>
               The requirements were half-baked and the timeline was too short for the volume. The biggest thing I learned: negotiate on scope or timeline upfront, not after you're already deep in it.
             </BodyText>

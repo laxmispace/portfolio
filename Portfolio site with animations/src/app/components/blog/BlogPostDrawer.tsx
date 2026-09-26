@@ -6,6 +6,7 @@ import { useAudioPlayer } from "@/app/hooks/useAudioPlayer";
 import { useWordTimings, type WordTiming } from "@/app/hooks/useWordTimings";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { MARTEL, withMartel } from "@/app/lib/devanagari";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 // Pre-generated ElevenLabs narration + word timing live in public/audio/blog/
 // (see scripts/generate-voiceovers.mjs) — base-aware so it resolves whether
@@ -27,7 +28,7 @@ function HighlightedParagraph({ text, timing, currentTime }: { text: string; tim
         <span key={i}>
           <span
             style={{
-              backgroundColor: i === activeIndex ? "rgba(198,125,57,0.12)" : "transparent",
+              backgroundColor: i === activeIndex ? withAlpha(colors.orange, 0.12) : "transparent",
               borderRadius: 2,
               transition: "background-color 0.1s ease",
             }}
@@ -52,20 +53,20 @@ function BlogAudioPlayer({ slug, currentTimeRef }: { slug: string; currentTimeRe
       <button
         onClick={toggle}
         disabled={!available}
-        style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: "#c3be6f", border: "none", cursor: available ? "pointer" : "not-allowed", opacity: available ? 1 : 0.4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+        style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: colors.olive, border: "none", cursor: available ? "pointer" : "not-allowed", opacity: available ? 1 : 0.4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
       >
-        {playing ? <Pause size={13} fill="#212012" color="#212012" /> : <Play size={13} fill="#212012" color="#212012" />}
+        {playing ? <Pause size={13} fill={colors.ink} color={colors.ink} /> : <Play size={13} fill={colors.ink} color={colors.ink} />}
       </button>
       <div
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           seekToFraction((e.clientX - rect.left) / rect.width);
         }}
-        style={{ flex: 1, height: 2, backgroundColor: "rgba(33,32,18,0.1)", borderRadius: 1, position: "relative", cursor: available ? "pointer" : "default" }}
+        style={{ flex: 1, height: 2, backgroundColor: withAlpha(colors.ink, 0.1), borderRadius: 1, position: "relative", cursor: available ? "pointer" : "default" }}
       >
-        <div style={{ width: `${progress * 100}%`, height: "100%", backgroundColor: "#c3be6f", borderRadius: 1 }} />
+        <div style={{ width: `${progress * 100}%`, height: "100%", backgroundColor: colors.olive, borderRadius: 1 }} />
       </div>
-      <p className="font-inclusive-sans" style={{ fontSize: 11, color: "#625e37", opacity: 0.6, letterSpacing: "0.1px", flexShrink: 0 }}>
+      <p className="font-inclusive-sans" style={{ fontSize: 11, color: colors.oliveDeep, opacity: 0.6, letterSpacing: "0.1px", flexShrink: 0 }}>
         {available ? timeLabel : "narration coming soon"}
       </p>
     </div>
@@ -87,7 +88,7 @@ function RelatedBlogLink({ post, isLast, onClick }: { post: BlogPost; isLast: bo
       onMouseLeave={() => setHov(false)}
       style={{
         padding: "16px 0",
-        borderBottom: isLast ? "none" : "1px solid rgba(33,32,18,0.08)",
+        borderBottom: isLast ? "none" : `1px solid ${withAlpha(colors.ink, 0.08)}`,
         cursor: "pointer",
         display: "flex",
         justifyContent: "space-between",
@@ -96,18 +97,18 @@ function RelatedBlogLink({ post, isLast, onClick }: { post: BlogPost; isLast: bo
       }}
     >
       <div>
-        <span style={{ backgroundColor: "rgba(98,94,55,0.1)", borderRadius: 20, padding: "2px 10px", display: "inline-block", marginBottom: 6 }}>
-          <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: "#625e37", letterSpacing: "0.3px", textTransform: "uppercase" }}>
+        <span style={{ backgroundColor: withAlpha(colors.oliveDeep, 0.1), borderRadius: 20, padding: "2px 10px", display: "inline-block", marginBottom: 6 }}>
+          <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: colors.oliveDeep, letterSpacing: "0.3px", textTransform: "uppercase" }}>
             {post.category}
           </p>
         </span>
         <p
           className="font-caslon not-italic"
-          style={{ fontSize: 17, lineHeight: "22px", color: "#212012", fontWeight: 600, textDecoration: hov ? "underline" : "none", transition: "text-decoration 0.1s" }}
+          style={{ fontSize: 17, lineHeight: "22px", color: colors.ink, fontWeight: 600, textDecoration: hov ? "underline" : "none", transition: "text-decoration 0.1s" }}
         >
           {post.title}
         </p>
-        <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", opacity: 0.6, marginTop: 2 }}>
+        <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.6, marginTop: 2 }}>
           {post.date} · {post.readTime}
         </p>
       </div>
@@ -115,7 +116,7 @@ function RelatedBlogLink({ post, isLast, onClick }: { post: BlogPost; isLast: bo
         animate={{ x: hov ? 5 : 0 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         className="font-caslon"
-        style={{ fontSize: 20, color: "rgba(33,32,18,0.3)", flexShrink: 0 }}
+        style={{ fontSize: 20, color: withAlpha(colors.ink, 0.3), flexShrink: 0 }}
       >
         →
       </motion.p>
@@ -154,7 +155,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
             onClick={onClose}
             style={{
               position: "fixed", inset: 0, zIndex: 499,
-              backgroundColor: "rgba(33,32,18,0.4)",
+              backgroundColor: withAlpha(colors.ink, 0.4),
               backdropFilter: "blur(4px)",
             }}
           />
@@ -167,7 +168,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
             style={{
               position: "fixed", right: 0, top: 0, bottom: 0, width: isMobile ? "100%" : "min(1120px, 94vw)", zIndex: 500,
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
-              backgroundColor: "#e3d9ce",
+              backgroundColor: colors.sand,
               overflow: "hidden",
             }}
           >
@@ -176,11 +177,11 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
               style={{
                 position: "absolute", top: 20, right: 20, zIndex: 10,
                 width: 36, height: 36, borderRadius: "50%",
-                backgroundColor: "rgba(33,32,18,0.08)", border: "none",
+                backgroundColor: withAlpha(colors.ink, 0.08), border: "none",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >
-              <X size={16} color="#212012" />
+              <X size={16} color={colors.ink} />
             </button>
 
             <div
@@ -192,29 +193,29 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
               <div
                 style={{
                   position: "sticky", top: 0, zIndex: 5,
-                  backgroundColor: "#e3d9ce",
+                  backgroundColor: colors.sand,
                   padding: scrolled
                     ? `14px ${isMobile ? 48 : 56}px 14px ${isMobile ? 16 : 36}px`
                     : `${isMobile ? 20 : 36}px ${isMobile ? 48 : 56}px 20px ${isMobile ? 16 : 36}px`,
-                  borderBottom: scrolled ? "1px solid rgba(33,32,18,0.1)" : "1px solid transparent",
+                  borderBottom: scrolled ? `1px solid ${withAlpha(colors.ink, 0.1)}` : "1px solid transparent",
                   transition: "padding 0.3s ease, border-color 0.3s ease",
                 }}
               >
                 <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ backgroundColor: "rgba(221,161,174,0.28)", borderRadius: 20, padding: "3px 10px" }}>
+                  <span style={{ backgroundColor: withAlpha(colors.pink, 0.28), borderRadius: 20, padding: "3px 10px" }}>
                     <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: "#a06070", letterSpacing: "0.3px", textTransform: "uppercase" }}>
                       {post.category}
                     </p>
                   </span>
-                  <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", opacity: 0.6 }}>{post.date}</p>
-                  <span style={{ color: "rgba(98,94,55,0.3)", fontSize: 10 }}>·</span>
-                  <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", opacity: 0.5 }}>{post.readTime}</p>
+                  <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.6 }}>{post.date}</p>
+                  <span style={{ color: withAlpha(colors.oliveDeep, 0.3), fontSize: 10 }}>·</span>
+                  <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.5 }}>{post.readTime}</p>
                 </div>
                 <motion.p
                   className="font-caslon not-italic"
                   animate={{ fontSize: scrolled ? "17px" : "28px", lineHeight: scrolled ? "22px" : "34px" }}
                   transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                  style={{ color: "#212012", fontWeight: 600, paddingRight: 48 }}
+                  style={{ color: colors.ink, fontWeight: 600, paddingRight: 48 }}
                 >
                   {withMartel(post.title)}
                 </motion.p>
@@ -222,11 +223,11 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
 
               {/* Body */}
               <div style={{ padding: isMobile ? "20px 16px 32px" : "28px 52px 40px 36px" }}>
-                <p className="font-inclusive-sans" style={{ fontSize: 16, lineHeight: "25px", color: "#625e37", opacity: 0.9, marginBottom: 20 }}>
+                <p className="font-inclusive-sans" style={{ fontSize: 16, lineHeight: "25px", color: colors.oliveDeep, opacity: 0.9, marginBottom: 20 }}>
                   {post.subtitle}
                 </p>
                 <BlogAudioPlayer slug={post.slug} currentTimeRef={setAudioTime} />
-                <div style={{ height: 1, backgroundColor: "rgba(33,32,18,0.1)", marginBottom: 32 }} />
+                <div style={{ height: 1, backgroundColor: withAlpha(colors.ink, 0.1), marginBottom: 32 }} />
                 <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                   {post.body.map((para, i) => (
                     <motion.p
@@ -236,7 +237,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
                       viewport={{ once: true, margin: "-40px" }}
                       transition={{ duration: 0.4, delay: Math.min(i, 6) * 0.04 }}
                       className="font-caslon not-italic"
-                      style={{ fontSize: 17, lineHeight: "30px", color: "#212012", opacity: 0.85 }}
+                      style={{ fontSize: 17, lineHeight: "30px", color: colors.ink, opacity: 0.85 }}
                     >
                       {typeof para === "string" ? (
                         <HighlightedParagraph text={para} timing={wordTimings?.[i]} currentTime={audioTime} />
@@ -246,20 +247,20 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
                     </motion.p>
                   ))}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 48, paddingTop: 24, borderTop: "1px solid rgba(33,32,18,0.08)" }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: "#c3be6f", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <p className="font-caslon" style={{ fontSize: 16, color: "#212012", fontWeight: 600 }}>L</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 48, paddingTop: 24, borderTop: `1px solid ${withAlpha(colors.ink, 0.08)}` }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: colors.olive, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <p className="font-caslon" style={{ fontSize: 16, color: colors.ink, fontWeight: 600 }}>L</p>
                   </div>
                   <div>
-                    <p className="font-inclusive-sans font-semibold" style={{ fontSize: 14, color: "#212012" }}>Laxmi Mahajan</p>
-                    <p className="font-inclusive-sans" style={{ fontSize: 12, color: "#625e37", opacity: 0.6 }}>UX designer · Bangalore</p>
+                    <p className="font-inclusive-sans font-semibold" style={{ fontSize: 14, color: colors.ink }}>Laxmi Mahajan</p>
+                    <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.6 }}>UX designer · Bangalore</p>
                   </div>
                 </div>
               </div>
 
               {/* Related */}
-              <div style={{ padding: isMobile ? "24px 16px 48px" : "32px 52px 56px 36px", borderTop: "1px solid rgba(33,32,18,0.1)" }}>
-                <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.5px", color: "rgba(33,32,18,0.35)", marginBottom: 8 }}>
+              <div style={{ padding: isMobile ? "24px 16px 48px" : "32px 52px 56px 36px", borderTop: `1px solid ${withAlpha(colors.ink, 0.1)}` }}>
+                <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.35), marginBottom: 8 }}>
                   read more
                 </p>
                 {related.map((p, i) => (

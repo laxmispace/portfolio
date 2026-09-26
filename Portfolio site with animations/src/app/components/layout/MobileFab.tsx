@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { FileDown, Mail, Github, Linkedin } from "lucide-react";
 import { haptic } from "@/app/lib/feedback";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 // ── Speed-dial FAB ────────────────────────────────────────────────────────────
 // Lives in the bottom sticky nav band (rendered by MobileBottomNav). The trigger
@@ -28,7 +29,7 @@ export function MobileFab() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setOpen(false)}
-            style={{ position: "fixed", inset: 0, background: "rgba(33,32,18,0.28)", zIndex: 2147483644 }}
+            style={{ position: "fixed", inset: 0, background: withAlpha(colors.ink, 0.28), zIndex: 2147483644 }}
           />
         )}
       </AnimatePresence>
@@ -67,11 +68,11 @@ export function MobileFab() {
                   style={{
                     fontSize: 12,
                     letterSpacing: "0.02em",
-                    color: "#212012",
-                    background: "#ece6df",
+                    color: colors.ink,
+                    background: colors.sandLight,
                     padding: "5px 10px",
                     borderRadius: 8,
-                    boxShadow: "0 2px 10px rgba(33,32,18,0.14)",
+                    boxShadow: `0 2px 10px ${withAlpha(colors.ink, 0.14)}`,
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -82,14 +83,14 @@ export function MobileFab() {
                     width: 42,
                     height: 42,
                     borderRadius: "50%",
-                    background: "#e3d9ce",
+                    background: colors.sand,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 2px 10px rgba(33,32,18,0.16)",
+                    boxShadow: `0 2px 10px ${withAlpha(colors.ink, 0.16)}`,
                   }}
                 >
-                  <a.Icon size={18} strokeWidth={1.8} color="#625e37" />
+                  <a.Icon size={18} strokeWidth={1.8} color={colors.oliveDeep} />
                 </span>
               </motion.a>
             ))}
@@ -108,7 +109,7 @@ export function MobileFab() {
           borderRadius: "50%",
           border: "none",
           cursor: "pointer",
-          background: "#C3BE6F",
+          background: colors.olive,
           display: "block",
           flexShrink: 0,
           position: "relative",

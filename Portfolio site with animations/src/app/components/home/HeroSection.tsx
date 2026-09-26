@@ -5,6 +5,7 @@ import { MobileHeader } from "@/app/components/layout/MobileHeader";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import iciciSymbol from "@/assets/icici-symbol.png";
 import backgroundVideo from "@/assets/background.mp4";
+import { colors } from "@/app/theme/tokens";
 
 function LiveClock() {
   const [time, setTime] = useState("");
@@ -21,7 +22,7 @@ function LiveClock() {
     return () => clearInterval(id);
   }, []);
   return (
-    <p className="font-inclusive-sans font-semibold text-[#212012] uppercase" style={{ fontSize: 12, letterSpacing: "0.48px" }}>
+    <p className="font-inclusive-sans font-semibold text-ink uppercase" style={{ fontSize: 12, letterSpacing: "0.48px" }}>
       {time}
     </p>
   );
@@ -46,10 +47,10 @@ function LoadingTimer() {
           style={{ position: "absolute", bottom: 36, right: 40, zIndex: 10 }}
         >
           <svg width={26} height={26} viewBox="0 0 26 26" style={{ transform: "rotate(-90deg)" }}>
-            <circle cx={13} cy={13} r={R} fill="none" stroke="#625e37" strokeWidth={1} opacity={0.18} />
+            <circle cx={13} cy={13} r={R} fill="none" stroke={colors.oliveDeep} strokeWidth={1} opacity={0.18} />
             <motion.circle
               cx={13} cy={13} r={R}
-              fill="none" stroke="#625e37" strokeWidth={1} strokeLinecap="round"
+              fill="none" stroke={colors.oliveDeep} strokeWidth={1} strokeLinecap="round"
               strokeDasharray={CIRC}
               initial={{ strokeDashoffset: CIRC }}
               animate={{ strokeDashoffset: 0 }}
@@ -77,7 +78,7 @@ function BackgroundVideo() {
           left: -60,
           bottom: 40,
           overflow: "hidden",
-          backgroundColor: "#e3d9ce",
+          backgroundColor: colors.sand,
           transform: "rotate(15.43deg)",
           isolation: "isolate",
           opacity: 0.12,
@@ -102,7 +103,7 @@ function BackgroundVideo() {
           right: -120,
           top: -220,
           overflow: "hidden",
-          backgroundColor: "#e3d9ce",
+          backgroundColor: colors.sand,
           transform: "scale(-1, -1)",
           isolation: "isolate",
           opacity: 0.12,
@@ -136,7 +137,7 @@ function LogoTile({ children, size }: { children?: ReactNode; size: number }) {
         width: size,
         height: size,
         borderRadius: size * (8 / 36),
-        backgroundColor: "#c3be6f",
+        backgroundColor: colors.olive,
         flexShrink: 0,
       }}
     >
@@ -163,13 +164,13 @@ function CompanyRow({ size }: { size: number }) {
 // the whole hero stays at Inclusive Sans medium (500), never semi-bold/bold. ──
 function DarkText({ children, uppercase = false }: { children: ReactNode; uppercase?: boolean }) {
   return (
-    <span style={{ color: "#1e1e1e", textTransform: uppercase ? "uppercase" : undefined }}>
+    <span style={{ color: colors.ink, textTransform: uppercase ? "uppercase" : undefined }}>
       {children}
     </span>
   );
 }
 function AccentText({ children }: { children: ReactNode }) {
-  return <span style={{ color: "#c67d39" }}>{children}</span>;
+  return <span style={{ color: colors.orange }}>{children}</span>;
 }
 
 // ── Terminal-style typewriter for the closing line ─────────────────────────────
@@ -200,18 +201,18 @@ function TypewriterLine({ text, fontSize, marginTop }: { text: string; fontSize:
         fontSize,
         lineHeight: 1.5,
         letterSpacing: "-0.01em",
-        color: "#625e37",
+        color: colors.oliveDeep,
         marginTop,
         whiteSpace: "pre-wrap",
       }}
     >
-      <span style={{ color: "#c67d39", opacity: 0.7 }}>{"› "}</span>
+      <span style={{ color: colors.orange, opacity: 0.7 }}>{"› "}</span>
       {text.slice(0, count)}
       <motion.span
         aria-hidden
         animate={{ opacity: [1, 1, 0, 0] }}
         transition={{ duration: 1.05, times: [0, 0.5, 0.5, 1], repeat: Infinity, ease: "linear" }}
-        style={{ color: "#625e37" }}
+        style={{ color: colors.oliveDeep }}
       >
         ▋
       </motion.span>
@@ -249,7 +250,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
           >
-            <p className="font-inclusive-sans font-semibold text-[#212012] uppercase" style={{ fontSize: 12, letterSpacing: "0.48px" }}>
+            <p className="font-inclusive-sans font-semibold text-ink uppercase" style={{ fontSize: 12, letterSpacing: "0.48px" }}>
             📍 based in bangalore
             </p>
             <LiveClock />
@@ -274,7 +275,7 @@ export function HeroSection() {
                 fontWeight: 500,
                 lineHeight: isMobile ? "22px" : "28px",
                 letterSpacing: "-0.01em",
-                color: "#1e1e1e",
+                color: colors.ink,
                 marginBottom: isMobile ? 14 : 20,
               }}
             >
@@ -288,7 +289,7 @@ export function HeroSection() {
                 fontWeight: 400,
                 lineHeight: isMobile ? "30px" : "48px",
                 letterSpacing: "-0.02em",
-                color: "#625e37",
+                color: colors.oliveDeep,
               }}
             >
               {"I'm a "}

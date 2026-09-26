@@ -3,33 +3,33 @@
    Each photo keeps its own anchor, so `transform-origin` pins it to the
    edge/point it's positioned against and it scales up from there. */
 
-.aipf-photo {
+.ai-project-card__photo {
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.aipf-photo--piano {
+.ai-project-card__photo--piano {
   transform: translateY(-50%);
   transform-origin: right center;
 }
 
-.aipf-photo--job {
+.ai-project-card__photo--job-tracker {
   transform: scale(1);
   transform-origin: right bottom;
 }
 
-.aipf-photo--breathing {
+.ai-project-card__photo--breathing {
   transform: translateX(-50%);
   transform-origin: center bottom;
 }
 
 @media (hover: hover) {
-  .aipf-card:hover .aipf-photo--piano {
+  .ai-project-card:hover .ai-project-card__photo--piano {
     transform: translateY(-50%) scale(1.05);
   }
-  .aipf-card:hover .aipf-photo--job {
+  .ai-project-card:hover .ai-project-card__photo--job-tracker {
     transform: scale(1.05);
   }
-  .aipf-card:hover .aipf-photo--breathing {
+  .ai-project-card:hover .ai-project-card__photo--breathing {
     transform: translateX(-50%) scale(1.05);
   }
 }

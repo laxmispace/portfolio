@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { motion, AnimatePresence } from "motion/react";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 // ── Photos ────────────────────────────────────────────────────────────────────
 const PHOTOS = [
@@ -73,7 +74,7 @@ function NameAsImageDemo() {
         style={{
           fontFamily: "'Inclusive Sans', sans-serif",
           fontSize: 10,
-          color: "rgba(33,32,18,0.32)",
+          color: withAlpha(colors.ink, 0.32),
           letterSpacing: "2px",
           textTransform: "uppercase",
           marginTop: 2,
@@ -91,7 +92,7 @@ function NameAsImageDemo() {
               width: i === activePhoto ? 20 : 6,
               height: 6,
               borderRadius: 3,
-              background: i === activePhoto ? "#625e37" : "rgba(33,32,18,0.18)",
+              background: i === activePhoto ? colors.oliveDeep : withAlpha(colors.ink, 0.18),
               border: "none",
               cursor: "pointer",
               transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
@@ -106,7 +107,7 @@ function NameAsImageDemo() {
           position: "absolute",
           bottom: 10,
           fontSize: 10,
-          color: "rgba(33,32,18,0.2)",
+          color: withAlpha(colors.ink, 0.2),
           fontFamily: "'Inclusive Sans', sans-serif",
           letterSpacing: "0.5px",
           textTransform: "uppercase",
@@ -190,7 +191,7 @@ function SceneTiltDemo() {
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage: "radial-gradient(circle, rgba(33,32,18,0.055) 1px, transparent 1px)",
+          backgroundImage: `radial-gradient(circle, ${withAlpha(colors.ink, 0.055)} 1px, transparent 1px)`,
           backgroundSize: "28px 28px",
           pointerEvents: "none",
         }}
@@ -220,7 +221,7 @@ function SceneTiltDemo() {
               overflow: "hidden",
               transform: `translateZ(${layer.z}px) rotate(${layer.rot}deg)`,
               boxShadow: `0 ${8 + layer.z * 0.3}px ${24 + layer.z * 0.6}px rgba(33,32,18,${0.14 + i * 0.04})`,
-              border: "2.5px solid rgba(255,255,255,0.75)",
+              border: `2.5px solid ${withAlpha(colors.white, 0.75)}`,
             }}
           >
             <img src={layer.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" />
@@ -242,7 +243,7 @@ function SceneTiltDemo() {
               fontFamily: "'Libre Caslon Condensed', Georgia, serif",
               fontSize: 13,
               fontStyle: "italic",
-              color: "rgba(33,32,18,0.38)",
+              color: withAlpha(colors.ink, 0.38),
               letterSpacing: "0.3px",
             }}
           >
@@ -256,7 +257,7 @@ function SceneTiltDemo() {
           position: "absolute",
           bottom: 10,
           fontSize: 10,
-          color: "rgba(33,32,18,0.2)",
+          color: withAlpha(colors.ink, 0.2),
           fontFamily: "'Inclusive Sans', sans-serif",
           letterSpacing: "0.5px",
           textTransform: "uppercase",
@@ -319,10 +320,10 @@ function RackFocusDemo() {
                 height: 194,
                 borderRadius: 10,
                 overflow: "hidden",
-                border: "2.5px solid rgba(255,255,255,0.7)",
+                border: `2.5px solid ${withAlpha(colors.white, 0.7)}`,
                 boxShadow: i === focus
-                  ? "0 14px 44px rgba(33,32,18,0.26)"
-                  : "0 3px 12px rgba(33,32,18,0.1)",
+                  ? `0 14px 44px ${withAlpha(colors.ink, 0.26)}`
+                  : `0 3px 12px ${withAlpha(colors.ink, 0.1)}`,
                 transition: "box-shadow 0.9s ease",
               }}
             >
@@ -342,7 +343,7 @@ function RackFocusDemo() {
                       fontFamily: "'Libre Caslon Condensed', Georgia, serif",
                       fontSize: 12,
                       fontStyle: "italic",
-                      color: "#625e37",
+                      color: colors.oliveDeep,
                       letterSpacing: "0.3px",
                     }}
                   >
@@ -369,7 +370,7 @@ function RackFocusDemo() {
         {[0, 1, 2].map(i => (
           <motion.div
             key={i}
-            animate={{ width: i === focus ? 18 : 5, background: i === focus ? "#625e37" : "rgba(33,32,18,0.18)" }}
+            animate={{ width: i === focus ? 18 : 5, background: i === focus ? colors.oliveDeep : withAlpha(colors.ink, 0.18) }}
             transition={{ duration: 0.35 }}
             style={{ height: 4, borderRadius: 2 }}
           />
@@ -498,12 +499,12 @@ function ElasticWebDemo() {
           <line
             key={i}
             ref={el => { lineRefs.current[i] = el; }}
-            stroke="rgba(98,94,55,0.18)"
+            stroke={withAlpha(colors.oliveDeep, 0.18)}
             strokeWidth={1}
             strokeDasharray="3 5"
           />
         ))}
-        <circle cx="50%" cy="50%" r={3} fill="rgba(98,94,55,0.28)" />
+        <circle cx="50%" cy="50%" r={3} fill={withAlpha(colors.oliveDeep, 0.28)} />
       </svg>
 
       {PHOTOS.slice(0, N).map((url, i) => (
@@ -516,8 +517,8 @@ function ElasticWebDemo() {
             height: 88,
             borderRadius: 8,
             overflow: "hidden",
-            border: "2.5px solid rgba(255,255,255,0.75)",
-            boxShadow: "0 6px 22px rgba(33,32,18,0.18)",
+            border: `2.5px solid ${withAlpha(colors.white, 0.75)}`,
+            boxShadow: `0 6px 22px ${withAlpha(colors.ink, 0.18)}`,
           }}
         >
           <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" />
@@ -529,7 +530,7 @@ function ElasticWebDemo() {
           position: "absolute",
           bottom: 10,
           fontSize: 10,
-          color: "rgba(33,32,18,0.2)",
+          color: withAlpha(colors.ink, 0.2),
           fontFamily: "'Inclusive Sans', sans-serif",
           letterSpacing: "0.5px",
           textTransform: "uppercase",
@@ -632,7 +633,7 @@ function CinematicStripDemo() {
   const Sprockets = () => (
     <div style={{ position: "absolute", left: 0, right: 0, display: "flex", gap: 18, justifyContent: "center", pointerEvents: "none" }}>
       {Array.from({ length: 18 }, (_, i) => (
-        <div key={i} style={{ width: 8, height: 6, borderRadius: 2, background: "rgba(33,32,18,0.11)", flexShrink: 0 }} />
+        <div key={i} style={{ width: 8, height: 6, borderRadius: 2, background: withAlpha(colors.ink, 0.11), flexShrink: 0 }} />
       ))}
     </div>
   );
@@ -687,7 +688,7 @@ function CinematicStripDemo() {
                   style={{
                     fontFamily: "monospace",
                     fontSize: 9,
-                    color: "rgba(33,32,18,0.28)",
+                    color: withAlpha(colors.ink, 0.28),
                     letterSpacing: "1px",
                   }}
                 >
@@ -700,8 +701,8 @@ function CinematicStripDemo() {
                     height: 158,
                     borderRadius: 6,
                     overflow: "hidden",
-                    border: i === activeIdx ? "2.5px solid rgba(255,255,255,0.9)" : "2px solid rgba(255,255,255,0.35)",
-                    boxShadow: i === activeIdx ? "0 12px 36px rgba(33,32,18,0.24)" : "none",
+                    border: i === activeIdx ? `2.5px solid ${withAlpha(colors.white, 0.9)}` : `2px solid ${withAlpha(colors.white, 0.35)}`,
+                    boxShadow: i === activeIdx ? `0 12px 36px ${withAlpha(colors.ink, 0.24)}` : "none",
                     transition: "border-color 0.4s, box-shadow 0.4s",
                   }}
                 >
@@ -713,7 +714,7 @@ function CinematicStripDemo() {
                     fontFamily: "'Libre Caslon Condensed', Georgia, serif",
                     fontStyle: "italic",
                     fontSize: 11,
-                    color: i === activeIdx ? "#625e37" : "rgba(33,32,18,0.22)",
+                    color: i === activeIdx ? colors.oliveDeep : withAlpha(colors.ink, 0.22),
                     transition: "color 0.4s ease",
                   }}
                 >
@@ -732,7 +733,7 @@ function CinematicStripDemo() {
           position: "absolute",
           bottom: 8,
           fontSize: 10,
-          color: "rgba(33,32,18,0.2)",
+          color: withAlpha(colors.ink, 0.2),
           fontFamily: "'Inclusive Sans', sans-serif",
           letterSpacing: "0.5px",
           textTransform: "uppercase",

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { colors } from "@/app/theme/tokens";
 
 export type BlogCategory = "write about design" | "personal musings" | "life in a nutshell";
 
@@ -59,7 +60,7 @@ function BlogFigure({ src, alt, caption }: { src: string; alt: string; caption?:
             display: "block",
             fontSize: 13,
             lineHeight: "18px",
-            color: "#625e37",
+            color: colors.oliveDeep,
             opacity: 0.75,
             marginTop: 10,
             padding: `0 ${padR}px 0 ${padL}px`,
@@ -81,7 +82,7 @@ function BlogHeading({ children, sub }: { children: ReactNode; sub?: boolean }) 
         display: "block",
         fontSize: 12,
         letterSpacing: "0.5px",
-        color: "#625e37",
+        color: colors.oliveDeep,
         marginTop: 8,
       }}
     >
@@ -94,7 +95,7 @@ function BlogHeading({ children, sub }: { children: ReactNode; sub?: boolean }) 
         display: "block",
         fontSize: 22,
         lineHeight: "28px",
-        color: "#212012",
+        color: colors.ink,
         fontWeight: 600,
         marginTop: 16,
       }}
@@ -290,14 +291,14 @@ export const BLOG_POSTS: BlogPost[] = [
       <span
         key="source"
         className="font-inclusive-sans"
-        style={{ display: "block", fontSize: 13, lineHeight: "20px", color: "#625e37", opacity: 0.7, marginTop: 8 }}
+        style={{ display: "block", fontSize: 13, lineHeight: "20px", color: colors.oliveDeep, opacity: 0.7, marginTop: 8 }}
       >
         Originally published with Canvs Editorial —{" "}
         <a
           href="https://medium.com/canvs/the-tactile-charm-of-micro-interactions-056747c4f615"
           target="_blank"
           rel="noreferrer"
-          style={{ color: "#625e37", textDecorationThickness: "1px", textUnderlineOffset: 2 }}
+          style={{ color: colors.oliveDeep, textDecorationThickness: "1px", textUnderlineOffset: 2 }}
         >
           read the original
         </a>

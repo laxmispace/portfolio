@@ -11,6 +11,7 @@ import logoJobTracker from "@/assets/ai-projects/logo-job-tracker.svg";
 import pianoImg from "@/assets/ai-projects/piano.png";
 import jobTrackerImg from "@/assets/ai-projects/job-tracker.png";
 import breathingImg from "@/assets/ai-projects/breathing.png";
+import { colors } from "@/app/theme/tokens";
 
 // The decorative grid is authored at 240×240 with 30px cells. On web it's pinned
 // to the corner at its natural size and the card's `overflow: hidden` crops it.
@@ -34,9 +35,9 @@ const GRID_STYLE_MOBILE: CSSProperties = {
 };
 
 const FRAME_BACKGROUND: Record<AiProjectFrameKey, string> = {
-  piano: "#C67D39",
-  "job-tracker": "#C3BE6F",
-  breathing: "#DDA1AE",
+  piano: colors.orange,
+  "job-tracker": colors.olive,
+  breathing: colors.pink,
 };
 
 // Foreground photo placement, shared by web and mobile. Each photo keeps its natural
@@ -66,7 +67,7 @@ function FrameImg({ src, style, className }: { src: string; style: CSSProperties
  * The decorative artwork that fills an AI-project card's image area.
  * Fills its positioned parent (which is expected to set `overflow: hidden`
  * and the border radius). For the hover-scale interaction the parent card
- * must carry the `aipf-card` class.
+ * must carry the `ai-project-card` class.
  */
 export function AiProjectFrame({
   frameKey,
@@ -91,14 +92,14 @@ export function AiProjectFrame({
       {frameKey === "piano" && (
         <>
           <FrameImg src={gridPiano} style={{ ...grid, left: 0 }} />
-          <FrameImg src={pianoImg} className="aipf-photo aipf-photo--piano" style={photo} />
+          <FrameImg src={pianoImg} className="ai-project-card__photo ai-project-card__photo--piano" style={photo} />
         </>
       )}
 
       {frameKey === "job-tracker" && (
         <>
           <FrameImg src={gridJobTracker} style={{ ...grid, left: 0 }} />
-          <FrameImg src={jobTrackerImg} className="aipf-photo aipf-photo--job" style={photo} />
+          <FrameImg src={jobTrackerImg} className="ai-project-card__photo ai-project-card__photo--job-tracker" style={photo} />
           <FrameImg
             src={logoJobTracker}
             style={
@@ -114,7 +115,7 @@ export function AiProjectFrame({
         <>
           <FrameImg src={gridBreathingLeft} style={{ ...grid, left: 0 }} />
           <FrameImg src={gridBreathingRight} style={{ ...grid, right: 0 }} />
-          <FrameImg src={breathingImg} className="aipf-photo aipf-photo--breathing" style={photo} />
+          <FrameImg src={breathingImg} className="ai-project-card__photo ai-project-card__photo--breathing" style={photo} />
         </>
       )}
     </div>

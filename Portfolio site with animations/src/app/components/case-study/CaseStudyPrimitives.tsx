@@ -3,13 +3,14 @@
 // public bundle while the case study text and screens stay encrypted until unlocked.
 import { useRef, useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
-// ─── Spacer: exact, one-off vertical space anywhere inside .cs-flow ──────────
+// ─── Spacer: exact, one-off vertical space anywhere inside .case-study-flow ──────────
 // Usage: <Spacer size={24} /> between any two elements. Pick from the shared
 // scale (4, 8, 12, 16, 20, 24, 40) so spacing stays consistent across case studies.
 export type SpacingSize = 0 | 4 | 8 | 12 | 16 | 20 | 24 | 32 | 40;
 export function Spacer({ size = 16 }: { size?: SpacingSize }) {
-  return <div className="cs-spacer" style={{ height: size, flexShrink: 0 }} aria-hidden="true" />;
+  return <div className="case-study-spacer" style={{ height: size, flexShrink: 0 }} aria-hidden="true" />;
 }
 
 // ─── Shared: card thumbnail placeholder ──────────────────────────────────────
@@ -37,7 +38,7 @@ export function ThumbnailPlaceholder({
 // A plain `border` sits inside the box and dents the rounded clip — this draws the stroke
 // as a separate absolutely-positioned sibling instead, exactly like PhoneStrip's original technique.
 export function StrokedImage({
-  src, alt = "", bgColor = "#e7ded5", strokeColor = "#c67d39", iconSize = 32,
+  src, alt = "", bgColor = colors.sandPanel, strokeColor = colors.orange, iconSize = 32,
   aspectRatio, height, radius = 5,
 }: {
   src?: string; alt?: string; bgColor?: string; strokeColor?: string; iconSize?: number;
@@ -45,7 +46,7 @@ export function StrokedImage({
 }) {
   return (
     <div style={{ position: "relative", width: "100%", ...(aspectRatio ? { aspectRatio } : { height: height ?? "100%" }) }}>
-      <div className="cs-img-frame" style={{ width: "100%", height: "100%", borderRadius: radius, overflow: "hidden", backgroundColor: bgColor }}>
+      <div className="case-study-media__frame" style={{ width: "100%", height: "100%", borderRadius: radius, overflow: "hidden", backgroundColor: bgColor }}>
         {src ? (
           <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
@@ -75,18 +76,18 @@ export function SectionBlock({ id, children }: { id: string; children: React.Rea
 
 export function SectionHeading({ children, isMobile = false }: { children: React.ReactNode; isMobile?: boolean }) {
   return (
-    <p className="font-caslon not-italic cs-t2" style={{
+    <p className="font-caslon not-italic case-study-heading" style={{
       fontSize: isMobile ? 24 : 24,
-      color: "#212012", fontWeight: 600, lineHeight: "normal",
+      color: colors.ink, fontWeight: 600, lineHeight: "normal",
     }}>
       {children}
     </p>
   );
 }
 
-export function BodyText({ children, color = "#444" }: { children: React.ReactNode; color?: string; isMobile?: boolean }) {
+export function BodyText({ children, color = colors.body }: { children: React.ReactNode; color?: string; isMobile?: boolean }) {
   return (
-    <p className="font-inclusive-sans font-normal cs-p" style={{
+    <p className="font-inclusive-sans font-normal case-study-paragraph" style={{
       fontSize: 16,
       lineHeight: "24px",
       color,
@@ -167,7 +168,7 @@ function CarouselPhoneSet({ images, stroke = true }: { images: string[]; stroke?
             width: ready ? sizes[i]!.w * scale : 0,
             height: ready ? sizes[i]!.h * scale : 0,
             opacity: ready ? 1 : 0,
-            borderRadius: stroke ? 5 : 1, border: stroke ? "1px solid #ffffff" : "none", boxSizing: "border-box",
+            borderRadius: stroke ? 5 : 1, border: stroke ? `1px solid ${colors.white}` : "none", boxSizing: "border-box",
           }}
         />
       ))}
@@ -175,15 +176,15 @@ function CarouselPhoneSet({ images, stroke = true }: { images: string[]; stroke?
   );
 }
 
-export function ImageCarousel({ slides, isMobile = false, bgColor = "#e7ded5", maxWidth }: { slides: CarouselSlide[]; isMobile?: boolean; bgColor?: string; maxWidth?: number }) {
+export function ImageCarousel({ slides, isMobile = false, bgColor = colors.sandPanel, maxWidth }: { slides: CarouselSlide[]; isMobile?: boolean; bgColor?: string; maxWidth?: number }) {
   const [active, setActive] = useState(0);
   const current = slides[active];
-  const strokeColor = "#c67d39";
+  const strokeColor = colors.orange;
   const thumbW = isMobile ? 64 : 80;
   const thumbH = isMobile ? 44 : 54;
 
   return (
-    <div className="cs-img" style={{ display: "flex", flexDirection: "column", gap: isMobile ? 10 : 12, width: "100%", maxWidth: isMobile ? undefined : maxWidth }}>
+    <div className="case-study-media" style={{ display: "flex", flexDirection: "column", gap: isMobile ? 10 : 12, width: "100%", maxWidth: isMobile ? undefined : maxWidth }}>
       {/* Full frame — the one active slide. Web: 16/12 padding, rounded 8. Mobile: edge-to-edge
           (no side padding, no rounding), just a 10px gap before the caption row. */}
       <div
@@ -226,17 +227,17 @@ export function ImageCarousel({ slides, isMobile = false, bgColor = "#e7ded5", m
             <p className={isMobile ? "font-inclusive-sans font-normal" : "font-jakarta font-medium"} style={{
               flex: 1, minWidth: 0,
               fontSize: 10, lineHeight: isMobile ? "12px" : "13px", letterSpacing: "0.01em",
-              color: "rgba(33,32,18,0.5)",
+              color: withAlpha(colors.ink, 0.5),
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             }}>
               {current.caption}
             </p>
             <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0 }}>
-              <p className={isMobile ? "font-inclusive-sans font-normal" : "font-jakarta font-medium"} style={{ fontSize: 10, lineHeight: isMobile ? "12px" : "13px", letterSpacing: "0.01em", color: "#735933" }}>
+              <p className={isMobile ? "font-inclusive-sans font-normal" : "font-jakarta font-medium"} style={{ fontSize: 10, lineHeight: isMobile ? "12px" : "13px", letterSpacing: "0.01em", color: colors.brown }}>
                 {active + 1}
               </p>
-              <div style={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: "rgba(115,89,51,0.3)" }} />
-              <p className={isMobile ? "font-inclusive-sans font-normal" : "font-jakarta font-medium"} style={{ fontSize: 10, lineHeight: isMobile ? "12px" : "13px", letterSpacing: "0.01em", color: "rgba(115,89,51,0.5)" }}>
+              <div style={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: withAlpha(colors.brown, 0.3) }} />
+              <p className={isMobile ? "font-inclusive-sans font-normal" : "font-jakarta font-medium"} style={{ fontSize: 10, lineHeight: isMobile ? "12px" : "13px", letterSpacing: "0.01em", color: withAlpha(colors.brown, 0.5) }}>
                 {slides.length}
               </p>
             </div>
@@ -247,7 +248,7 @@ export function ImageCarousel({ slides, isMobile = false, bgColor = "#e7ded5", m
       {/* Thumbnails — always all N slides (N = the counter's total), active one highlighted.
           Never conditionally removed, so the row never reorders and every slide stays reachable. */}
       {slides.length > 1 && (
-        <div className="cs-thumb-row" style={{ display: "flex", flexWrap: "nowrap", gap: 12, padding: isMobile ? "0 24px" : 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+        <div className="case-study-thumb-row" style={{ display: "flex", flexWrap: "nowrap", gap: 12, padding: isMobile ? "0 24px" : 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           {slides.map((slide, i) => (
             <button
               key={i}
@@ -288,7 +289,7 @@ export function ImageCarousel({ slides, isMobile = false, bgColor = "#e7ded5", m
               )}
               <div style={{
                 position: "absolute", inset: -1, borderRadius: 5, pointerEvents: "none",
-                border: i === active ? `1.5px solid ${strokeColor}` : "1px solid #ffffff",
+                border: i === active ? `1.5px solid ${strokeColor}` : `1px solid ${colors.white}`,
               }} />
             </button>
           ))}
@@ -306,32 +307,32 @@ export function LandingComparisonPanel({
 }: {
   before?: string; beforeCaption: string; after: [string?, string?]; afterCaption: string;
 }) {
-  const strokeColor = "#c67d39";
+  const strokeColor = colors.orange;
   const captionRow = (text: string) => (
     <div style={{ display: "flex", flexDirection: "row", alignItems: "center", padding: "0 4px", gap: 6, width: "100%", flexShrink: 0 }}>
       <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: strokeColor, flexShrink: 0 }} />
-      <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: "rgba(33,32,18,0.5)" }}>
+      <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: withAlpha(colors.ink, 0.5) }}>
         {text}
       </p>
     </div>
   );
 
   return (
-    <div className="cs-img" style={{ display: "flex", flexDirection: "column", width: "100%", borderRadius: 8, overflow: "hidden" }}>
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "20px 0", gap: 10, width: "100%", backgroundColor: "#e7ded5" }}>
+    <div className="case-study-media" style={{ display: "flex", flexDirection: "column", width: "100%", borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "20px 0", gap: 10, width: "100%", backgroundColor: colors.sandPanel }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12, width: "45.72%" }}>
-          <StrokedImage src={before} bgColor="#e7ded5" strokeColor={strokeColor} aspectRatio="267 / 80" />
+          <StrokedImage src={before} bgColor={colors.sandPanel} strokeColor={strokeColor} aspectRatio="267 / 80" />
           {captionRow(beforeCaption)}
         </div>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "20px 0", gap: 10, width: "100%", backgroundColor: "#ece6df" }}>
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "20px 0", gap: 10, width: "100%", backgroundColor: colors.sandLight }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12, width: "84.93%" }}>
           <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 24, width: "100%" }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <StrokedImage src={after[0]} bgColor="#ece6df" strokeColor={strokeColor} aspectRatio="236 / 80" />
+              <StrokedImage src={after[0]} bgColor={colors.sandLight} strokeColor={strokeColor} aspectRatio="236 / 80" />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <StrokedImage src={after[1]} bgColor="#ece6df" strokeColor={strokeColor} aspectRatio="236 / 80" />
+              <StrokedImage src={after[1]} bgColor={colors.sandLight} strokeColor={strokeColor} aspectRatio="236 / 80" />
             </div>
           </div>
           {captionRow(afterCaption)}
@@ -343,12 +344,12 @@ export function LandingComparisonPanel({
 
 export function IterationLabel({ children, isMobile = false }: { children: React.ReactNode; isMobile?: boolean }) {
   return (
-    <p className="font-inclusive-sans font-medium cs-t3" style={{
+    <p className="font-inclusive-sans font-medium case-study-subheading" style={{
       fontSize: isMobile ? 16 : 18,
       lineHeight: isMobile ? "21px" : "24px",
       letterSpacing: "0.02em",
       textTransform: "uppercase",
-      color: "#c67d39",
+      color: colors.orange,
     }}>
       {children}
     </p>
@@ -359,21 +360,21 @@ export function IterationLabel({ children, isMobile = false }: { children: React
 // row of small same-height state thumbnails (not a big-image carousel like ImageCarousel).
 export function IterationThumbnailRow({ caption, images, aspectRatio = "98 / 48", isMobile = false }: { caption: string; images: string[]; aspectRatio?: string; isMobile?: boolean }) {
   return (
-    <div className="cs-img" style={{
+    <div className="case-study-media" style={{
       display: "flex", flexDirection: "column", gap: 12,
-      width: "100%", backgroundColor: "#e7ded5", borderRadius: 8,
+      width: "100%", backgroundColor: colors.sandPanel, borderRadius: 8,
       padding: isMobile ? 12 : 16,
     }}>
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6 }}>
-        <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: "#c67d39", flexShrink: 0 }} />
-        <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: "rgba(33,32,18,0.5)" }}>
+        <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
+        <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: withAlpha(colors.ink, 0.5) }}>
           {caption}
         </p>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {images.map((src, i) => (
           <div key={i} style={{ flex: isMobile ? "1 1 28%" : "1 1 15%", minWidth: isMobile ? 84 : 80 }}>
-            <StrokedImage src={src} bgColor="#e7ded5" strokeColor="#c67d39" aspectRatio={aspectRatio} radius={0} />
+            <StrokedImage src={src} bgColor={colors.sandPanel} strokeColor={colors.orange} aspectRatio={aspectRatio} radius={0} />
           </div>
         ))}
       </div>
@@ -386,30 +387,30 @@ interface StateTreatmentRow { state: string; treatment: string; }
 
 export function StateTreatmentTable({ rows, isMobile = false }: { rows: StateTreatmentRow[]; isMobile?: boolean }) {
   return (
-    <div className="cs-img" style={{ display: "flex", flexDirection: "column", width: "100%", border: "1px solid #DACCBE", borderRadius: 12, overflow: "hidden" }}>
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, width: "100%", backgroundColor: "#E3D9CE" }}>
+    <div className="case-study-media" style={{ display: "flex", flexDirection: "column", width: "100%", border: `1px solid ${colors.sandBorder}`, borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, width: "100%", backgroundColor: colors.sand }}>
         <p className="font-inclusive-sans font-medium" style={{
           flex: 1, padding: isMobile ? "10px 0 10px 12px" : "10px 0 10px 16px",
-          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: "#444444",
+          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: colors.body,
         }}>
           State
         </p>
         <TableColumnDivider />
         <p className="font-inclusive-sans font-medium" style={{
           flex: 1, textAlign: "left", padding: isMobile ? "10px 12px 10px 0" : "10px 16px 10px 0",
-          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: "#444444",
+          fontSize: 12, lineHeight: "20px", letterSpacing: "0.5px", textTransform: "uppercase", color: colors.body,
         }}>
           Treatment
         </p>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", width: "100%", backgroundColor: "#E7DED5", padding: isMobile ? "10px 14px" : "12px 16px", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "100%", backgroundColor: colors.sandPanel, padding: isMobile ? "10px 14px" : "12px 16px", gap: 12 }}>
         {rows.map((row, i) => (
           <div key={i} style={{ display: "flex", flexDirection: "row", gap: 12 }}>
-            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 12, lineHeight: "16px", letterSpacing: "0.25px", color: "#444444" }}>
+            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 12, lineHeight: "16px", letterSpacing: "0.25px", color: colors.body }}>
               {i + 1}. {row.state}
             </p>
             <TableColumnDivider />
-            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", letterSpacing: "0.25px", color: "#444444" }}>
+            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", letterSpacing: "0.25px", color: colors.body }}>
               {row.treatment}
             </p>
           </div>
@@ -422,9 +423,9 @@ export function StateTreatmentTable({ rows, isMobile = false }: { rows: StateTre
 // Simple 2x2 image grid (CS2 recharge "the problem" — old reference flows, no per-image caption)
 export function ImageGrid2x2({ images }: { images: string[] }) {
   return (
-    <div className="cs-img" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%" }}>
+    <div className="case-study-media" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%" }}>
       {images.map((src, i) => (
-        <StrokedImage key={i} src={src} bgColor="#e7ded5" strokeColor="#c67d39" aspectRatio="270 / 169" />
+        <StrokedImage key={i} src={src} bgColor={colors.sandPanel} strokeColor={colors.orange} aspectRatio="270 / 169" />
       ))}
     </div>
   );
@@ -433,5 +434,5 @@ export function ImageGrid2x2({ images }: { images: string[] }) {
 // Vertical divider between the JTBD/Context columns — table border colour, 1px stroke,
 // stretches to the height of whichever row it sits in.
 export function TableColumnDivider() {
-  return <div style={{ alignSelf: "stretch", width: 1, backgroundColor: "#DACCBE", flexShrink: 0 }} />;
+  return <div style={{ alignSelf: "stretch", width: 1, backgroundColor: colors.sandBorder, flexShrink: 0 }} />;
 }

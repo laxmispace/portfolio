@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform, type OGLRenderingContext } from "ogl";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 // A circular, infinitely-wrapping WebGL photo carousel — ported from the
 // mechanics of https://github.com/bizarro/infinite-circular-webgl-gallery
@@ -299,13 +300,13 @@ export function InfiniteCircularGallery({ height = 420 }: { height?: number }) {
         style={{
           height,
           borderRadius: 20,
-          border: "1px dashed rgba(33,32,18,0.15)",
+          border: `1px dashed ${withAlpha(colors.ink, 0.15)}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <p className="font-caslon" style={{ fontSize: 14, color: "rgba(33,32,18,0.35)", fontStyle: "italic" }}>
+        <p className="font-caslon" style={{ fontSize: 14, color: withAlpha(colors.ink, 0.35), fontStyle: "italic" }}>
           drop photos into src/assets/personal/gallery to bring this gallery to life
         </p>
       </div>
@@ -320,7 +321,7 @@ export function InfiniteCircularGallery({ height = 420 }: { height?: number }) {
         width: "100%",
         borderRadius: 20,
         overflow: "hidden",
-        border: "1px solid rgba(33,32,18,0.08)",
+        border: `1px solid ${withAlpha(colors.ink, 0.08)}`,
         position: "relative",
       }}
     />

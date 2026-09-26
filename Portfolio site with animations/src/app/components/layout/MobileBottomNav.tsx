@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import type { NavSection } from "./SideNav";
 import { haptic, softTick } from "@/app/lib/feedback";
 import { MobileFab } from "./MobileFab";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 // Fixed order — items never reflow. Only the active row changes style.
 const NAV_ITEMS: { id: NavSection; label: string }[] = [
@@ -65,10 +66,10 @@ function SectionRuler({ count, activeIndex, onScrub }: { count: number; activeIn
         const near = Math.abs(i - activeLine) === 1;
         const width = isActive ? 80 : isMajor ? 72 : i % 2 === 0 ? 56 : 60;
         const color = isActive
-          ? "#212012"
+          ? colors.ink
           : near
-          ? "rgba(198,125,57,0.4)"
-          : "rgba(198,125,57,0.2)";
+          ? withAlpha(colors.orange, 0.4)
+          : withAlpha(colors.orange, 0.2);
         return (
           <motion.span
             key={i}
@@ -100,7 +101,7 @@ export function MobileBottomNav({
         bottom: 0,
         height: BAND_HEIGHT,
         zIndex: 9000,
-        background: "#ECE6DF",
+        background: colors.sandLight,
         display: "flex",
         alignItems: "flex-start",
         justifyContent: "center",
@@ -160,7 +161,7 @@ export function MobileBottomNav({
                 left: 0,
                 right: 0,
                 height: 12,
-                background: "linear-gradient(180deg, #ECE6DF 30%, rgba(236,230,223,0) 100%)",
+                background: `linear-gradient(180deg, ${colors.sandLight} 30%, rgba(236,230,223,0) 100%)`,
                 pointerEvents: "none",
                 zIndex: 2,
               }}
@@ -174,7 +175,7 @@ export function MobileBottomNav({
                   onClick={() => onNavigate(item.id)}
                   whileTap={{ scale: 0.96 }}
                   className="font-inclusive-sans"
-                  animate={{ color: isActive ? "#625E37" : "#C67D39" }}
+                  animate={{ color: isActive ? colors.oliveDeep : colors.orange }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
                   style={{
                     background: "none",

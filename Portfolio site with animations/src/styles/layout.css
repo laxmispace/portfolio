@@ -1,0 +1,29 @@
+/* App shell — the rounded page card, its scroller and the side nav. */
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding: 0 !important;
+    background: var(--color-sand-light) !important;
+  }
+  .app-shell__panel {
+    border-radius: 0 !important;
+  }
+  /* The scroll card is locked to the top of the screen (position: fixed so it
+     can't drift on overscroll); the bottom 72px belongs to the nav band. */
+  .app-shell__scroller {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: calc(100dvh - 72px) !important;
+    flex: none !important;
+    width: 100% !important;
+    z-index: 20 !important;
+    border-radius: 0 0 16px 16px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: none !important;
+  }
+  .app-shell__side-nav {
+    display: none !important;
+  }
+}

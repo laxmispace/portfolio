@@ -11,6 +11,7 @@ import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { Lock, X } from "lucide-react";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 type ProtectedModule = typeof import("./ProtectedCaseStudies");
 
@@ -116,17 +117,17 @@ export function CaseStudyGate({ caseStudy, isMobile, onDismiss }: { caseStudy: "
       } : {
         display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 16,
         padding: 28, borderRadius: 12,
-        backgroundColor: "#E7DED5", border: "1px solid #DACCBE",
+        backgroundColor: colors.sandPanel, border: `1px solid ${colors.sandBorder}`,
       }}
     >
-      <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: "rgba(198,125,57,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Lock size={16} color="#C67D39" />
+      <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: withAlpha(colors.orange, 0.15), display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Lock size={16} color={colors.orange} />
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <p className="font-caslon not-italic" style={{ fontSize: 20, lineHeight: "26px", fontWeight: 600, color: "#212012" }}>
+        <p className="font-caslon not-italic" style={{ fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.ink }}>
           This case study is password protected
         </p>
-        <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: "#444444" }}>
+        <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>
           Enter the password to read it.
         </p>
       </div>
@@ -144,9 +145,9 @@ export function CaseStudyGate({ caseStudy, isMobile, onDismiss }: { caseStudy: "
           style={{
             flex: 1, minWidth: 0, height: isMobile ? 44 : 40, padding: "0 12px",
             // 16px on mobile stops iOS Safari zooming the page when the field is focused
-            fontSize: isMobile ? 16 : 14, color: "#212012",
+            fontSize: isMobile ? 16 : 14, color: colors.ink,
             backgroundColor: "#F3EEE8", borderRadius: 8, outline: "none",
-            border: `1px solid ${status === "wrong" ? "#C0392B" : "#DACCBE"}`,
+            border: `1px solid ${status === "wrong" ? colors.error : colors.sandBorder}`,
           }}
         />
         <button
@@ -154,8 +155,8 @@ export function CaseStudyGate({ caseStudy, isMobile, onDismiss }: { caseStudy: "
           disabled={!password || status === "checking"}
           className="font-inclusive-sans font-medium"
           style={{
-            height: isMobile ? 44 : 40, padding: "0 20px", fontSize: isMobile ? 15 : 14, color: "#FFFFFF", border: "none", borderRadius: 8,
-            backgroundColor: "#C67D39", cursor: password ? "pointer" : "not-allowed",
+            height: isMobile ? 44 : 40, padding: "0 20px", fontSize: isMobile ? 15 : 14, color: colors.white, border: "none", borderRadius: 8,
+            backgroundColor: colors.orange, cursor: password ? "pointer" : "not-allowed",
             opacity: !password || status === "checking" ? 0.6 : 1,
           }}
         >
@@ -163,10 +164,10 @@ export function CaseStudyGate({ caseStudy, isMobile, onDismiss }: { caseStudy: "
         </button>
       </div>
       {status === "wrong" && (
-        <p className="font-inclusive-sans" role="alert" style={{ fontSize: 13, color: "#C0392B" }}>That password isn't right. Try again.</p>
+        <p className="font-inclusive-sans" role="alert" style={{ fontSize: 13, color: colors.error }}>That password isn't right. Try again.</p>
       )}
       {status === "error" && (
-        <p className="font-inclusive-sans" role="alert" style={{ fontSize: 13, color: "#C0392B" }}>Couldn't load the case study. Check your connection and try again.</p>
+        <p className="font-inclusive-sans" role="alert" style={{ fontSize: 13, color: colors.error }}>Couldn't load the case study. Check your connection and try again.</p>
       )}
     </form>
   );
@@ -180,7 +181,7 @@ export function CaseStudyGate({ caseStudy, isMobile, onDismiss }: { caseStudy: "
         animate={{ opacity: 1 }}
         transition={{ duration: 0.25 }}
         onClick={onDismiss}
-        style={{ position: "fixed", inset: 0, zIndex: 600, backgroundColor: "rgba(33,32,18,0.6)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
+        style={{ position: "fixed", inset: 0, zIndex: 600, backgroundColor: withAlpha(colors.ink, 0.6), backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)" }}
       />
       <motion.div
         role="dialog"
@@ -191,19 +192,19 @@ export function CaseStudyGate({ caseStudy, isMobile, onDismiss }: { caseStudy: "
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         style={{
           position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 601,
-          backgroundColor: "#E7DED5", borderRadius: "20px 20px 0 0",
-          boxShadow: "0 -8px 32px rgba(33,32,18,0.18)",
+          backgroundColor: colors.sandPanel, borderRadius: "20px 20px 0 0",
+          boxShadow: `0 -8px 32px ${withAlpha(colors.ink, 0.18)}`,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "relative", paddingTop: 10 }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: "rgba(33,32,18,0.2)" }} />
+          <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: withAlpha(colors.ink, 0.2) }} />
           <button
             type="button"
             onClick={onDismiss}
             aria-label="Close"
-            style={{ position: "absolute", top: 10, right: 12, width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(33,32,18,0.15)", backgroundColor: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            style={{ position: "absolute", top: 10, right: 12, width: 32, height: 32, borderRadius: "50%", border: `1px solid ${withAlpha(colors.ink, 0.15)}`, backgroundColor: "transparent", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
           >
-            <X size={14} color="#212012" />
+            <X size={14} color={colors.ink} />
           </button>
         </div>
         {form}

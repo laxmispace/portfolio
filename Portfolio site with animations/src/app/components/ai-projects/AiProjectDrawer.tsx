@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, ExternalLink, Download, CirclePlay } from "lucide-react";
 import type { AiProject } from "@/app/data/aiProjects";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 interface AiProjectDrawerProps {
   project: AiProject | null;
@@ -17,10 +18,10 @@ function WebAppBody({ project }: { project: AiProject }) {
   }, [project.id]);
 
   return (
-    <div style={{ flex: 1, position: "relative", backgroundColor: "#e3d9ce" }}>
+    <div style={{ flex: 1, position: "relative", backgroundColor: colors.sand }}>
       {!loaded && (
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <p className="font-caslon" style={{ fontSize: 14, color: "rgba(33,32,18,0.3)", fontStyle: "italic" }}>
+          <p className="font-caslon" style={{ fontSize: 14, color: withAlpha(colors.ink, 0.3), fontStyle: "italic" }}>
             loading project…
           </p>
         </div>
@@ -63,11 +64,11 @@ function ExtensionBody({ project }: { project: AiProject }) {
         ))}
       </div>
 
-      <p className="font-caslon not-italic" style={{ fontSize: 26, lineHeight: "32px", color: "#e3d9ce", fontWeight: 600, marginBottom: 16, maxWidth: 640 }}>
+      <p className="font-caslon not-italic" style={{ fontSize: 26, lineHeight: "32px", color: colors.sand, fontWeight: 600, marginBottom: 16, maxWidth: 640 }}>
         {project.title}
       </p>
 
-      <p className="font-inclusive-sans" style={{ fontSize: 15, lineHeight: "25px", color: "rgba(227,217,206,0.75)", marginBottom: 32, maxWidth: 640 }}>
+      <p className="font-inclusive-sans" style={{ fontSize: 15, lineHeight: "25px", color: withAlpha(colors.sand, 0.75), marginBottom: 32, maxWidth: 640 }}>
         {project.longDescription}
       </p>
 
@@ -82,8 +83,8 @@ function ExtensionBody({ project }: { project: AiProject }) {
               backgroundColor: project.accent, textDecoration: "none",
             }}
           >
-            <Download size={15} color="#212012" />
-            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: "#212012" }}>
+            <Download size={15} color={colors.ink} />
+            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: colors.ink }}>
               download extension
             </span>
           </a>
@@ -94,13 +95,13 @@ function ExtensionBody({ project }: { project: AiProject }) {
             style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "12px 20px", borderRadius: 10,
-              backgroundColor: "rgba(227,217,206,0.08)",
-              border: "1px solid rgba(227,217,206,0.2)",
+              backgroundColor: withAlpha(colors.sand, 0.08),
+              border: `1px solid ${withAlpha(colors.sand, 0.2)}`,
               cursor: "pointer",
             }}
           >
-            <CirclePlay size={15} color="#e3d9ce" />
-            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: "#e3d9ce" }}>
+            <CirclePlay size={15} color={colors.sand} />
+            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: colors.sand }}>
               {showVideo ? "hide walkthrough" : "how to use"}
             </span>
           </button>
@@ -115,7 +116,7 @@ function ExtensionBody({ project }: { project: AiProject }) {
             paddingTop: "56.25%",
             borderRadius: 12,
             overflow: "hidden",
-            border: "1px solid rgba(227,217,206,0.1)",
+            border: `1px solid ${withAlpha(colors.sand, 0.1)}`,
           }}
         >
           <iframe
@@ -161,7 +162,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
             onClick={onClose}
             style={{
               position: "fixed", inset: 0, zIndex: 599,
-              backgroundColor: "rgba(33,32,18,0.4)",
+              backgroundColor: withAlpha(colors.ink, 0.4),
               backdropFilter: "blur(4px)",
             }}
           />
@@ -175,7 +176,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
               position: "fixed", right: 0, top: 0, bottom: 0, zIndex: 600,
               width: isMobile ? "100%" : "min(1200px, 90vw)",
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
-              backgroundColor: "#212012",
+              backgroundColor: colors.ink,
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
@@ -191,8 +192,8 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
                 gap: 16,
                 padding: "12px 20px",
                 flexShrink: 0,
-                borderBottom: "1px solid rgba(227,217,206,0.1)",
-                backgroundColor: "#212012",
+                borderBottom: `1px solid ${withAlpha(colors.sand, 0.1)}`,
+                backgroundColor: colors.ink,
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
@@ -202,7 +203,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
                     width: 34,
                     height: 34,
                     borderRadius: "50%",
-                    backgroundColor: "rgba(227,217,206,0.08)",
+                    backgroundColor: withAlpha(colors.sand, 0.08),
                     border: "none",
                     cursor: "pointer",
                     display: "flex",
@@ -211,14 +212,14 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
                     flexShrink: 0,
                   }}
                 >
-                  <X size={15} color="#e3d9ce" />
+                  <X size={15} color={colors.sand} />
                 </button>
                 <div style={{ minWidth: 0 }}>
                   <p
                     className="font-caslon not-italic"
                     style={{
                       fontSize: 16,
-                      color: "#e3d9ce",
+                      color: colors.sand,
                       fontWeight: 600,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
@@ -227,7 +228,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
                   >
                     {project.title}
                   </p>
-                  <p className="font-inclusive-sans" style={{ fontSize: 11, color: "rgba(227,217,206,0.45)" }}>
+                  <p className="font-inclusive-sans" style={{ fontSize: 11, color: withAlpha(colors.sand, 0.45) }}>
                     {isExtension ? "chrome extension" : "running live · fully interactive"}
                   </p>
                 </div>
@@ -244,15 +245,15 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
                     gap: 6,
                     padding: "8px 14px",
                     borderRadius: 8,
-                    border: "1px solid rgba(227,217,206,0.15)",
+                    border: `1px solid ${withAlpha(colors.sand, 0.15)}`,
                     textDecoration: "none",
                     flexShrink: 0,
                   }}
                 >
-                  <span className="font-inclusive-sans" style={{ fontSize: 12, color: "#e3d9ce" }}>
+                  <span className="font-inclusive-sans" style={{ fontSize: 12, color: colors.sand }}>
                     open in new tab
                   </span>
-                  <ExternalLink size={13} color="#e3d9ce" />
+                  <ExternalLink size={13} color={colors.sand} />
                 </a>
               )}
             </div>

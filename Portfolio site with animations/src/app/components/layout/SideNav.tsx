@@ -7,6 +7,7 @@ import {
   AnimatePresence,
 } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
+import { colors } from "@/app/theme/tokens";
 
 export type NavSection = "home" | "projects" | "ai-projects" | "blog";
 export type { NavSection as SideNavSection };
@@ -72,12 +73,12 @@ function NavIndicator({ section }: { section: NavSection }) {
       viewBox="0 0 5 5" fill="none"
       style={flip ? { transform: "scaleY(-1)" } : undefined}
     >
-      <path d={TRIANGLE_PATH} fill="#625E37" />
+      <path d={TRIANGLE_PATH} fill={colors.oliveDeep} />
     </svg>
   );
   const dot = () => (
     <svg width={INDICATOR_SIZE} height={INDICATOR_SIZE} viewBox="0 0 5 5" fill="none">
-      <circle cx="2.5" cy="2.5" r="2.5" fill="#625E37" />
+      <circle cx="2.5" cy="2.5" r="2.5" fill={colors.oliveDeep} />
     </svg>
   );
 
@@ -124,13 +125,13 @@ function BottomLinks() {
           className="font-inclusive-sans lowercase"
           style={{
             display: "inline-flex", alignItems: "center", gap: 5,
-            fontSize: 13, letterSpacing: "0.02em", color: "#625e37",
+            fontSize: 13, letterSpacing: "0.02em", color: colors.oliveDeep,
             textDecoration: "none", transformOrigin: "left center",
           }}
-          whileHover={{ scale: 1.12, color: "#212012" }}
+          whileHover={{ scale: 1.12, color: colors.ink }}
           transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
         >
-          <ArrowUpRight size={14} strokeWidth={2} color="#c67d39" style={{ flexShrink: 0 }} />
+          <ArrowUpRight size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
           {l.label}
         </motion.a>
       ))}
@@ -169,31 +170,31 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
         {/* Bee illustration (relative to name) */}
         <div style={{ position: "absolute", left: 22, top: -18, pointerEvents: "none" }}>
           <svg width="36" height="30" viewBox="0 0 35.3604 29.0746" fill="none">
-            <path d={BEE_PATH} stroke="#212012" strokeLinecap="round" strokeWidth="2" />
+            <path d={BEE_PATH} stroke={colors.ink} strokeLinecap="round" strokeWidth="2" />
           </svg>
           <svg style={{ position: "absolute", top: -2, left: 14 }} width="15" height="8" viewBox="0 0 15 7.8036" fill="none">
-            <ellipse cx="7.5" cy="3.9018" fill="#212012" rx="7.5" ry="3.9018" />
+            <ellipse cx="7.5" cy="3.9018" fill={colors.ink} rx="7.5" ry="3.9018" />
           </svg>
           <svg style={{ position: "absolute", top: 5, left: 17 }} width="9" height="5" viewBox="0 0 9.3057 4.44875" fill="none">
-            <ellipse cx="4.65285" cy="2.22437" fill="#625E37" rx="4.65285" ry="2.22437" />
+            <ellipse cx="4.65285" cy="2.22437" fill={colors.oliveDeep} rx="4.65285" ry="2.22437" />
           </svg>
           <svg style={{ position: "absolute", top: -2, left: 26 }} width="15" height="8" viewBox="0 0 15 7.66673" fill="none">
-            <ellipse cx="7.5" cy="3.83336" fill="#212012" rx="7.5" ry="3.83336" />
+            <ellipse cx="7.5" cy="3.83336" fill={colors.ink} rx="7.5" ry="3.83336" />
           </svg>
           <svg style={{ position: "absolute", top: 5, left: 28 }} width="9" height="5" viewBox="0 0 8.87671 4.74718" fill="none">
-            <ellipse cx="4.43835" cy="2.37359" fill="#625E37" rx="4.43835" ry="2.37359" />
+            <ellipse cx="4.43835" cy="2.37359" fill={colors.oliveDeep} rx="4.43835" ry="2.37359" />
           </svg>
           <svg style={{ position: "absolute", top: -3, left: 34 }} width="5" height="5" viewBox="0 0 3.73112 4.19925" fill="none">
-            <path d={STAR_SMALL_PATH} fill="#1E1E1E" />
+            <path d={STAR_SMALL_PATH} fill={colors.ink} />
           </svg>
           <svg style={{ position: "absolute", top: -9, left: 37 }} width="7" height="8" viewBox="0 0 4.83577 5.97408" fill="none">
-            <path d={STAR_LARGE_PATH} fill="#1E1E1E" />
+            <path d={STAR_LARGE_PATH} fill={colors.ink} />
           </svg>
         </div>
-        <p className="font-caslon text-[#212012] uppercase leading-tight" style={{ fontSize: 24, letterSpacing: "-1.92px" }}>
+        <p className="font-caslon text-ink uppercase leading-tight" style={{ fontSize: 24, letterSpacing: "-1.92px" }}>
           Laxmi
         </p>
-        <p className="font-caslon text-[#212012] leading-tight" style={{ fontSize: 24, letterSpacing: "-1.68px" }}>
+        <p className="font-caslon text-ink leading-tight" style={{ fontSize: 24, letterSpacing: "-1.68px" }}>
           MAHA<em>J</em>AN
         </p>
       </div>
@@ -205,7 +206,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
         <div style={{
           position: "absolute", left: RULE_LEFT, top: 0,
           width: 1, height: RULE_HEIGHT,
-          backgroundColor: "#D1C0AE",
+          backgroundColor: colors.sandLine,
         }} />
 
         {/* Animated fill: grows from top as activeSection advances.
@@ -213,7 +214,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
         <motion.div style={{
           position: "absolute", left: RULE_LEFT, top: 0,
           width: 1, height: fillH,
-          backgroundColor: "#625e37",
+          backgroundColor: colors.oliveDeep,
         }} />
 
         {/* Single indicator — springs between NAV_Y positions */}
@@ -260,7 +261,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
                   // Active font size increased by 4px (14→18)
                   fontSize: isActive ? 18 : 14,
                   letterSpacing: isActive ? "-0.28px" : "0.56px",
-                  color: isActive ? "#625e37" : "#c67d39",
+                  color: isActive ? colors.oliveDeep : colors.orange,
                   background: "none",
                   border: "none",
                   padding: 0,
