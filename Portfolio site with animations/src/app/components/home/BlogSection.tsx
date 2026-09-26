@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { BLOG_POSTS, BLOG_CATEGORIES, type BlogPost, type BlogCategory } from "@/app/data/blogPosts";
-import { BlogEditorialList, BlogStickyBoard } from "@/app/components/blog/BlogLayouts";
+import { BlogFilterTabs, BlogJournal } from "@/app/components/blog/BlogJournal";
 
 import { BlogPostDrawer } from "@/app/components/blog/BlogPostDrawer";
-import { colors, withAlpha } from "@/app/theme/tokens";
+import { colors } from "@/app/theme/tokens";
 
 
 // Blog post slug in the URL, e.g. /portfolio/blog/sukoon
@@ -15,28 +15,15 @@ const blogUrl = (slug: string) => `${BLOG_BASE}${slug}`;
 const slugFromPath = (pathname: string) =>
   pathname.startsWith(BLOG_BASE) ? pathname.slice(BLOG_BASE.length).replace(/\/$/, "") : null;
 
-// Label above each candidate layout while the two directions are being compared.
-function OptionLabel({ letter, name }: { letter: string; name: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 8px" }}>
-      <span className="font-inclusive-sans font-semibold" style={{ fontSize: 10, letterSpacing: "0.5px", textTransform: "uppercase", color: colors.ink, backgroundColor: colors.pink, borderRadius: 20, padding: "3px 9px" }}>
-        option {letter}
-      </span>
-      <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: colors.oliveDeep }}>{name}</p>
-      <div style={{ flex: 1, height: 1, backgroundColor: withAlpha(colors.ink, 0.1) }} />
-    </div>
-  );
-}
-
 export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolean) => void }) {
   const isMobile = useIsMobile();
-  const [activeChip, setActiveChip] = useState<BlogCategory | null>(null);
+  const [activeCategory, setActiveCategory] = useState<BlogCategory | null>(null);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   // Let the host (App) hide the mobile bottom nav while a blog post is open.
   useEffect(() => { onDrawerChange?.(!!selectedPost); }, [selectedPost, onDrawerChange]);
 
-  const filtered = activeChip ? BLOG_POSTS.filter((p) => p.category === activeChip) : BLOG_POSTS;
+  const filtered = activeCategory ? BLOG_POSTS.filter((p) => p.category === activeCategory) : BLOG_POSTS;
 
   // Give the drawer real page semantics: pushing a slugged URL means the browser's
   // back button closes the drawer instead of leaving the site entirely.
@@ -98,58 +85,10 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
           </p>
         </div>
 
-        {/* Pink chip filter bar */}
-        <div
-          style={{
-            backgroundColor: withAlpha(colors.pink, 0.14),
-            border: `1px solid ${withAlpha(colors.pink, 0.3)}`,
-            borderRadius: 14,
-            padding: "10px 16px",
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-            flexWrap: "wrap",
-            marginBottom: 8,
-          }}
-        >
-          <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: "rgba(160,96,112,0.6)", letterSpacing: "0.4px", textTransform: "uppercase", flexShrink: 0, marginRight: 4 }}>
-            filter
-          </p>
-          {BLOG_CATEGORIES.map((chip) => (
-            <button
-              key={chip}
-              onClick={() => setActiveChip(activeChip === chip ? null : chip)}
-              style={{
-                background: activeChip === chip ? colors.pink : withAlpha(colors.pink, 0.2),
-                border: `1px solid ${activeChip === chip ? colors.pink : withAlpha(colors.pink, 0.38)}`,
-                borderRadius: 20, padding: "5px 12px", cursor: "pointer",
-                transition: "background 0.15s, border-color 0.15s",
-              }}
-            >
-              <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: activeChip === chip ? colors.ink : "#a06070" }}>
-                {chip}
-              </p>
-            </button>
-          ))}
-          <AnimatePresence>
-            {activeChip && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.85 }}
-                onClick={() => setActiveChip(null)}
-                style={{ background: "none", border: "none", cursor: "pointer", padding: "5px 4px" }}
-              >
-                <p className="font-inclusive-sans" style={{ fontSize: 11, color: "rgba(160,96,112,0.5)" }}>clear ×</p>
-              </motion.button>
-            )}
-          </AnimatePresence>
-        </div>
-
         {BLOG_POSTS.length > 0 && (
-          <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.4, marginBottom: 4 }}>
-            {filtered.length} essay{filtered.length !== 1 ? "s" : ""}{activeChip ? ` in "${activeChip}"` : " · opinions on design, systems, and fintech"}
-          </p>
+          <div style={{ marginBottom: isMobile ? 16 : 20 }}>
+            <BlogFilterTabs categories={BLOG_CATEGORIES} active={activeCategory} onChange={setActiveCategory} count={filtered.length} />
+          </div>
         )}
 
         {BLOG_POSTS.length === 0 ? (
@@ -175,13 +114,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
             </motion.div>
           </motion.div>
         ) : (
-          <>
-            <OptionLabel letter="A" name="editorial hover list" />
-            <BlogEditorialList posts={filtered} isMobile={isMobile} onOpen={openPost} newestId={activeChip ? undefined : BLOG_POSTS[0]?.id} />
-
-            <OptionLabel letter="B" name="sticky-note board" />
-            <BlogStickyBoard posts={filtered} isMobile={isMobile} onOpen={openPost} newestId={activeChip ? undefined : BLOG_POSTS[0]?.id} />
-          </>
+          <BlogJournal posts={filtered} isMobile={isMobile} onOpen={openPost} newestId={BLOG_POSTS[0]?.id} />
         )}
       </div>
     </section>
