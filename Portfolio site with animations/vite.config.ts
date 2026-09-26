@@ -4,24 +4,11 @@ import crypto from 'crypto'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
-
-function figmaAssetResolver() {
-  return {
-    name: 'figma-asset-resolver',
-    resolveId(id) {
-      if (id.startsWith('figma:asset/')) {
-        const filename = id.replace('figma:asset/', '')
-        return path.resolve(__dirname, 'src/assets', filename)
-      }
-    },
-  }
-}
-
 // ─── Password protection for case studies 1 & 2 ──────────────────────────────
-// Builds src/app/components/protectedCaseStudies.tsx as its own chunk, encrypts it with
+// Builds src/app/components/case-study/ProtectedCaseStudies.tsx as its own chunk, encrypts it with
 // AES-256-GCM (PBKDF2-SHA256 key from CASE_STUDY_PASSWORD) and ships only the ciphertext.
 // CaseStudyGate.tsx decrypts it in the browser. The password itself is never bundled.
-const PROTECTED_MODULE = path.resolve(__dirname, 'src/app/components/protectedCaseStudies.tsx')
+const PROTECTED_MODULE = path.resolve(__dirname, 'src/app/components/case-study/ProtectedCaseStudies.tsx')
 const PBKDF2_ITERATIONS = 250_000 // keep in sync with CaseStudyGate.tsx
 // Phrases that only exist in the protected content — the build fails if any public file contains one.
 const LEAK_SENTINELS = [
@@ -93,7 +80,7 @@ export default defineConfig(({ command, mode }) => {
         // Libraries and the shared case-study helpers get their own chunk. Without this Rollup
         // may host them inside the protected chunk, and the public app would import from it.
         manualChunks(id) {
-          if (id.includes('node_modules') || id.endsWith('caseStudyShared.tsx')) return 'vendor'
+          if (id.includes('node_modules') || id.endsWith('CaseStudyPrimitives.tsx')) return 'vendor'
         },
       },
     },
@@ -103,20 +90,13 @@ export default defineConfig(({ command, mode }) => {
   },
   plugins: [
     protectCaseStudies(password, encFile),
-    figmaAssetResolver(),
-    // The React and Tailwind plugins are both required for Make, even if
-    // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
   ],
   resolve: {
     alias: {
-      // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
     },
   },
-
-  // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
-  assetsInclude: ['**/*.svg', '**/*.csv'],
-}
+  }
 })

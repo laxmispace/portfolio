@@ -1,17 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ScrollContext } from "./ScrollContext";
-import { SideNav, type NavSection } from "./components/SideNav";
-import { AboutMeDrawer } from "./components/AboutMeDrawer";
-import { HeroSection } from "./components/HeroSection";
-import { ProjectsSection } from "./components/ProjectsSection";
-import { AiPlaygroundSection } from "./components/AiPlayground";
-import { TinkeringSection } from "./components/TinkeringSection";
-import { AiProjectsPage } from "./components/AiProjectsPage";
-import { PersonalSection } from "./components/PersonalSection";
-import { MobileBottomNav } from "./components/MobileBottomNav";
-import { useIsMobile } from "./useIsMobile";
-import { softTick } from "./lib/feedback";
+import { ScrollContext } from "@/app/context/ScrollContext";
+import { SideNav, type NavSection } from "@/app/components/layout/SideNav";
+import { AboutMeDrawer } from "@/app/components/about/AboutMeDrawer";
+import { HeroSection } from "@/app/components/home/HeroSection";
+import { ProjectsSection } from "@/app/components/home/ProjectsSection";
+import { AiProjectsSection } from "@/app/components/home/AiProjectsSection";
+import { BlogSection } from "@/app/components/home/BlogSection";
+import { AiProjectsPage } from "@/app/components/ai-projects/AiProjectsPage";
+import { PersonalSection } from "@/app/components/home/PersonalSection";
+import { MobileBottomNav } from "@/app/components/layout/MobileBottomNav";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { softTick } from "@/app/lib/feedback";
  
 // ── 0→100% site loading bar ───────────────────────────────────────────────────
 // Fixed to the bottom of the viewport, fills left-to-right with a palette gradient,
@@ -76,8 +76,8 @@ export default function App() {
   // Stable individual refs (rules-of-hooks: same call order every render)
   const homeRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
-  const aiRef = useRef<HTMLDivElement>(null);
-  const tinkeringRef = useRef<HTMLDivElement>(null);
+  const aiProjectsRef = useRef<HTMLDivElement>(null);
+  const blogRef = useRef<HTMLDivElement>(null);
 
   // Suppress the manual-scroll sound while a nav-driven smooth scroll is running.
   const programmaticUntil = useRef(0);
@@ -86,7 +86,7 @@ export default function App() {
 
   const navigateTo = useCallback((section: NavSection) => {
     const map: Record<NavSection, React.RefObject<HTMLDivElement | null>> = {
-      home: homeRef, projects: projectsRef, "ai-playground": aiRef, tinkering: tinkeringRef,
+      home: homeRef, projects: projectsRef, "ai-projects": aiProjectsRef, blog: blogRef,
     };
     const target = map[section].current;
     const container = scrollRef.current;
@@ -128,7 +128,7 @@ export default function App() {
         entries.forEach((e) => intersecting.set(e.target.id, e.isIntersecting));
 
         // First section in DOM order that is currently crossing the centre wins
-        const order: NavSection[] = ["home", "projects", "ai-playground", "tinkering"];
+        const order: NavSection[] = ["home", "projects", "ai-projects", "blog"];
         for (const id of order) {
           if (intersecting.get(id)) {
             setActiveSection(id);
@@ -143,7 +143,7 @@ export default function App() {
       }
     );
 
-    [homeRef, projectsRef, aiRef, tinkeringRef].forEach((r) => {
+    [homeRef, projectsRef, aiProjectsRef, blogRef].forEach((r) => {
       if (r.current) observer.observe(r.current);
     });
 
@@ -234,14 +234,14 @@ export default function App() {
                     <ProjectsSection onDrawerChange={setCsDrawerOpen} />
                   </div>
 
-                  <div ref={aiRef} id="ai-playground">
-                    <AiPlaygroundSection onViewAll={() => setPage("ai-projects")} />
+                  <div ref={aiProjectsRef} id="ai-projects">
+                    <AiProjectsSection onViewAll={() => setPage("ai-projects")} />
                   </div>
 
                   <PersonalSection onAboutOpen={() => setAboutOpen(true)} />
 
-                  <div ref={tinkeringRef} id="tinkering">
-                    <TinkeringSection onDrawerChange={setBlogOpen} />
+                  <div ref={blogRef} id="blog">
+                    <BlogSection onDrawerChange={setBlogOpen} />
                   </div>
                 </>
               )}
