@@ -7,7 +7,9 @@ import {
   AnimatePresence,
 } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-import { colors } from "@/app/theme/tokens";
+import { colors, withAlpha } from "@/app/theme/tokens";
+import { STYLE_GUIDE_PATH } from "@/app/lib/routes";
+import { MadeWithLove } from "./MadeWithLove";
 
 export type NavSection = "home" | "projects" | "ai-projects" | "blog";
 export type { NavSection as SideNavSection };
@@ -108,7 +110,14 @@ const BOTTOM_LINKS: { label: string; href: string }[] = [
   { label: "linkedin",        href: "https://in.linkedin.com/in/laxmi-mahajan" },
 ];
 
-function BottomLinks() {
+function BottomLinks({ onOpenStyleGuide }: { onOpenStyleGuide: () => void }) {
+  const linkStyle = {
+    display: "inline-flex", alignItems: "center", gap: 5,
+    fontSize: 13, letterSpacing: "0.02em", color: colors.oliveDeep,
+    textDecoration: "none", transformOrigin: "left center",
+  } as const;
+  const hover = { scale: 1.12, color: colors.ink };
+  const hoverTransition = { duration: 0.16, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] };
   return (
     <div
       style={{
@@ -123,18 +132,27 @@ function BottomLinks() {
           target="_blank"
           rel="noopener noreferrer"
           className="font-inclusive-sans lowercase"
-          style={{
-            display: "inline-flex", alignItems: "center", gap: 5,
-            fontSize: 13, letterSpacing: "0.02em", color: colors.oliveDeep,
-            textDecoration: "none", transformOrigin: "left center",
-          }}
-          whileHover={{ scale: 1.12, color: colors.ink }}
-          transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          style={linkStyle}
+          whileHover={hover}
+          transition={hoverTransition}
         >
           <ArrowUpRight size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
           {l.label}
         </motion.a>
       ))}
+      <motion.a
+        href={STYLE_GUIDE_PATH}
+        onClick={(e) => { e.preventDefault(); onOpenStyleGuide(); }}
+        className="font-inclusive-sans lowercase"
+        style={linkStyle}
+        whileHover={hover}
+        transition={hoverTransition}
+      >
+        <ArrowUpRight size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
+        style guide
+      </motion.a>
+      <div style={{ height: 1, alignSelf: "stretch", backgroundColor: withAlpha(colors.oliveDeep, 0.15), margin: "4px 0" }} />
+      <MadeWithLove fontSize={11} />
     </div>
   );
 }
@@ -143,9 +161,10 @@ function BottomLinks() {
 interface SideNavProps {
   activeSection: NavSection;
   onNavigate: (section: NavSection) => void;
+  onOpenStyleGuide: () => void;
 }
 
-export function SideNav({ activeSection, onNavigate }: SideNavProps) {
+export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNavProps) {
   const indicatorY = useMotionValue(INDICATOR_Y[activeSection]);
 
   // fillH tracks indicatorY via a smooth transform — no separate animation needed.
@@ -279,7 +298,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
       </div>
 
       {/* ── Bottom links — vertical, arrowed, magnify on hover ── */}
-      <BottomLinks />
+      <BottomLinks onOpenStyleGuide={onOpenStyleGuide} />
     </div>
   );
 }

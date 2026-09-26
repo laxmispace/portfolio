@@ -3,6 +3,8 @@ import { motion } from "motion/react";
 import type { NavSection } from "./SideNav";
 import { haptic, softTick } from "@/app/lib/feedback";
 import { MobileFab } from "./MobileFab";
+import { MadeWithLove } from "./MadeWithLove";
+import { STYLE_GUIDE_PATH } from "@/app/lib/routes";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
 // Fixed order — items never reflow. Only the active row changes style.
@@ -14,6 +16,9 @@ const NAV_ITEMS: { id: NavSection; label: string }[] = [
 ];
 
 const BAND_HEIGHT = 72;
+// Slim sign-off row under the band. BAND_HEIGHT + FOOTER_HEIGHT must match
+// --mobile-nav-height in styles/layout.css (the page scroller stops above it).
+const FOOTER_HEIGHT = 26;
 const BAND_WIDTH = 328;
 
 // ── Ruler / scrubbing scale ──────────────────────────────────────────────────
@@ -86,9 +91,11 @@ function SectionRuler({ count, activeIndex, onScrub }: { count: number; activeIn
 export function MobileBottomNav({
   activeSection,
   onNavigate,
+  onOpenStyleGuide,
 }: {
   activeSection: NavSection;
   onNavigate: (s: NavSection) => void;
+  onOpenStyleGuide: () => void;
 }) {
   const activeIndex = Math.max(0, NAV_ITEMS.findIndex((i) => i.id === activeSection));
 
@@ -99,12 +106,12 @@ export function MobileBottomNav({
         left: 0,
         right: 0,
         bottom: 0,
-        height: BAND_HEIGHT,
+        height: BAND_HEIGHT + FOOTER_HEIGHT,
         zIndex: 9000,
         background: colors.sandLight,
         display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "center",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       <div
@@ -213,6 +220,30 @@ export function MobileBottomNav({
         >
           <MobileFab />
         </div>
+      </div>
+
+      {/* Sign-off row */}
+      <div
+        style={{
+          width: BAND_WIDTH,
+          maxWidth: "calc(100vw - 20px)",
+          height: FOOTER_HEIGHT,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          borderTop: `1px solid ${withAlpha(colors.oliveDeep, 0.12)}`,
+        }}
+      >
+        <MadeWithLove fontSize={10} />
+        <a
+          href={STYLE_GUIDE_PATH}
+          onClick={(e) => { e.preventDefault(); onOpenStyleGuide(); }}
+          className="font-inclusive-sans"
+          style={{ fontSize: 10, color: colors.orange, textDecoration: "none", whiteSpace: "nowrap" }}
+        >
+          style guide ↗
+        </a>
       </div>
     </div>
   );

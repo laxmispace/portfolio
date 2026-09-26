@@ -8,10 +8,12 @@ import { ProjectsSection } from "@/app/components/home/ProjectsSection";
 import { AiProjectsSection } from "@/app/components/home/AiProjectsSection";
 import { BlogSection } from "@/app/components/home/BlogSection";
 import { AiProjectsPage } from "@/app/components/ai-projects/AiProjectsPage";
+import { StyleGuidePage } from "@/app/components/style-guide/StyleGuidePage";
 import { PersonalSection } from "@/app/components/home/PersonalSection";
 import { MobileBottomNav } from "@/app/components/layout/MobileBottomNav";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { softTick } from "@/app/lib/feedback";
+import { STYLE_GUIDE_PATH, isStyleGuidePath } from "@/app/lib/routes";
 import { colors } from "@/app/theme/tokens";
  
 // ── 0→100% site loading bar ───────────────────────────────────────────────────
@@ -51,9 +53,29 @@ function SiteLoader() {
   );
 }
 
+// /portfolio/style-guide is a real URL: linkable, and back/forward move between it and the portfolio.
+type Page = "portfolio" | "ai-projects" | "style-guide";
+
 export default function App() {
   const isMobile = useIsMobile();
-  const [page, setPage] = useState<"portfolio" | "ai-projects">("portfolio");
+  const [page, setPage] = useState<Page>(() => (typeof window !== "undefined" && isStyleGuidePath() ? "style-guide" : "portfolio"));
+
+  const openStyleGuide = useCallback(() => {
+    window.history.pushState({ page: "style-guide" }, "", STYLE_GUIDE_PATH);
+    setPage("style-guide");
+  }, []);
+  const closeStyleGuide = useCallback(() => {
+    if (window.history.state?.page === "style-guide") window.history.back();
+    else {
+      window.history.replaceState(null, "", import.meta.env.BASE_URL);
+      setPage("portfolio");
+    }
+  }, []);
+  useEffect(() => {
+    const onPopState = () => setPage((current) => (isStyleGuidePath() ? "style-guide" : current === "style-guide" ? "portfolio" : current));
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
   const [activeSection, setActiveSection] = useState<NavSection>("home");
   const [aboutOpen, setAboutOpen] = useState(() => {
     // Reopen the About Me drawer after the Spotify OAuth redirect lands back
@@ -153,6 +175,10 @@ export default function App() {
     // on first render those refs are still null and nothing gets observed.
   }, [scrollEl]);
 
+  if (page === "style-guide") {
+    return <StyleGuidePage onBack={closeStyleGuide} />;
+  }
+
   if (page === "ai-projects") {
     return (
       <div
@@ -178,7 +204,7 @@ export default function App() {
           onViewAiProjects={() => { setAboutOpen(false); setPage("ai-projects"); }}
         />
         <div className="app-shell__side-nav">
-          <SideNav activeSection={activeSection} onNavigate={navigateTo} />
+          <SideNav activeSection={activeSection} onNavigate={navigateTo} onOpenStyleGuide={openStyleGuide} />
         </div>
 
         <div ref={scrollCallbackRef} onScroll={isMobile ? handleCardScroll : undefined} className="flex-1 overflow-y-auto app-shell__scroller" style={{ scrollbarWidth: "none", position: "relative" }}>
@@ -221,7 +247,7 @@ export default function App() {
 
         {/* Bottom nav band — fixed to the lower 20%, homepage only, no drawer open */}
         {isMobile && !aboutOpen && !csDrawerOpen && !blogOpen && (
-          <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} />
+          <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} onOpenStyleGuide={openStyleGuide} />
         )}
       </div>
     </div>

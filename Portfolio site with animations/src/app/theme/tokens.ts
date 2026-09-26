@@ -43,6 +43,7 @@ export const fonts = {
   sans: "'Inclusive Sans', sans-serif", // body copy and UI
   label: "'Plus Jakarta Sans', sans-serif", // small labels, captions, numerals
   devanagari: "'Martel', serif", // Hindi words (सुकून)
+  mono: "'Spline Sans Mono', monospace", // code and token names (style guide)
 } as const;
 
 // Type scale as used across the site and the case studies: [size, line-height] in px.

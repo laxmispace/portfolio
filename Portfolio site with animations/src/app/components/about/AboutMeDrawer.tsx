@@ -381,7 +381,7 @@ const RING_PATHS = {
   inner: "M88 44C88 68.3005 68.3005 88 44 88C19.6995 88 0 68.3005 0 44C0 19.6995 19.6995 0 44 0C68.3005 0 88 19.6995 88 44ZM2.10301 44C2.10301 67.1391 20.8609 85.897 44 85.897C67.1391 85.897 85.897 67.1391 85.897 44C85.897 20.8609 67.1391 2.10301 44 2.10301C20.8609 2.10301 2.10301 20.8609 2.10301 44Z",
 };
 
-function formatTime(ms: number) {
+function formatTrackTime(ms: number) {
   const totalSec = Math.floor(ms / 1000);
   const m = Math.floor(totalSec / 60);
   const s = totalSec % 60;
@@ -489,7 +489,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <p className="font-inclusive-sans" style={{ fontSize: 8, lineHeight: "10px", color: colors.oliveDeep }}>
-                    {formatTime(track.progressMs)} / {formatTime(track.durationMs)}
+                    {formatTrackTime(track.progressMs)} / {formatTrackTime(track.durationMs)}
                   </p>
                   <Volume2 size={16} color={colors.oliveDeep} />
                 </div>
@@ -580,7 +580,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
                 />
               </div>
               <p className="font-inclusive-sans font-medium" style={{ fontSize: 12, color: colors.ink, whiteSpace: "nowrap", flexShrink: 0 }}>
-                {formatTime(track.progressMs)} <span style={{ color: withAlpha(colors.ink, 0.5) }}>/ {formatTime(track.durationMs)}</span>
+                {formatTrackTime(track.progressMs)} <span style={{ color: withAlpha(colors.ink, 0.5) }}>/ {formatTrackTime(track.durationMs)}</span>
               </p>
             </div>
             {errorMessage && (

@@ -4,22 +4,23 @@
 import {
   Spacer, SectionBlock, SectionHeading, BodyText, SubHeading, ImageCarousel,
   LandingComparisonPanel, IterationLabel, IterationThumbnailRow, StateTreatmentTable,
-  ImageGrid2x2, TableColumnDivider,
+  ImageGrid2x2, TableColumnDivider, MediaCaption, PhoneScreen, PhoneRow, MediaPanel, PullQuote,
+  NumberedCallout, LayerItem, DataTable,
 } from "./CaseStudyPrimitives";
 
 // ─── CS1 image assets (ICICI Bank iTravel) ────────────────────────────────────
-import imgEntryHasCard from "@/assets/case-studies/itravel/1/has-cc.png";
-import imgEntryNoCard1 from "@/assets/case-studies/itravel/1/has-no-cc-1.png";
-import imgEntryNoCard2 from "@/assets/case-studies/itravel/1/has-no-cc-2.png";
-import imgTripSingleEmpty from "@/assets/case-studies/itravel/2/image-2928.png";
-import imgTripSingleFilled from "@/assets/case-studies/itravel/2/image-2929.png";
-import imgTripMultiEmpty from "@/assets/case-studies/itravel/2/step-1-1.png";
-import imgTripMultiAdded from "@/assets/case-studies/itravel/2/step-1-2.png";
-import imgTripMultiFilled from "@/assets/case-studies/itravel/2/step-1-3.png";
-import imgPrefsDefault from "@/assets/case-studies/itravel/3/3-1.png";
-import imgPrefsEditing from "@/assets/case-studies/itravel/3/3-2.png";
-import imgPrefsFilled from "@/assets/case-studies/itravel/3/3-3.png";
-import imgAutoExpiry from "@/assets/case-studies/itravel/3/image-2969.png";
+import imgEntryHasCard from "@/assets/case-studies/itravel/entry-points/has-card.png";
+import imgEntryNoCard1 from "@/assets/case-studies/itravel/entry-points/no-card-1.png";
+import imgEntryNoCard2 from "@/assets/case-studies/itravel/entry-points/no-card-2.png";
+import imgTripSingleEmpty from "@/assets/case-studies/itravel/trip/single-country-empty.png";
+import imgTripSingleFilled from "@/assets/case-studies/itravel/trip/single-country-filled.png";
+import imgTripMultiEmpty from "@/assets/case-studies/itravel/trip/multi-country-empty.png";
+import imgTripMultiAdded from "@/assets/case-studies/itravel/trip/multi-country-stop-added.png";
+import imgTripMultiFilled from "@/assets/case-studies/itravel/trip/multi-country-filled.png";
+import imgPrefsDefault from "@/assets/case-studies/itravel/preferences/default.png";
+import imgPrefsEditing from "@/assets/case-studies/itravel/preferences/editing-limit.png";
+import imgPrefsFilled from "@/assets/case-studies/itravel/preferences/filled.png";
+import imgAutoExpiry from "@/assets/case-studies/itravel/preferences/auto-expiry.png";
 
 // ─── CS2 image assets (ICICI FASTag) ──────────────────────────────────────────
 import imgFastagNonIcici from "@/assets/case-studies/fastag/my-fastag/lp/1-non-ub-ft.png";
@@ -194,115 +195,23 @@ function ItravelSection({ id, children }: { id: string; children: React.ReactNod
   );
 }
 
-function ItravelCaption({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6 }}>
-      <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
-      <p className="font-jakarta font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: withAlpha(colors.ink, 0.5) }}>
-        {children}
-      </p>
-    </div>
-  );
-}
+const ITRAVEL_HMWS = [
+  "Make activation easy and confidence-building",
+  "Get genuine transactions approved seamlessly",
+  "Give users one view for all international travel issues",
+];
 
-// A phone screen, 150px wide at design size, 1px white stroke. It shrinks with its row
-// (never grows past 150px) and keeps its aspect ratio, so a row always fits its panel.
-function ItravelPhone({ src, alt = "" }: { src: string; alt?: string }) {
-  return (
-    <div style={{ flex: "1 1 0", minWidth: 0, maxWidth: 150 }}>
-      <img
-        src={src}
-        alt={alt}
-        style={{ display: "block", width: "100%", height: "auto", border: `1px solid ${colors.white}`, borderRadius: 5, boxSizing: "border-box" }}
-      />
-    </div>
-  );
-}
-
-// Row of CS1Phones. `gap` is a share of the row's width so spacing shrinks with the phones.
-function ItravelPhoneRow({ children, gap }: { children: React.ReactNode; gap: string }) {
-  return <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap, width: "100%" }}>{children}</div>;
-}
-
-// Tan panel that holds phone screens.
-function ItravelPanel({ children, padding }: { children: React.ReactNode; padding: string }) {
-  return (
-    <div className="case-study-media" style={{ width: "100%", backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden", padding, boxSizing: "border-box" }}>
-      {children}
-    </div>
-  );
-}
-
-function ItravelHmwBox() {
-  const items = [
-    "Make activation easy and confidence-building",
-    "Get genuine transactions approved seamlessly",
-    "Give users one view for all international travel issues",
-  ];
-  return (
-    <div style={{
-      display: "flex", flexDirection: "row", alignItems: "stretch", gap: 12,
-      paddingRight: 16, overflow: "hidden",
-      backgroundColor: withAlpha(colors.orange, 0.1), border: `1px solid ${withAlpha(colors.orange, 0.3)}`, borderRadius: 8,
-    }}>
-      <div style={{ width: 3, backgroundColor: colors.orange, flexShrink: 0 }} />
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 2, padding: "8px 0", flex: 1 }}>
-        {items.map((text, i) => (
-          <div key={i} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, padding: "8px 0" }}>
-            <div style={{ width: 20, height: 20, borderRadius: 16, backgroundColor: colors.orange, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <p className="font-jakarta" style={{ fontWeight: 700, fontSize: 12, lineHeight: "16px", letterSpacing: "0.01em", color: colors.white }}>{i + 1}</p>
-            </div>
-            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 13, lineHeight: "16px", color: colors.body }}>{text}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ItravelLayer({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
-        <span aria-hidden="true" style={{ fontSize: 16, lineHeight: "20px" }}>{icon}</span>
-        <p className="font-inclusive-sans" style={{ fontWeight: 600, fontSize: 16, lineHeight: "20px", color: colors.brown }}>{title}</p>
-      </div>
-      <ItravelText>{children}</ItravelText>
-    </div>
-  );
-}
-
-function ItravelStateTable({ mobile }: { mobile: boolean }) {
-  const rows = [
-    ["App installed, has CC", "Auth → iTravel activation drawer"],
-    ["App installed, has no CC", "Auth → card application drawer — iTravel becomes the acquisition hook"],
-    ["App installed, session expired", "Re-auth → routes into above"],
-    ["App not installed", "Web promo page, both audiences"],
-  ];
-  const pad = mobile ? 12 : 16;
-  const head = { fontWeight: 600, fontSize: 12, lineHeight: "20px", textTransform: "uppercase" as const, color: colors.body };
-  return (
-    <div className="case-study-media" style={{ width: "100%", border: `1px solid ${colors.sandBorder}`, borderRadius: 12, overflow: "hidden" }}>
-      <div style={{ display: "flex", flexDirection: "row", gap: 16, backgroundColor: colors.sand, padding: `8px ${pad}px` }}>
-        <p className="font-jakarta" style={{ ...head, flex: 1 }}>State</p>
-        <p className="font-inclusive-sans" style={{ ...head, flex: 1 }}>Outcome</p>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, backgroundColor: colors.sandPanel, padding: `12px ${pad}px` }}>
-        {rows.map(([state, outcome], i) => (
-          <div key={i} style={{ display: "flex", flexDirection: "row", gap: 16 }}>
-            <p className="font-jakarta" style={{ flex: 1, fontWeight: 600, fontSize: 12, lineHeight: "16px", color: colors.body }}>{i + 1}. {state}</p>
-            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", color: colors.body }}>{outcome}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+const ITRAVEL_ENTRY_STATES: [string, string][] = [
+  ["App installed, has CC", "Auth → iTravel activation drawer"],
+  ["App installed, has no CC", "Auth → card application drawer — iTravel becomes the acquisition hook"],
+  ["App installed, session expired", "Re-auth → routes into above"],
+  ["App not installed", "Web promo page, both audiences"],
+];
 
 function ItravelEntryPanel() {
   return (
     <div className="case-study-media" style={{ width: "100%", backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden" }}>
-      <div style={{ padding: "12px 16px", backgroundColor: "#ECE5DF", borderBottom: `1px solid ${colors.sand}` }}>
+      <div style={{ padding: "12px 16px", backgroundColor: colors.sandLight, borderBottom: `1px solid ${colors.sand}` }}>
         <p className="font-inclusive-sans font-normal" style={{ fontSize: 12, lineHeight: "16px", color: withAlpha(colors.ink, 0.8) }}>
           The drawer is a forced interstitial - the user clicked an ad specifically about iTravel, so making them navigate a dashboard first would be the actual friction.
         </p>
@@ -311,17 +220,17 @@ function ItravelEntryPanel() {
         {/* 150 : 320 split with a 66px gap at design width — all proportional so it fits any width */}
         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: "7%" }}>
           <div style={{ flex: "150 1 0", minWidth: 0, maxWidth: 150, display: "flex", flexDirection: "column", gap: 12 }}>
-            <ItravelPhoneRow gap="0">
-              <ItravelPhone src={imgEntryHasCard} alt="iTravel activation drawer" />
-            </ItravelPhoneRow>
-            <ItravelCaption>State 1 - Has a credit card</ItravelCaption>
+            <PhoneRow gap="0">
+              <PhoneScreen src={imgEntryHasCard} alt="iTravel activation drawer" />
+            </PhoneRow>
+            <MediaCaption>State 1 - Has a credit card</MediaCaption>
           </div>
           <div style={{ flex: "320 1 0", minWidth: 0, maxWidth: 320, display: "flex", flexDirection: "column", gap: 9 }}>
-            <ItravelPhoneRow gap="6.25%">
-              <ItravelPhone src={imgEntryNoCard1} alt="Card application drawer" />
-              <ItravelPhone src={imgEntryNoCard2} alt="Card application drawer, iTravel slide" />
-            </ItravelPhoneRow>
-            <ItravelCaption>State 2, 3, 4 - Does not have a credit card</ItravelCaption>
+            <PhoneRow gap="6.25%">
+              <PhoneScreen src={imgEntryNoCard1} alt="Card application drawer" />
+              <PhoneScreen src={imgEntryNoCard2} alt="Card application drawer, iTravel slide" />
+            </PhoneRow>
+            <MediaCaption>State 2, 3, 4 - Does not have a credit card</MediaCaption>
           </div>
         </div>
       </div>
@@ -351,14 +260,11 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
               The answer wasn't in the UI. It was in how RBI mandates work, how fraud engines evaluate transactions, and how travelers actually use their phones abroad. Every decision in iTravel came from reasoning through those layers first, then designing backward to the screen.
             </ItravelText>
             <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", letterSpacing: "0.01em", color: colors.body }}>The PM briefed...</p>
-            <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", gap: 8 }}>
-              <div style={{ width: 3, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
-              <p className="font-caslon not-italic" style={{ flex: 1, padding: "8px 0", fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>
-                Build <em>iTravel</em>, a single, unified hub where customers declare their travel plans and the bank automatically aligns card usage and fraud monitoring to that profile.
-              </p>
-            </div>
+            <PullQuote>
+              Build <em>iTravel</em>, a single, unified hub where customers declare their travel plans and the bank automatically aligns card usage and fraud monitoring to that profile.
+            </PullQuote>
             <p className="font-inclusive-sans font-medium" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>Three HMWs:</p>
-            <ItravelHmwBox />
+            <NumberedCallout items={ITRAVEL_HMWS} />
           </div>
         </div>
       </SectionBlock>
@@ -368,15 +274,15 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <ItravelHeading>Why the obvious fix wasn't enough</ItravelHeading>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <ItravelLayer icon="📜" title="Layer 1 - RBI compliance">
+              <LayerItem icon="📜" title="Layer 1 - RBI compliance">
                 Separate switches for POS, ATM, and e-commerce. Enabling one doesn't enable the others. A user who turns on POS can still get silently declined buying online.
-              </ItravelLayer>
-              <ItravelLayer icon="🚨" title="Layer 2 - Fraud engine logic">
+              </LayerItem>
+              <LayerItem icon="🚨" title="Layer 2 - Fraud engine logic">
                 The system doesn't just check if the toggle is on. It checks if the transaction looks geographically plausible for that cardholder.
-              </ItravelLayer>
-              <ItravelLayer icon="🔇" title="Layer 3 - Information gap">
+              </LayerItem>
+              <LayerItem icon="🔇" title="Layer 3 - Information gap">
                 The bank has no signal a customer is traveling until they're already declined.
-              </ItravelLayer>
+              </LayerItem>
             </div>
           </div>
           <ItravelText>
@@ -392,7 +298,7 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
             Most ICICI cardholders barely open iMobile - bill payments increasingly happen through CRED, PhonePe or other 3rd party apps. An in-app-only entry point reaches almost nobody.
           </ItravelText>
         </div>
-        <ItravelStateTable mobile={isMobile} />
+        <DataTable headers={["State", "Outcome"]} rows={ITRAVEL_ENTRY_STATES} isMobile={isMobile} />
         <Spacer size={40} />
         <ItravelEntryPanel />
       </ItravelSection>
@@ -427,16 +333,16 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
           <ItravelText>
             Three problems solved at once: no mental currency math, prevents under-setting a limit that looks fine in INR but causes a mid-trip decline, and surfaces a natural credit-limit-increase prompt when intended spend exceeds the current limit.
           </ItravelText>
-          <ItravelPanel padding="16px 6%">
+          <MediaPanel padding="16px 6%">
             <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 512, margin: "0 auto" }}>
-              <ItravelCaption>All states of preferences</ItravelCaption>
-              <ItravelPhoneRow gap="6%">
-                <ItravelPhone src={imgPrefsDefault} alt="Preferences — default" />
-                <ItravelPhone src={imgPrefsEditing} alt="Preferences — editing a limit" />
-                <ItravelPhone src={imgPrefsFilled} alt="Preferences — filled" />
-              </ItravelPhoneRow>
+              <MediaCaption>All states of preferences</MediaCaption>
+              <PhoneRow gap="6%">
+                <PhoneScreen src={imgPrefsDefault} alt="Preferences — default" />
+                <PhoneScreen src={imgPrefsEditing} alt="Preferences — editing a limit" />
+                <PhoneScreen src={imgPrefsFilled} alt="Preferences — filled" />
+              </PhoneRow>
             </div>
-          </ItravelPanel>
+          </MediaPanel>
         </div>
       </ItravelSection>
 

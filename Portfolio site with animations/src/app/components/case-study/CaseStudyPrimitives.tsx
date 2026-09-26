@@ -436,3 +436,114 @@ export function ImageGrid2x2({ images }: { images: string[] }) {
 export function TableColumnDivider() {
   return <div style={{ alignSelf: "stretch", width: 1, backgroundColor: colors.sandBorder, flexShrink: 0 }} />;
 }
+
+// ─── Media caption: orange tick + small grey label under an image ──────────────
+export function MediaCaption({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6 }}>
+      <div style={{ width: 3, height: 13, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
+      <p className="font-jakarta font-medium" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.01em", color: withAlpha(colors.ink, 0.5) }}>
+        {children}
+      </p>
+    </div>
+  );
+}
+
+// ─── Phone screen: 150px wide at design size with a 1px white stroke ───────────
+// Shrinks with its row (never grows past 150px) and keeps its aspect ratio, so a
+// row of phones always fits its panel.
+export function PhoneScreen({ src, alt = "" }: { src: string; alt?: string }) {
+  return (
+    <div style={{ flex: "1 1 0", minWidth: 0, maxWidth: 150 }}>
+      <img
+        src={src}
+        alt={alt}
+        style={{ display: "block", width: "100%", height: "auto", border: `1px solid ${colors.white}`, borderRadius: 5, boxSizing: "border-box" }}
+      />
+    </div>
+  );
+}
+
+// Row of PhoneScreens. `gap` is a share of the row's width so spacing shrinks with the phones.
+export function PhoneRow({ children, gap }: { children: React.ReactNode; gap: string }) {
+  return <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap, width: "100%" }}>{children}</div>;
+}
+
+// ─── Media panel: the tan box that holds phone screens ────────────────────────
+export function MediaPanel({ children, padding }: { children: React.ReactNode; padding: string }) {
+  return (
+    <div className="case-study-media" style={{ width: "100%", backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden", padding, boxSizing: "border-box" }}>
+      {children}
+    </div>
+  );
+}
+
+// ─── Pull quote: orange rule + serif statement (e.g. the PM brief) ─────────────
+export function PullQuote({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", gap: 8 }}>
+      <div style={{ width: 3, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
+      <p className="font-caslon not-italic" style={{ flex: 1, padding: "8px 0", fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>
+        {children}
+      </p>
+    </div>
+  );
+}
+
+// ─── Numbered callout: tinted box with numbered points (e.g. the HMWs) ─────────
+export function NumberedCallout({ items }: { items: string[] }) {
+  return (
+    <div style={{
+      display: "flex", flexDirection: "row", alignItems: "stretch", gap: 12,
+      paddingRight: 16, overflow: "hidden",
+      backgroundColor: withAlpha(colors.orange, 0.1), border: `1px solid ${withAlpha(colors.orange, 0.3)}`, borderRadius: 8,
+    }}>
+      <div style={{ width: 3, backgroundColor: colors.orange, flexShrink: 0 }} />
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 2, padding: "8px 0", flex: 1 }}>
+        {items.map((text, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, padding: "8px 0" }}>
+            <div style={{ width: 20, height: 20, borderRadius: 16, backgroundColor: colors.orange, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <p className="font-jakarta" style={{ fontWeight: 700, fontSize: 12, lineHeight: "16px", letterSpacing: "0.01em", color: colors.white }}>{i + 1}</p>
+            </div>
+            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 13, lineHeight: "16px", color: colors.body }}>{text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Layer item: emoji + brown title, body underneath ─────────────────────────
+export function LayerItem({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <span aria-hidden="true" style={{ fontSize: 16, lineHeight: "20px" }}>{icon}</span>
+        <p className="font-inclusive-sans" style={{ fontWeight: 600, fontSize: 16, lineHeight: "20px", color: colors.brown }}>{title}</p>
+      </div>
+      <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>{children}</p>
+    </div>
+  );
+}
+
+// ─── Data table: two columns, header row + numbered rows ──────────────────────
+export function DataTable({ headers, rows, isMobile = false }: { headers: [string, string]; rows: [string, string][]; isMobile?: boolean }) {
+  const pad = isMobile ? 12 : 16;
+  const head = { fontWeight: 600, fontSize: 12, lineHeight: "20px", textTransform: "uppercase" as const, color: colors.body };
+  return (
+    <div className="case-study-media" style={{ width: "100%", border: `1px solid ${colors.sandBorder}`, borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "row", gap: 16, backgroundColor: colors.sand, padding: `8px ${pad}px` }}>
+        <p className="font-jakarta" style={{ ...head, flex: 1 }}>{headers[0]}</p>
+        <p className="font-inclusive-sans" style={{ ...head, flex: 1 }}>{headers[1]}</p>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, backgroundColor: colors.sandPanel, padding: `12px ${pad}px` }}>
+        {rows.map(([left, right], i) => (
+          <div key={i} style={{ display: "flex", flexDirection: "row", gap: 16 }}>
+            <p className="font-jakarta" style={{ flex: 1, fontWeight: 600, fontSize: 12, lineHeight: "16px", color: colors.body }}>{i + 1}. {left}</p>
+            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", color: colors.body }}>{right}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

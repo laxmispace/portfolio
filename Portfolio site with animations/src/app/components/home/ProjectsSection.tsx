@@ -31,7 +31,7 @@ function IciciBankLogo() {
   );
 }
 
-function CardTab({ color, label, compact = false }: { color: string; label: string; compact?: boolean }) {
+export function CaseStudyTab({ color, label, compact = false }: { color: string; label: string; compact?: boolean }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-end" }}>
       <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: "relative", top: "-0.5px",left:"0.25px" }}>
@@ -278,7 +278,7 @@ function CardWithTab({ card, onClick }: { card: CardConfig; onClick: () => void 
       onMouseLeave={() => setHovered(false)}
     >
       <div style={{ position: "absolute", bottom: "calc(100% - 1px)", left: card.tabLeft }}>
-        <CardTab color={card.bgColor} label={card.label} />
+        <CaseStudyTab color={card.bgColor} label={card.label} />
       </div>
       <CardBody card={card} hovered={hovered} onClick={onClick} />
     </motion.div>
@@ -314,7 +314,7 @@ function MobileStackCard({
   return (
     <div style={{ position: "relative" }}>
       <div style={{ position: "absolute", bottom: "calc(100% - 1px)", ...MOBILE_TAB_POSITION[index] }}>
-        <CardTab color={card.bgColor} label={card.label} compact />
+        <CaseStudyTab color={card.bgColor} label={card.label} compact />
       </div>
       <div
         onClick={onClick}
