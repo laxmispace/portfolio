@@ -4,56 +4,56 @@
    so it's self-hosted here instead of depending on a remote request that never worked. */
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-Regular.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-Italic.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-Medium.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-MediumItalic.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-mediumitalic.woff2') format('woff2');
   font-weight: 500;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-SemiBold.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-semibold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-SemiBoldItalic.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-semibolditalic.woff2') format('woff2');
   font-weight: 600;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-Bold.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Libre Caslon Condensed';
-  src: url('../assets/fonts/LibreCaslonCondensed-BoldItalic.woff2') format('woff2');
+  src: url('../assets/fonts/librecasloncondensed-bolditalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
   font-display: swap;

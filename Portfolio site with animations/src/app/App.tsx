@@ -1,17 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ScrollContext } from "./ScrollContext";
-import { SideNav, type NavSection } from "./components/SideNav";
-import { AboutMeDrawer } from "./components/AboutMeDrawer";
-import { HeroSection } from "./components/HeroSection";
-import { ProjectsSection } from "./components/ProjectsSection";
-import { AiPlaygroundSection } from "./components/AiPlayground";
-import { TinkeringSection } from "./components/TinkeringSection";
-import { AiProjectsPage } from "./components/AiProjectsPage";
-import { PersonalSection } from "./components/PersonalSection";
-import { MobileBottomNav } from "./components/MobileBottomNav";
-import { useIsMobile } from "./useIsMobile";
-import { softTick } from "./lib/feedback";
+import { ScrollContext } from "@/app/context/ScrollContext";
+import { SideNav, type NavSection } from "@/app/components/layout/SideNav";
+import { AboutMeDrawer } from "@/app/components/about/AboutMeDrawer";
+import { HeroSection } from "@/app/components/home/HeroSection";
+import { ProjectsSection } from "@/app/components/home/ProjectsSection";
+import { AiProjectsSection } from "@/app/components/home/AiProjectsSection";
+import { BlogSection } from "@/app/components/home/BlogSection";
+import { AiProjectsPage } from "@/app/components/ai-projects/AiProjectsPage";
+import { StyleGuidePage } from "@/app/components/style-guide/StyleGuidePage";
+import { PersonalSection } from "@/app/components/home/PersonalSection";
+import { MobileBottomNav } from "@/app/components/layout/MobileBottomNav";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { softTick } from "@/app/lib/feedback";
+import { STYLE_GUIDE_PATH, isStyleGuidePath } from "@/app/lib/routes";
+import { colors } from "@/app/theme/tokens";
  
 // ── 0→100% site loading bar ───────────────────────────────────────────────────
 // Fixed to the bottom of the viewport, fills left-to-right with a palette gradient,
@@ -42,7 +45,7 @@ function SiteLoader() {
             zIndex: 99999,
             transformOrigin: "left center",
             // All four palette colours: olive → yellow-green → orange → pink
-            background: "linear-gradient(to right, #625e37, #c3be6f, #c67d39, #dda1ae)",
+            background: `linear-gradient(to right, ${colors.oliveDeep}, ${colors.olive}, ${colors.orange}, ${colors.pink})`,
           }}
         />
       )}
@@ -50,9 +53,29 @@ function SiteLoader() {
   );
 }
 
+// /portfolio/style-guide is a real URL: linkable, and back/forward move between it and the portfolio.
+type Page = "portfolio" | "ai-projects" | "style-guide";
+
 export default function App() {
   const isMobile = useIsMobile();
-  const [page, setPage] = useState<"portfolio" | "ai-projects">("portfolio");
+  const [page, setPage] = useState<Page>(() => (typeof window !== "undefined" && isStyleGuidePath() ? "style-guide" : "portfolio"));
+
+  const openStyleGuide = useCallback(() => {
+    window.history.pushState({ page: "style-guide" }, "", STYLE_GUIDE_PATH);
+    setPage("style-guide");
+  }, []);
+  const closeStyleGuide = useCallback(() => {
+    if (window.history.state?.page === "style-guide") window.history.back();
+    else {
+      window.history.replaceState(null, "", import.meta.env.BASE_URL);
+      setPage("portfolio");
+    }
+  }, []);
+  useEffect(() => {
+    const onPopState = () => setPage((current) => (isStyleGuidePath() ? "style-guide" : current === "style-guide" ? "portfolio" : current));
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
   const [activeSection, setActiveSection] = useState<NavSection>("home");
   const [aboutOpen, setAboutOpen] = useState(() => {
     // Reopen the About Me drawer after the Spotify OAuth redirect lands back
@@ -76,8 +99,8 @@ export default function App() {
   // Stable individual refs (rules-of-hooks: same call order every render)
   const homeRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
-  const aiRef = useRef<HTMLDivElement>(null);
-  const tinkeringRef = useRef<HTMLDivElement>(null);
+  const aiProjectsRef = useRef<HTMLDivElement>(null);
+  const blogRef = useRef<HTMLDivElement>(null);
 
   // Suppress the manual-scroll sound while a nav-driven smooth scroll is running.
   const programmaticUntil = useRef(0);
@@ -86,7 +109,7 @@ export default function App() {
 
   const navigateTo = useCallback((section: NavSection) => {
     const map: Record<NavSection, React.RefObject<HTMLDivElement | null>> = {
-      home: homeRef, projects: projectsRef, "ai-playground": aiRef, tinkering: tinkeringRef,
+      home: homeRef, projects: projectsRef, "ai-projects": aiProjectsRef, blog: blogRef,
     };
     const target = map[section].current;
     const container = scrollRef.current;
@@ -128,7 +151,7 @@ export default function App() {
         entries.forEach((e) => intersecting.set(e.target.id, e.isIntersecting));
 
         // First section in DOM order that is currently crossing the centre wins
-        const order: NavSection[] = ["home", "projects", "ai-playground", "tinkering"];
+        const order: NavSection[] = ["home", "projects", "ai-projects", "blog"];
         for (const id of order) {
           if (intersecting.get(id)) {
             setActiveSection(id);
@@ -143,7 +166,7 @@ export default function App() {
       }
     );
 
-    [homeRef, projectsRef, aiRef, tinkeringRef].forEach((r) => {
+    [homeRef, projectsRef, aiProjectsRef, blogRef].forEach((r) => {
       if (r.current) observer.observe(r.current);
     });
 
@@ -152,11 +175,15 @@ export default function App() {
     // on first render those refs are still null and nothing gets observed.
   }, [scrollEl]);
 
+  if (page === "style-guide") {
+    return <StyleGuidePage onBack={closeStyleGuide} />;
+  }
+
   if (page === "ai-projects") {
     return (
       <div
         className="h-screen w-screen"
-        style={{ minWidth: 1280, backgroundColor: "#212012", overflowY: "auto", scrollbarWidth: "none" }}
+        style={{ minWidth: 1280, backgroundColor: colors.ink, overflowY: "auto" }}
       >
         <AiProjectsPage onBack={() => setPage("portfolio")} />
       </div>
@@ -166,60 +193,27 @@ export default function App() {
   return (
     <>
     <SiteLoader />
-    <style>{`
-      ::-webkit-scrollbar { display: none; }
-      * { box-sizing: border-box; }
-      @media (max-width: 768px) {
-        .portfolio-outer { padding: 0 !important; background: #ECE6DF !important; }
-        .portfolio-inner { border-radius: 0 !important; }
-        /* Scroll card locked to the top 80dvh — position:fixed so it cannot
-           drift on overscroll; the bottom 20dvh belongs to the nav band. */
-        .m-scroll-inset {
-          position: fixed !important;
-          top: 0 !important; left: 0 !important; right: 0 !important;
-          height: calc(100dvh - 72px) !important;
-          flex: none !important;
-          width: 100% !important;
-          z-index: 20 !important;
-          border-radius: 0 0 16px 16px !important;
-          overflow-y: auto !important;
-          overscroll-behavior: none !important;
-        }
-        .side-nav-hide { display: none !important; }
-        .m-hide { display: none !important; }
-        .m-pad { padding-left: 10px !important; padding-right: 10px !important; }
-        .m-pad-section { padding: 48px 10px 64px !important; }
-        .m-col { flex-direction: column !important; }
-        .m-full { width: 100% !important; min-width: unset !important; }
-        .m-text-sm { font-size: 28px !important; line-height: 38px !important; }
-        .m-text-hero { font-size: 30px !important; line-height: 42px !important; }
-        .m-text-section { font-size: 28px !important; line-height: 36px !important; }
-        .m-stack { flex-direction: column !important; flex-wrap: wrap !important; }
-        .m-no-scroll { overflow: visible !important; }
-        .m-card-h { height: auto !important; min-height: 320px !important; }
-      }
-    `}</style>
     <div
-      className="portfolio-outer h-screen w-screen bg-white flex overflow-hidden"
+      className="app-shell h-screen w-screen bg-white flex overflow-hidden"
       style={{ padding: 12 }}
     >
-      <div className="portfolio-inner flex flex-1 rounded-2xl overflow-hidden" style={{ backgroundColor: "#ece6df" }}>
+      <div className="app-shell__panel flex flex-1 rounded-2xl overflow-hidden" style={{ backgroundColor: colors.sandLight }}>
         <AboutMeDrawer
           open={aboutOpen}
           onClose={() => setAboutOpen(false)}
           onViewAiProjects={() => { setAboutOpen(false); setPage("ai-projects"); }}
         />
-        <div className="side-nav-hide">
-          <SideNav activeSection={activeSection} onNavigate={navigateTo} />
+        <div className="app-shell__side-nav">
+          <SideNav activeSection={activeSection} onNavigate={navigateTo} onOpenStyleGuide={openStyleGuide} />
         </div>
 
-        <div ref={scrollCallbackRef} onScroll={isMobile ? handleCardScroll : undefined} className="flex-1 overflow-y-auto m-scroll-inset" style={{ scrollbarWidth: "none", position: "relative" }}>
+        <div ref={scrollCallbackRef} onScroll={isMobile ? handleCardScroll : undefined} className="flex-1 overflow-y-auto app-shell__scroller" style={{ scrollbarWidth: "none", position: "relative" }}>
 
           <ScrollContext.Provider value={scrollEl}>
             <div
               className="rounded-2xl"
               style={{
-                backgroundColor: "#e3d9ce",
+                backgroundColor: colors.sand,
                 minHeight: "100%",
                 borderRadius: isMobile ? "0 0 16px 16px" : undefined,
               }}
@@ -234,26 +228,26 @@ export default function App() {
                     <ProjectsSection onDrawerChange={setCsDrawerOpen} />
                   </div>
 
-                  <div ref={aiRef} id="ai-playground">
-                    <AiPlaygroundSection onViewAll={() => setPage("ai-projects")} />
+                  <div ref={aiProjectsRef} id="ai-projects">
+                    <AiProjectsSection onViewAll={() => setPage("ai-projects")} />
                   </div>
 
                   <PersonalSection onAboutOpen={() => setAboutOpen(true)} />
 
-                  <div ref={tinkeringRef} id="tinkering">
-                    <TinkeringSection onDrawerChange={setBlogOpen} />
+                  <div ref={blogRef} id="blog">
+                    <BlogSection onDrawerChange={setBlogOpen} />
                   </div>
                 </>
               )}
               {/* Breathing room above the card's rounded bottom edge */}
-              <div className="rounded-b-2xl" style={{ height: isMobile ? 20 : 33, backgroundColor: isMobile ? "#e3d9ce" : "#d2ce93" }} />
+              <div className="rounded-b-2xl" style={{ height: isMobile ? 20 : 33, backgroundColor: isMobile ? colors.sand : colors.oliveLight }} />
             </div>
           </ScrollContext.Provider>
         </div>
 
         {/* Bottom nav band — fixed to the lower 20%, homepage only, no drawer open */}
         {isMobile && !aboutOpen && !csDrawerOpen && !blogOpen && (
-          <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} />
+          <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} onOpenStyleGuide={openStyleGuide} />
         )}
       </div>
     </div>
