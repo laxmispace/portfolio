@@ -41,10 +41,6 @@ jobs:
 
       - name: Build
         run: pnpm run build
-        env:
-          # Encrypts case studies 1 & 2 at build time (see vite.config.ts). Set in
-          # Settings → Secrets and variables → Actions. The build fails without it.
-          CASE_STUDY_PASSWORD: ${{ secrets.CASE_STUDY_PASSWORD }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

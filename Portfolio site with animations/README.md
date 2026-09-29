@@ -7,17 +7,9 @@ React 18 + Vite + Motion, deployed to GitHub Pages at `/portfolio/`.
 | Command | What it does |
 | --- | --- |
 | `pnpm dev` | Local dev server |
-| `pnpm build` | Production build (needs `CASE_STUDY_PASSWORD`, see below) |
+| `pnpm build` | Production build |
 | `pnpm typecheck` | Strict TypeScript check, including unused code |
 | `pnpm voiceover` | Regenerate case study / blog narration |
-
-## Case study password
-
-Case studies 1 and 2 are encrypted at build time with `CASE_STUDY_PASSWORD`
-(AES-256-GCM) and decrypted in the browser after unlock. Set it in
-`.env.local` for local work (git-ignored) and as a repository secret for the
-GitHub Actions deploy. The build fails without it, and also fails if any case
-study text leaks into the public bundle.
 
 ## Structure
 
@@ -28,7 +20,7 @@ src/
     components/
       layout/               side nav, mobile header / bottom nav / FAB, made-with-love
       home/                 homepage sections (hero, projects, AI projects, personal, blog)
-      case-study/           drawer, password gate, shared primitives, protected content
+      case-study/           drawer, shared primitives, case study content
       about/                About me drawer and photo gallery
       ai-projects/          AI projects page, project drawer, card artwork, animation demos
       blog/                 blog post drawer and list layouts

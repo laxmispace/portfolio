@@ -5,7 +5,7 @@ import { Lottie } from "lottie-react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { useAudioPlayer } from "@/app/hooks/useAudioPlayer";
 import { Spacer, ThumbnailPlaceholder, StrokedImage, SectionBlock, SectionHeading, BodyText } from "./CaseStudyPrimitives";
-import { CaseStudyGate, useProtectedCaseStudies } from "./CaseStudyGate";
+import { ItravelCaseStudy, FastagCaseStudy } from "./CaseStudyContent";
 import "./CaseStudy.css";
 
 // ─── CS2 cover (ICICI FASTag) — animated cover, native size 1800×1200 (3:2) ───
@@ -379,8 +379,6 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
   const rightPaneRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
-  // Protected content mounts after unlock, so the section observer below re-runs then.
-  const protectedContent = useProtectedCaseStudies();
 
   useEffect(() => {
     if (!caseStudy) return;
@@ -420,7 +418,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
     const nodes = el.querySelectorAll("[data-section]");
     nodes.forEach((n) => obs.observe(n));
     return () => obs.disconnect();
-  }, [caseStudy, isMobile, protectedContent]);
+  }, [caseStudy, isMobile]);
 
   const scrollToSection = useCallback((id: string) => {
     scrollableRef.current?.querySelector(`#${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -547,9 +545,9 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                     {/* Content */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                       {caseStudy.index === 0
-                        ? <CaseStudyGate caseStudy="itravel" isMobile={true} onDismiss={onClose} />
+                        ? <ItravelCaseStudy isMobile={true} />
                         : caseStudy.index === 1
-                        ? <CaseStudyGate caseStudy="fastag" isMobile={true} onDismiss={onClose} />
+                        ? <FastagCaseStudy isMobile={true} />
                         : <PlaceholderCaseStudy cs={caseStudy} isMobile={true} />
                       }
                     </div>
@@ -685,9 +683,9 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       )}
 
                       {caseStudy.index === 0
-                        ? <CaseStudyGate caseStudy="itravel" isMobile={false} />
+                        ? <ItravelCaseStudy isMobile={false} />
                         : caseStudy.index === 1
-                        ? <CaseStudyGate caseStudy="fastag" isMobile={false} />
+                        ? <FastagCaseStudy isMobile={false} />
                         : <PlaceholderCaseStudy cs={caseStudy} isMobile={false} />
                       }
 

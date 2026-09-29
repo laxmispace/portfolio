@@ -55,7 +55,7 @@ const COLOR_GROUPS: { title: string; note: string; tokens: { token: ColorToken; 
   {
     title: "Feedback",
     note: "Used sparingly — only for things that went wrong.",
-    tokens: [{ token: "error", usage: "Wrong password, failed loads" }],
+    tokens: [{ token: "error", usage: "Reserved for error states and failed loads" }],
   },
 ];
 
@@ -416,7 +416,7 @@ export function StyleGuidePage({ onBack }: { onBack: () => void }) {
               </Card>
               <Card title="Buttons & links" source="various">
                 <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
-                  <button type="button" className="font-inclusive-sans font-medium" style={{ height: 40, padding: "0 20px", fontSize: 14, color: colors.white, border: "none", borderRadius: radii.lg, backgroundColor: colors.orange, cursor: "pointer" }}>Unlock</button>
+                  <button type="button" className="font-inclusive-sans font-medium" style={{ height: 40, padding: "0 20px", fontSize: 14, color: colors.white, border: "none", borderRadius: radii.lg, backgroundColor: colors.orange, cursor: "pointer" }}>Primary button</button>
                   <span className="font-caslon" style={{ fontSize: 14, fontStyle: "italic", color: colors.ink }}>read case study →</span>
                 </div>
               </Card>

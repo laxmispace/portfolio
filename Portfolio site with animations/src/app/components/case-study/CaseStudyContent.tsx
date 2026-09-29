@@ -1,6 +1,5 @@
-// Password-protected case study content (CS1 ICICI iTravel, CS2 ICICI FASTag).
-// Never imported statically: production builds emit this module as its own chunk,
-// encrypt it (vite.config.ts → protectCaseStudies) and load it only after unlock.
+// Content of case study 1 (ICICI iTravel) and case study 2 (ICICI FASTag), composed
+// from the shared blocks in CaseStudyPrimitives.
 import {
   Spacer, SectionBlock, SectionHeading, BodyText, SubHeading, ImageCarousel,
   LandingComparisonPanel, IterationLabel, IterationThumbnailRow, StateTreatmentTable,
