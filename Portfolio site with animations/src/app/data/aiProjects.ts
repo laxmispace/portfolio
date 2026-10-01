@@ -47,7 +47,7 @@ export const AI_PROJECTS: AiProject[] = [
     status: "Live",
     statusColor: colors.orange,
     accent: colors.orange,
-    url: "https://mycodedump.github.io/piano/",
+    url: "https://laxmispace.github.io/piano/",
     frameKey: "piano",
   },
   {
@@ -77,7 +77,7 @@ export const AI_PROJECTS: AiProject[] = [
     status: "Live",
     statusColor: colors.olive,
     accent: colors.olive,
-    url: "https://mycodedump.github.io/breathing-app/",
+    url: "https://laxmispace.github.io/breathing-app/",
     frameKey: "breathing",
   },
   {
@@ -90,7 +90,7 @@ export const AI_PROJECTS: AiProject[] = [
     status: "Live",
     statusColor: colors.pink,
     accent: colors.pink,
-    url: "https://mycodedump.github.io/therapy-app-/",
+    url: "https://laxmispace.github.io/therapy-app-/",
   },
   {
     id: 3,
