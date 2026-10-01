@@ -106,7 +106,7 @@ function NavIndicator({ section }: { section: NavSection }) {
 const BOTTOM_LINKS: { label: string; href: string }[] = [
   { label: "download resume", href: "https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing" },
   { label: "gmail",           href: "mailto:laxmimahajanwork@gmail.com" },
-  { label: "github",          href: "https://github.com/mycodedump" },
+  { label: "github",          href: "https://github.com/laxmispace" },
   { label: "linkedin",        href: "https://in.linkedin.com/in/laxmi-mahajan" },
 ];
 

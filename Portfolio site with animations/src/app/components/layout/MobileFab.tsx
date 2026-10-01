@@ -11,7 +11,7 @@ import { colors, withAlpha } from "@/app/theme/tokens";
 const ACTIONS = [
   { label: "resume",   href: "https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing", Icon: FileDown },
   { label: "gmail",    href: "mailto:laxmimahajanwork@gmail.com", Icon: Mail },
-  { label: "github",   href: "https://github.com/mycodedump", Icon: Github },
+  { label: "github",   href: "https://github.com/laxmispace", Icon: Github },
   { label: "linkedin", href: "https://in.linkedin.com/in/laxmi-mahajan", Icon: Linkedin },
 ];
 
