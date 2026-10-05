@@ -36,6 +36,8 @@ export interface CaseStudyInfo {
   timeline: string;
   statusFull: string;
   overview: string;
+  /** Shown as "coming soon": its card and related links don't open anything. */
+  comingSoon?: boolean;
 }
 
 // ─── Section index definitions per case study ─────────────────────────────────
@@ -117,16 +119,17 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     imageBg: colors.pinkLight,
     dotColor: colors.pink,
     title: "Building Dali: A Plug-and-Play Design System for AI IDEs",
-    type: "UX Research + Prototyping",
-    role: "Sole designer",
-    status: "Under review",
+    type: "Design system + build",
+    role: "Sole designer and builder",
+    status: "WIP",
     year: "2024",
-    client: "Self-initiated",
+    client: "Self initiated",
     designTeam: "Laxmi Mahajan",
     crossTeam: "8 external designers (workshop participants)",
     timeline: "6 weeks",
     statusFull: "Research published, workshop format being adapted internally at Canvs",
     overview: "Explored how generative AI can augment design without stripping creative ownership — 3× faster first prototypes.",
+    comingSoon: true,
   },
 ];
 
@@ -283,12 +286,14 @@ function VideoFrame({ cs }: { cs: CaseStudyInfo }) {
 
 // ─── Related case study card ──────────────────────────────────────────────────
 function RelatedCard({ cs, onClick }: { cs: CaseStudyInfo; onClick: () => void }) {
+  const clickable = !cs.comingSoon;
   return (
     <motion.div
-      onClick={onClick}
-      whileHover={{ scale: 1.015, y: -2 }}
+      onClick={clickable ? onClick : undefined}
+      whileHover={clickable ? { scale: 1.015, y: -2 } : undefined}
       transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      style={{ flex: 1, backgroundColor: cs.color, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: "column" }}
+      aria-disabled={!clickable || undefined}
+      style={{ flex: 1, backgroundColor: cs.color, borderRadius: 16, overflow: "hidden", cursor: clickable ? "pointer" : "default", display: "flex", flexDirection: "column" }}
     >
       <div style={{ height: 110, overflow: "hidden", flexShrink: 0 }}>
         <ThumbnailPlaceholder bgColor={cs.imageBg} strokeColor={cs.textColor} height={110} iconSize={24} />
@@ -298,6 +303,9 @@ function RelatedCard({ cs, onClick }: { cs: CaseStudyInfo; onClick: () => void }
           <p className="font-inclusive-sans font-semibold" style={{ fontSize: 10, color: cs.textColor, letterSpacing: "0.5px", textTransform: "uppercase" }}>{cs.label}</p>
         </div>
         <p className="font-caslon" style={{ fontSize: 17, lineHeight: "23px", color: colors.ink, fontWeight: 600 }}>{cs.title}</p>
+        {cs.comingSoon && (
+          <p className="font-caslon" style={{ fontSize: 14, fontStyle: "italic", color: withAlpha(colors.ink, 0.6) }}>coming soon</p>
+        )}
       </div>
     </motion.div>
   );

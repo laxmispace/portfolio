@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { Fragment, useRef, useEffect, useState, useCallback } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { useScrollProgress, useScrollContainer } from "@/app/context/ScrollContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
@@ -31,13 +31,21 @@ function IciciBankLogo() {
   );
 }
 
-export function CaseStudyTab({ color, label, compact = false }: { color: string; label: string; compact?: boolean }) {
+export function CaseStudyTab({ color, label, compact = false, onClick }: { color: string; label: string; compact?: boolean; onClick?: () => void }) {
   return (
-    <div style={{ display: "flex", alignItems: "flex-end" }}>
-      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: "relative", top: "-0.5px",left:"0.25px" }}>
-<path d="M11 10H0C7.65088 9.76396 10.5919 8.59449 11 0V10Z" fill={color}/>
-</svg>
-
+    <motion.div
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
+      aria-label={onClick ? `Show ${label.toLowerCase()}` : undefined}
+      whileHover={onClick ? { y: -2 } : undefined}
+      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      style={{ display: "flex", alignItems: "flex-end", cursor: onClick ? "pointer" : undefined }}
+    >
+      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" style={{ position: "relative", top: "-0.5px", left: "0.25px" }}>
+        <path d="M11 10H0C7.65088 9.76396 10.5919 8.59449 11 0V10Z" fill={color} />
+      </svg>
       <div
         style={{
           backgroundColor: color,
@@ -51,13 +59,10 @@ export function CaseStudyTab({ color, label, compact = false }: { color: string;
           {label}
         </p>
       </div>
-      <div>
-<svg width="11" height="10" viewBox="0 0 11 10" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: "relative", top: "-0.5px",left:"-0.25px" }}>
-<path d="M0 10H11C3.34912 9.76396 0.408119 8.59449 0 0V10Z" fill={color}/>
-</svg>
-
-      </div>
-    </div>
+      <svg width="11" height="10" viewBox="0 0 11 10" fill="none" style={{ position: "relative", top: "-0.5px", left: "-0.25px" }}>
+        <path d="M0 10H11C3.34912 9.76396 0.408119 8.59449 0 0V10Z" fill={color} />
+      </svg>
+    </motion.div>
   );
 }
 
@@ -74,8 +79,11 @@ interface CardConfig {
   clientBadgeBg: string;
   isIcici: boolean;
   cardTitle: string;
+  tags: string[];
   statusText: string;
   statusColor: string;
+  /** No link yet: the card shows "coming soon" and isn't clickable. */
+  comingSoon?: boolean;
 }
 
 const CASE_STUDY_CARDS: CardConfig[] = [
@@ -92,6 +100,7 @@ const CASE_STUDY_CARDS: CardConfig[] = [
     clientBadgeBg: withAlpha(colors.oliveDeep, 0.15),
     isIcici: true,
     cardTitle: "Redesigning how 10M+ ICICI Bank cardholders activate their card for international travel",
+    tags: ["UX + UI", "Sole designer"],
     statusText: "under development • 2026",
     statusColor: colors.oliveDeep,
   },
@@ -108,6 +117,7 @@ const CASE_STUDY_CARDS: CardConfig[] = [
     clientBadgeBg: withAlpha(colors.ink, 0.12),
     isIcici: true,
     cardTitle: "Bringing India's most-used toll payment system to ICICI's web platform — for the first time",
+    tags: ["UX + UI", "Sole designer"],
     statusText: "under development • 2026",
     statusColor: colors.ink,
   },
@@ -120,12 +130,14 @@ const CASE_STUDY_CARDS: CardConfig[] = [
     tabLeft: DESKTOP_TAB_LEFT[2],
     imageLeft: true,
     roundedAll: true,
-    clientName: "Viisa • Freelance",
+    clientName: "Self initiated",
     clientBadgeBg: withAlpha(colors.ink, 0.1),
     isIcici: false,
     cardTitle: "Building Dali: A Plug-and-Play Design System for AI IDEs",
-    statusText: "Completed • 2023",
+    tags: ["Sole designer and builder"],
+    statusText: "WIP • 2023",
     statusColor: colors.ink,
+    comingSoon: true,
   },
 ];
 
@@ -154,21 +166,24 @@ function ClientBadge({ card }: { card: CardConfig }) {
 
 function CardTags({ card }: { card: CardConfig }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
-        UX + UI
-      </p>
-      <svg width="3" height="3" viewBox="0 0 3 3" fill="none">
-        <circle cx="1.5" cy="1.5" r="1.5" fill={card.dotColor} />
-      </svg>
-      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
-        Sole designer
-      </p>
+    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      {card.tags.map((tag, i) => (
+        <Fragment key={tag}>
+          {i > 0 && (
+            <svg width="3" height="3" viewBox="0 0 3 3" fill="none">
+              <circle cx="1.5" cy="1.5" r="1.5" fill={card.dotColor} />
+            </svg>
+          )}
+          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
+            {tag}
+          </p>
+        </Fragment>
+      ))}
     </div>
   );
 }
 
-// Thin rule + status left / "read case study →" right
+// Thin rule + status left / "read case study →" (or "coming soon") right
 function CardFooter({ card, hovered }: { card: CardConfig; hovered: boolean }) {
   return (
     <div>
@@ -177,28 +192,34 @@ function CardFooter({ card, hovered }: { card: CardConfig; hovered: boolean }) {
         <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 10, letterSpacing: "0.4px", color: card.statusColor, opacity: 0.65 }}>
           {card.statusText}
         </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
-          <p
-            className="font-caslon"
-            style={{
-              fontSize: 14,
-              color: colors.ink,
-              fontStyle: "italic",
-              textDecoration: hovered ? "underline" : "none",
-              transition: "text-decoration 0.1s",
-            }}
-          >
-            read case study
+        {card.comingSoon ? (
+          <p className="font-caslon" style={{ fontSize: 14, fontStyle: "italic", color: withAlpha(colors.ink, 0.6), flexShrink: 0 }}>
+            coming soon
           </p>
-          <motion.p
-            animate={{ x: hovered ? 4 : 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="font-caslon"
-            style={{ fontSize: 15, color: colors.ink, lineHeight: 1 }}
-          >
-            →
-          </motion.p>
-        </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
+            <p
+              className="font-caslon"
+              style={{
+                fontSize: 14,
+                color: colors.ink,
+                fontStyle: "italic",
+                textDecoration: hovered ? "underline" : "none",
+                transition: "text-decoration 0.1s",
+              }}
+            >
+              read case study
+            </p>
+            <motion.p
+              animate={{ x: hovered ? 4 : 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="font-caslon"
+              style={{ fontSize: 15, color: colors.ink, lineHeight: 1 }}
+            >
+              →
+            </motion.p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -256,7 +277,7 @@ function CardBody({ card, hovered, onClick }: { card: CardConfig; hovered: boole
         padding: 36,
         gap: 16,
         alignItems: "stretch",
-        cursor: "pointer",
+        cursor: onClick ? "pointer" : "default",
       }}
     >
       {imgBox}
@@ -266,8 +287,9 @@ function CardBody({ card, hovered, onClick }: { card: CardConfig; hovered: boole
 }
 
 // Wraps tab + body so they share a single hover state — entire card lifts as unit
-function CardWithTab({ card, onClick }: { card: CardConfig; onClick: () => void }) {
-  const [hovered, setHovered] = useState(false);
+function CardWithTab({ card, onClick, onTabClick }: { card: CardConfig; onClick?: () => void; onTabClick: () => void }) {
+  const [hoveredRaw, setHovered] = useState(false);
+  const hovered = hoveredRaw && !!onClick;
 
   return (
     <motion.div
@@ -278,7 +300,7 @@ function CardWithTab({ card, onClick }: { card: CardConfig; onClick: () => void 
       onMouseLeave={() => setHovered(false)}
     >
       <div style={{ position: "absolute", bottom: "calc(100% - 1px)", left: card.tabLeft }}>
-        <CaseStudyTab color={card.bgColor} label={card.label} />
+        <CaseStudyTab color={card.bgColor} label={card.label} onClick={onTabClick} />
       </div>
       <CardBody card={card} hovered={hovered} onClick={onClick} />
     </motion.div>
@@ -298,9 +320,9 @@ const MOBILE_TAB_POSITION: React.CSSProperties[] = [
 ];
 
 function MobileStackCard({
-  card, index, height, onMeasure, onClick,
+  card, index, height, onMeasure, onClick, onTabClick,
 }: {
-  card: CardConfig; index: number; height?: number; onMeasure: (index: number, h: number) => void; onClick: () => void;
+  card: CardConfig; index: number; height?: number; onMeasure: (index: number, h: number) => void; onClick?: () => void; onTabClick: () => void;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -314,7 +336,7 @@ function MobileStackCard({
   return (
     <div style={{ position: "relative" }}>
       <div style={{ position: "absolute", bottom: "calc(100% - 1px)", ...MOBILE_TAB_POSITION[index] }}>
-        <CaseStudyTab color={card.bgColor} label={card.label} compact />
+        <CaseStudyTab color={card.bgColor} label={card.label} compact onClick={onTabClick} />
       </div>
       <div
         onClick={onClick}
@@ -322,7 +344,7 @@ function MobileStackCard({
           backgroundColor: card.bgColor,
           borderRadius: card.roundedAll ? 16 : "16px 16px 0 0",
           overflow: "hidden",
-          cursor: "pointer",
+          cursor: onClick ? "pointer" : "default",
           height,
           padding: MOBILE_CARD_PADDING,
           boxSizing: "border-box",
@@ -380,7 +402,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
   // plain portfolio URL rather than exiting the site.
   useEffect(() => {
     const slug = slugFromPath(window.location.pathname);
-    const cs = slug ? CASE_STUDY_DATA.find((c) => c.slug === slug) : undefined;
+    const cs = slug ? CASE_STUDY_DATA.find((c) => c.slug === slug && !c.comingSoon) : undefined;
     if (cs) {
       window.history.replaceState(null, "", import.meta.env.BASE_URL);
       window.history.pushState({ caseStudySlug: cs.slug }, "", caseStudyUrl(cs.slug));
@@ -395,7 +417,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
   useEffect(() => {
     const onPopState = (e: PopStateEvent) => {
       const slug = (e.state as { caseStudySlug?: string } | null)?.caseStudySlug;
-      const cs = slug ? CASE_STUDY_DATA.find((c) => c.slug === slug) : undefined;
+      const cs = slug ? CASE_STUDY_DATA.find((c) => c.slug === slug && !c.comingSoon) : undefined;
       setSelectedCase(cs ?? null);
       onDrawerChange?.(!!cs);
     };
@@ -445,6 +467,19 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
     return unsubScroll;
   }, [scrollYProgress, card2Y, card3Y, offY]);
 
+  // Clicking a card's tab scrolls the stack to the point where that card is on top,
+  // so the cards above it slide back down — the stacking animation in reverse.
+  // Card 2 is fully in at progress 0.4 and card 3 starts at 0.5 (see update above).
+  const REVEAL_PROGRESS = [0, 0.45, 1];
+  const revealCard = (i: number) => {
+    const outer = outerRef.current;
+    if (!scrollEl || !outer) return;
+    const start = outer.getBoundingClientRect().top - scrollEl.getBoundingClientRect().top + scrollEl.scrollTop;
+    const end = start + outer.offsetHeight - scrollEl.clientHeight;
+    scrollEl.scrollTo({ top: start + (end - start) * REVEAL_PROGRESS[i], behavior: "smooth" });
+  };
+  const cardClick = (i: number) => (CASE_STUDY_CARDS[i].comingSoon ? undefined : () => openCase(CASE_STUDY_DATA[i]));
+
   const stackContainer = (children: React.ReactNode) => (
     <div
       ref={outerRef}
@@ -472,7 +507,8 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
         index={i}
         height={mobileCardH || undefined}
         onMeasure={onMeasure}
-        onClick={() => openCase(CASE_STUDY_DATA[i])}
+        onClick={cardClick(i)}
+        onTabClick={() => revealCard(i)}
       />
     );
     return (
@@ -516,17 +552,17 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
 
           {/* CS1 */}
           <div style={{ position: "absolute", top: DESKTOP_HEADER_HEIGHT, left: 0, right: 0, zIndex: 1 }}>
-            <CardWithTab card={CASE_STUDY_CARDS[0]} onClick={() => openCase(CASE_STUDY_DATA[0])} />
+            <CardWithTab card={CASE_STUDY_CARDS[0]} onClick={cardClick(0)} onTabClick={() => revealCard(0)} />
           </div>
 
           {/* CS2 */}
           <motion.div style={{ position: "absolute", top: DESKTOP_HEADER_HEIGHT, left: 0, right: 0, zIndex: 2, y: card2Y }}>
-            <CardWithTab card={CASE_STUDY_CARDS[1]} onClick={() => openCase(CASE_STUDY_DATA[1])} />
+            <CardWithTab card={CASE_STUDY_CARDS[1]} onClick={cardClick(1)} onTabClick={() => revealCard(1)} />
           </motion.div>
 
           {/* CS3 */}
           <motion.div style={{ position: "absolute", top: DESKTOP_HEADER_HEIGHT, left: 0, right: 0, zIndex: 3, y: card3Y }}>
-            <CardWithTab card={CASE_STUDY_CARDS[2]} onClick={() => openCase(CASE_STUDY_DATA[2])} />
+            <CardWithTab card={CASE_STUDY_CARDS[2]} onClick={cardClick(2)} onTabClick={() => revealCard(2)} />
           </motion.div>
         </>
       )}
