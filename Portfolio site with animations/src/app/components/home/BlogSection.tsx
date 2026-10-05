@@ -3,8 +3,7 @@ import { motion } from "motion/react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { BLOG_POSTS, BLOG_CATEGORIES, type BlogPost, type BlogCategory } from "@/app/data/blogPosts";
 import { BLOG_INSET, BlogFilterTabs, BlogJournal } from "@/app/components/blog/BlogJournal";
-import { BlogTrail } from "@/app/components/blog/BlogTrail";
-import { markPostRead } from "@/app/lib/readPosts";
+import { BlogDarkRoom } from "@/app/components/blog/BlogDarkRoom";
 
 import { BlogPostDrawer } from "@/app/components/blog/BlogPostDrawer";
 import { colors, withAlpha } from "@/app/theme/tokens";
@@ -31,7 +30,6 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
   // Give the drawer real page semantics: pushing a slugged URL means the browser's
   // back button closes the drawer instead of leaving the site entirely.
   const openPost = (post: BlogPost) => {
-    markPostRead(post.id);
     setSelectedPost(post);
     window.history.pushState({ blogSlug: post.slug }, "", blogUrl(post.slug));
   };
@@ -122,15 +120,15 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
           <>
             <BlogJournal posts={filtered} isMobile={isMobile} onOpen={openPost} />
 
-            {/* Reference: a game-like alternative layout to compare against the notebook */}
+            {/* Reference: a very different alternative layout to compare against the notebook */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: `0 ${inset}px`, margin: `${isMobile ? 40 : 56}px 0 14px` }}>
               <span className="font-inclusive-sans font-semibold" style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.ink, backgroundColor: colors.pink, borderRadius: 20, padding: "3px 9px" }}>
                 reference
               </span>
-              <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: colors.oliveDeep }}>a gamified alternative</p>
+              <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: colors.oliveDeep }}>lights off — an alternative</p>
               <div style={{ flex: 1, height: 1, backgroundColor: withAlpha(colors.ink, 0.1) }} />
             </div>
-            <BlogTrail posts={filtered} isMobile={isMobile} onOpen={openPost} />
+            <BlogDarkRoom posts={filtered} isMobile={isMobile} onOpen={openPost} />
           </>
         )}
       </div>

@@ -7,7 +7,6 @@ import { HeroSection } from "@/app/components/home/HeroSection";
 import { ProjectsSection } from "@/app/components/home/ProjectsSection";
 import { AiProjectsSection } from "@/app/components/home/AiProjectsSection";
 import { BlogSection } from "@/app/components/home/BlogSection";
-import { LivingGrid } from "@/app/components/home/LivingGrid";
 import { AiProjectsPage } from "@/app/components/ai-projects/AiProjectsPage";
 import { StyleGuidePage } from "@/app/components/style-guide/StyleGuidePage";
 import { PersonalSection } from "@/app/components/home/PersonalSection";
@@ -240,8 +239,8 @@ export default function App() {
                   </div>
                 </>
               )}
-              {/* Closing strip: a living grid, perpetually drifting and reacting to the pointer */}
-              <LivingGrid height={isMobile ? 96 : 132} />
+              {/* Breathing room above the card's rounded bottom edge */}
+              <div className="rounded-b-2xl" style={{ height: isMobile ? 20 : 33, backgroundColor: isMobile ? colors.sand : colors.oliveLight }} />
             </div>
           </ScrollContext.Provider>
         </div>

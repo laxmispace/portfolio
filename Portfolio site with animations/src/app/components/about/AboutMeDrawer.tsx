@@ -8,10 +8,10 @@ import { AI_PROJECTS, isOpenableAiProject } from "@/app/data/aiProjects";
 import { AiProjectFrame } from "@/app/components/ai-projects/AiProjectFrame";
 import vinylDisc from "@/assets/vinyl-player/vinyl-disc.png";
 import vinylRing from "@/assets/vinyl-player/vinyl-ring.png";
-import gridBg from "@/assets/about-me-page/grid.png";
-import envelopeStack from "@/assets/about-me-page/envelope-stack.png";
-import myPhoto1 from "@/assets/about-me-page/my-photo-1.png";
-import myPhoto2 from "@/assets/about-me-page/my-photo-2.png";
+import gridBg from "@/assets/about-me-page/grid.webp";
+import envelopeStack from "@/assets/about-me-page/envelope-stack.webp";
+import myPhoto1 from "@/assets/about-me-page/my-photo-1.webp";
+import myPhoto2 from "@/assets/about-me-page/my-photo-2.webp";
 import bookCover1 from "@/assets/about-me-page/book-1.png";
 import movieCover1 from "@/assets/about-me-page/movie-1.png";
 import movieCover2 from "@/assets/about-me-page/movie-2.png";
@@ -102,10 +102,9 @@ const RESOURCES: ResourceItem[] = [
   { title: "…and your own mistakes", kind: "Ongoing" },
 ];
 
-// ── BooksAndMoviesCard ───────────────────────────────────────────────────────────
-// Ported from the provided reference component: a single card with a Books/Movies
-// tab switch, a 3-slot sliding cover carousel (prev/active/next), and one forward
-// arrow that wraps around at the end.
+// ── Shelf cards: Books / Movies / Resources ────────────────────────────────────
+// A 3-slot sliding cover carousel (prev/active/next) with one forward arrow that
+// wraps around at the end.
 
 type BookSlot = "left" | "center" | "right";
 
@@ -231,25 +230,27 @@ function NextArrowButton({ onClick, fill }: { onClick: () => void; fill: string 
   );
 }
 
-function BooksAndMoviesCard({ isMobile }: { isMobile: boolean }) {
-  const [tab, setTab] = useState<"books" | "movies">("books");
-  const [bookIdx, setBookIdx] = useState(0);
-  const [movieIdx, setMovieIdx] = useState(0);
-  const isBooks = tab === "books";
+// One shelf: a sliding cover carousel on the left, a heading (or tab switch) and the
+// current item's title + forward arrow on the right. Books uses one shelf; Movies and
+// Resources share a card and switch with tabs.
+interface Shelf {
+  label: string;
+  count: number;
+  background: string;
+  arrowFill: string;
+  panel: (activeIdx: number) => React.ReactNode;
+  item: (activeIdx: number) => { title: string; subtitle: string; badge?: string };
+}
+
+const SHELF_HEIGHT = 188;
+
+function ShelfCard({ shelves, isMobile }: { shelves: Shelf[]; isMobile: boolean }) {
+  const [tab, setTab] = useState(0);
+  const [indices, setIndices] = useState(() => shelves.map(() => 0));
   const textRef = useRef<HTMLDivElement>(null);
-
-  const bg = isBooks ? colors.pinkLight : colors.sand;
-  const arrowFill = isBooks ? "#D07C8D" : colors.orange;
-  const currentBook = BOOKS[bookIdx];
-  const currentMovie = MOVIES[movieIdx];
-
-  function nextItem() {
-    if (isBooks) setBookIdx((i) => (i + 1) % BOOKS.length);
-    else setMovieIdx((i) => (i + 1) % MOVIES.length);
-  }
-
-  const title = isBooks ? currentBook.title : currentMovie.title;
-  const subtitle = isBooks ? currentBook.author.toUpperCase() : currentMovie.year;
+  const shelf = shelves[tab];
+  const idx = indices[tab];
+  const { title, subtitle, badge } = shelf.item(idx);
 
   // Subtle GSAP crossfade whenever the displayed title/subtitle changes.
   useEffect(() => {
@@ -257,49 +258,74 @@ function BooksAndMoviesCard({ isMobile }: { isMobile: boolean }) {
     gsap.fromTo(textRef.current, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" });
   }, [title, subtitle]);
 
-  return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: 16, width: "100%", height: 188, backgroundColor: bg, transition: "background 0.4s ease" }}>
-      {isBooks ? <BooksPanel activeIdx={bookIdx} /> : <MoviesPanel activeIdx={movieIdx} />}
+  const next = () => setIndices((all) => all.map((v, i) => (i === tab ? (v + 1) % shelf.count : v)));
+  const headingStyle = { fontSize: 12, letterSpacing: "-0.02em", background: "none", border: "none", padding: 0, color: colors.ink } as const;
 
-      <div style={{ position: "absolute", left: 170, top: 16, right: isMobile ? 12 : 16, height: 156, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+  return (
+    <div style={{ position: "relative", overflow: "hidden", borderRadius: 16, width: "100%", height: SHELF_HEIGHT, backgroundColor: shelf.background, transition: "background 0.4s ease" }}>
+      {shelf.panel(idx)}
+
+      <div style={{ position: "absolute", left: 170, top: 16, right: isMobile ? 12 : 16, height: SHELF_HEIGHT - 32, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <button
-            onClick={() => setTab("books")}
-            className="font-caslon"
-            style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: isBooks ? "italic" : "normal", textDecoration: isBooks ? "underline" : "none", background: "none", border: "none", padding: 0, cursor: "pointer", color: colors.ink }}
-          >
-            Books
-          </button>
-          <button
-            onClick={() => setTab("movies")}
-            className="font-caslon"
-            style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: !isBooks ? "italic" : "normal", textDecoration: !isBooks ? "underline" : "none", background: "none", border: "none", padding: 0, cursor: "pointer", color: colors.ink }}
-          >
-            Movies
-          </button>
+          {shelves.length === 1 ? (
+            <p className="font-caslon" style={{ ...headingStyle, fontStyle: "italic" }}>{shelf.label}</p>
+          ) : (
+            shelves.map((sh, i) => (
+              <button
+                key={sh.label}
+                onClick={() => setTab(i)}
+                className="font-caslon"
+                style={{ ...headingStyle, cursor: "pointer", fontStyle: i === tab ? "italic" : "normal", textDecoration: i === tab ? "underline" : "none" }}
+              >
+                {sh.label}
+              </button>
+            ))
+          )}
         </div>
 
         <div style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
           <div ref={textRef} style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-            {isBooks && currentBook.reading && (
+            {badge && (
               <span style={{ alignSelf: "flex-start", backgroundColor: colors.pink, borderRadius: 20, padding: "2px 8px", marginBottom: 2 }}>
-                <span className="font-inclusive-sans font-semibold" style={{ fontSize: 9, letterSpacing: "0.5px", textTransform: "uppercase", color: colors.ink }}>reading now</span>
+                <span className="font-inclusive-sans font-semibold" style={{ fontSize: 9, letterSpacing: "0.5px", textTransform: "uppercase", color: colors.ink }}>{badge}</span>
               </span>
             )}
             <p className="font-caslon not-italic" style={{ fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>{title}</p>
             <p className="font-inclusive-sans uppercase" style={{ fontSize: 12, lineHeight: "16px", color: withAlpha(colors.ink, 0.5) }}>{subtitle}</p>
           </div>
-          <NextArrowButton onClick={nextItem} fill={arrowFill} />
+          <NextArrowButton onClick={next} fill={shelf.arrowFill} />
         </div>
       </div>
     </div>
   );
 }
 
-// ── ResourcesCard ──────────────────────────────────────────────────────────────
-// Same container language as BooksAndMoviesCard — stacked-tile carousel on the
-// left, a label + cycling title + forward arrow on the right. Placeholder tiles
-// until real artwork is dropped in.
+const BOOKS_SHELF: Shelf = {
+  label: "Books",
+  count: BOOKS.length,
+  background: colors.pinkLight,
+  arrowFill: "#D07C8D",
+  panel: (i) => <BooksPanel activeIdx={i} />,
+  item: (i) => ({ title: BOOKS[i].title, subtitle: BOOKS[i].author.toUpperCase(), badge: BOOKS[i].reading ? "reading now" : undefined }),
+};
+const MOVIES_SHELF: Shelf = {
+  label: "Movies",
+  count: MOVIES.length,
+  background: colors.sand,
+  arrowFill: colors.orange,
+  panel: (i) => <MoviesPanel activeIdx={i} />,
+  item: (i) => ({ title: MOVIES[i].title, subtitle: MOVIES[i].year }),
+};
+const RESOURCES_SHELF: Shelf = {
+  label: "Resources",
+  count: RESOURCES.length,
+  background: "#e0ddd0",
+  arrowFill: "#8a8a5f",
+  panel: (i) => <ResourcesPanel activeIdx={i} />,
+  item: (i) => ({ title: RESOURCES[i].title, subtitle: RESOURCES[i].kind }),
+};
+
+// Resources: same stacked-tile carousel, with placeholder tiles until real artwork lands.
 
 function ResourcesPanel({ activeIdx }: { activeIdx: number }) {
   const total = RESOURCES.length;
@@ -335,37 +361,6 @@ function ResourcesPanel({ activeIdx }: { activeIdx: number }) {
         <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: "#6c6b4a" }}>{activeIdx + 1}</span>
         <span style={{ width: 3, height: 3, borderRadius: "50%", backgroundColor: "rgba(108,107,74,0.3)" }} />
         <span className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: 1, color: "rgba(108,107,74,0.5)" }}>{total}</span>
-      </div>
-    </div>
-  );
-}
-
-function ResourcesCard({ isMobile }: { isMobile: boolean }) {
-  const [idx, setIdx] = useState(0);
-  const textRef = useRef<HTMLDivElement>(null);
-  const current = RESOURCES[idx];
-
-  useEffect(() => {
-    if (!textRef.current) return;
-    gsap.fromTo(textRef.current, { opacity: 0, y: 4 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" });
-  }, [idx]);
-
-  return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: 16, width: "100%", height: 188, backgroundColor: "#e0ddd0" }}>
-      <ResourcesPanel activeIdx={idx} />
-
-      <div style={{ position: "absolute", left: 170, top: 16, right: isMobile ? 12 : 16, height: 156, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-        <p className="font-caslon" style={{ fontSize: 12, letterSpacing: "-0.02em", fontStyle: "italic", color: colors.ink }}>
-          worth your time
-        </p>
-
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 4 }}>
-          <div ref={textRef} style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-            <p className="font-caslon not-italic" style={{ fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>{current.title}</p>
-            <p className="font-inclusive-sans uppercase" style={{ fontSize: 12, lineHeight: "16px", color: withAlpha(colors.ink, 0.5) }}>{current.kind}</p>
-          </div>
-          <NextArrowButton onClick={() => setIdx((i) => (i + 1) % RESOURCES.length)} fill="#8a8a5f" />
-        </div>
       </div>
     </div>
   );
@@ -979,6 +974,20 @@ function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
 
 // ── AboutMeDrawer ──────────────────────────────────────────────────────────────
 
+// The two waving poses share one pixel scale; the narrower one is 1776/2148 of the box.
+const NARROW_POSE_WIDTH = 1776 / 2148;
+const PHOTO_CENTER_X = NARROW_POSE_WIDTH / 2;
+
+// Warm the browser cache with the hero images once the page is idle, so the drawer
+// opens with them already decoded instead of loading them on demand.
+function preloadAboutImages() {
+  for (const src of [envelopeStack, myPhoto1, myPhoto2, gridBg]) {
+    const img = new Image();
+    img.decoding = "async";
+    img.src = src;
+  }
+}
+
 interface AboutMeDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -990,6 +999,11 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
   const drawerWidth = isMobile ? "100%" : "min(900px, 90vw)";
   const drawerBorderRadius = isMobile ? 0 : "24px 0 0 24px";
   const contentPad = isMobile ? 18 : 36;
+
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500));
+    idle(preloadAboutImages);
+  }, []);
 
   // Loops the photo between the two poses, like a boomerang GIF.
   const [photoFrame, setPhotoFrame] = useState(0);
@@ -1070,12 +1084,14 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                     <img src={envelopeStack} alt="" style={{ width: "100%", height: "auto", display: "block" }} />
                     <div
                       style={{
-                        // Same ratios on web and mobile: the photo is sized and placed as a share
-                        // of the envelope stack, so it stays aligned to it at every width.
-                        position: "absolute", left: "46%", top: "-16%",
+                        // Centred on the figure itself: the narrower pose fills the left
+                        // PHOTO_CENTER_X of this box, so that point sits on the envelope's
+                        // centre line and the tilt pivots around it. Same ratios on web and
+                        // mobile, so it stays aligned at every width.
+                        position: "absolute", left: "50%", top: "-16%",
                         width: "48%", maxWidth: 320,
-                        transform: "translateX(-50%) rotate(14deg)",
-                        transformOrigin: "center top",
+                        transform: `translateX(-${PHOTO_CENTER_X * 100}%) rotate(14deg)`,
+                        transformOrigin: `${PHOTO_CENTER_X * 100}% 50%`,
                       }}
                     >
                       {/* Boomerang between the two wave poses. Both frames live in
@@ -1087,6 +1103,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                         <img
                           src={myPhoto2}
                           alt="Laxmi Mahajan"
+                          decoding="async"
                           style={{
                             position: "absolute", left: 0, top: 0, width: "100%", height: "auto",
                             opacity: photoFrame === 1 ? 1 : 0, transition: "opacity 0.28s ease",
@@ -1095,8 +1112,9 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                         <img
                           src={myPhoto1}
                           alt=""
+                          decoding="async"
                           style={{
-                            position: "absolute", left: 0, top: 0, width: `${(1776 / 2148) * 100}%`, height: "auto",
+                            position: "absolute", left: 0, top: 0, width: `${NARROW_POSE_WIDTH * 100}%`, height: "auto",
                             opacity: photoFrame === 0 ? 1 : 0, transition: "opacity 0.28s ease",
                           }}
                         />
@@ -1149,24 +1167,19 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
               {/* ── Section B3: things outside work — books/films, music, resources ── */}
               <div style={{ backgroundColor: colors.sand }}>
                 <div style={{ backgroundColor: colors.olive, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
-                <p className="font-inclusive-sans" style={{ fontSize: isMobile ? 14 : 18, lineHeight: isMobile ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: colors.ink, maxWidth: 560, margin: "0 auto", marginBottom: isMobile ? 24 : 32 }}>
+                  <p className="font-inclusive-sans" style={{ fontSize: isMobile ? 14 : 18, lineHeight: isMobile ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: colors.ink, maxWidth: 560, margin: "0 auto", marginBottom: isMobile ? 24 : 32 }}>
                     A small window into the things I return to outside of work — the books I read, the films I rewatch, and the songs on repeat.
                   </p>
 
-                  {/* Books/Movies + Music player row */}
-                  <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexDirection: isMobile ? "column" : "row", alignItems: "flex-start", marginBottom: isMobile ? 16 : 24 }}>
-                    <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
-                      <BooksAndMoviesCard isMobile={isMobile} />
+                  {/* Books and Movies & resources stack beside the music player: two 188px
+                      cards + a 24px gap = the player's 400px height. Mobile stacks all three. */}
+                  <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexDirection: isMobile ? "column" : "row", alignItems: "stretch", marginBottom: isMobile ? 24 : 36 }}>
+                    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 16 : 24 }}>
+                      <ShelfCard shelves={[BOOKS_SHELF]} isMobile={isMobile} />
+                      <ShelfCard shelves={[MOVIES_SHELF, RESOURCES_SHELF]} isMobile={isMobile} />
                     </div>
-                    <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <MusicPlayerCard isMobile={isMobile} />
-                    </div>
-                  </div>
-
-                  {/* Resources — same card language as Books/Movies, aligned under it */}
-                  <div style={{ display: "flex", marginBottom: isMobile ? 24 : 36 }}>
-                    <div style={{ width: isMobile ? "100%" : "calc(50% - 12px)" }}>
-                      <ResourcesCard isMobile={isMobile} />
                     </div>
                   </div>
                 </div>
