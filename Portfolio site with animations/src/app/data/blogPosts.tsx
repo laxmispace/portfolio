@@ -15,8 +15,6 @@ export interface BlogPost {
   category: BlogCategory;
 }
 
-export const BLOG_CATEGORIES: BlogCategory[] = ["write about design", "personal musings", "life in a nutshell"];
-
 // Media for "The tactile charm of micro-interactions" lives in
 // public/blog-media/tactile-charm/ (mirrored from the original Canvs piece).
 // Base-aware so it resolves at "/" locally and "/portfolio/" on GitHub Pages.

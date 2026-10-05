@@ -12,8 +12,6 @@ import {
 } from "@/app/components/case-study/CaseStudyPrimitives";
 import { CaseStudyTab } from "@/app/components/home/ProjectsSection";
 import { MadeWithLove } from "@/app/components/layout/MadeWithLove";
-import { BlogFilterTabs } from "@/app/components/blog/BlogJournal";
-import { BLOG_CATEGORIES, type BlogCategory } from "@/app/data/blogPosts";
 import sampleScreen from "@/assets/ai-projects/breathing.png";
 
 // ── Content ────────────────────────────────────────────────────────────────────
@@ -197,11 +195,6 @@ function EaseCurve() {
       </div>
     </div>
   );
-}
-
-function FilterTabsDemo() {
-  const [active, setActive] = useState<BlogCategory | null>(null);
-  return <BlogFilterTabs categories={BLOG_CATEGORIES} active={active} onChange={setActive} />;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -419,9 +412,6 @@ export function StyleGuidePage({ onBack }: { onBack: () => void }) {
                   <button type="button" className="font-inclusive-sans font-medium" style={{ height: 40, padding: "0 20px", fontSize: 14, color: colors.white, border: "none", borderRadius: radii.lg, backgroundColor: colors.orange, cursor: "pointer" }}>Primary button</button>
                   <span className="font-caslon" style={{ fontSize: 14, fontStyle: "italic", color: colors.ink }}>read case study →</span>
                 </div>
-              </Card>
-              <Card title="Filter tabs" note="Quiet text tabs; the highlight slides and takes the category's colour." source="blog/BlogJournal.tsx">
-                <FilterTabsDemo />
               </Card>
               <Card title="Image placeholder" note="Grid-paper fill used until real artwork lands." source="case-study/CaseStudyPrimitives.tsx">
                 <div style={{ height: 120, borderRadius: radii.lg, overflow: "hidden" }}>

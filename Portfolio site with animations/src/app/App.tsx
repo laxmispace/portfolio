@@ -7,6 +7,7 @@ import { HeroSection } from "@/app/components/home/HeroSection";
 import { ProjectsSection } from "@/app/components/home/ProjectsSection";
 import { AiProjectsSection } from "@/app/components/home/AiProjectsSection";
 import { BlogSection } from "@/app/components/home/BlogSection";
+import { GuestbookSection } from "@/app/components/home/GuestbookSection";
 import { AiProjectsPage } from "@/app/components/ai-projects/AiProjectsPage";
 import { StyleGuidePage } from "@/app/components/style-guide/StyleGuidePage";
 import { PersonalSection } from "@/app/components/home/PersonalSection";
@@ -236,6 +237,10 @@ export default function App() {
 
                   <div ref={blogRef} id="blog">
                     <BlogSection onDrawerChange={setBlogOpen} />
+                  </div>
+
+                  <div id="guestbook">
+                    <GuestbookSection isMobile={isMobile} />
                   </div>
                 </>
               )}

@@ -21,11 +21,15 @@
   --color-sand-border: #daccbe;
   --color-sand-line: #d1c0ae;
 
+  --color-paper: #f7f1e3;
+  --color-leather: #4b4628;
+
   --color-error: #c0392b;
 
   --font-serif: 'Libre Caslon Condensed', serif;
   --font-sans: 'Inclusive Sans', sans-serif;
   --font-label: 'Plus Jakarta Sans', sans-serif;
+  --font-hand: 'Caveat', cursive;
 
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }

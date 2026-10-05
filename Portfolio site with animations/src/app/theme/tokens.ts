@@ -26,6 +26,10 @@ export const colors = {
   sandBorder: "#DACCBE",
   sandLine: "#D1C0AE",
 
+  // Objects (the blog diary)
+  paper: "#F7F1E3",
+  leather: "#4B4628",
+
   // Feedback
   error: "#C0392B",
 } as const;
@@ -44,6 +48,7 @@ export const fonts = {
   label: "'Plus Jakarta Sans', sans-serif", // small labels, captions, numerals
   devanagari: "'Martel', serif", // Hindi words (सुकून)
   mono: "'Spline Sans Mono', monospace", // code and token names (style guide)
+  hand: "'Caveat', cursive", // handwriting: the diary and post-its
 } as const;
 
 // Type scale as used across the site and the case studies: [size, line-height] in px.

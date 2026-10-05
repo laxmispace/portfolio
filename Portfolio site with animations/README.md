@@ -11,6 +11,13 @@ React 18 + Vite + Motion, deployed to GitHub Pages at `/portfolio/`.
 | `pnpm typecheck` | Strict TypeScript check, including unused code |
 | `pnpm voiceover` | Regenerate case study / blog narration |
 
+## Guestbook (post-its)
+
+Notes are emailed via [Web3Forms](https://web3forms.com) and stored in
+[Supabase](https://supabase.com). Put the keys in `src/app/config/guestbook.ts` and run
+`docs/guestbook.sql` once in Supabase's SQL editor. New notes show on the wall straight
+away; untick `approved` on a row in Supabase's table editor to hide it.
+
 ## Structure
 
 ```

@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
-import { BLOG_POSTS, BLOG_CATEGORIES, type BlogPost, type BlogCategory } from "@/app/data/blogPosts";
-import { BLOG_INSET, BlogFilterTabs, BlogJournal } from "@/app/components/blog/BlogJournal";
-import { BlogDarkRoom } from "@/app/components/blog/BlogDarkRoom";
+import { BLOG_POSTS, type BlogPost } from "@/app/data/blogPosts";
+import { BlogDiary } from "@/app/components/blog/BlogDiary";
 
 import { BlogPostDrawer } from "@/app/components/blog/BlogPostDrawer";
-import { colors, withAlpha } from "@/app/theme/tokens";
+import { colors } from "@/app/theme/tokens";
 
 
 // Blog post slug in the URL, e.g. /portfolio/blog/sukoon
@@ -18,14 +17,13 @@ const slugFromPath = (pathname: string) =>
 
 export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolean) => void }) {
   const isMobile = useIsMobile();
-  const [activeCategory, setActiveCategory] = useState<BlogCategory | null>(null);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   // Let the host (App) hide the mobile bottom nav while a blog post is open.
   useEffect(() => { onDrawerChange?.(!!selectedPost); }, [selectedPost, onDrawerChange]);
 
-  const filtered = activeCategory ? BLOG_POSTS.filter((p) => p.category === activeCategory) : BLOG_POSTS;
-  const inset = isMobile ? BLOG_INSET.mobile : BLOG_INSET.desktop;
+  // Text sits on the same inset as the case study cards' content (36px / 16px).
+  const inset = isMobile ? 16 : 36;
 
   // Give the drawer real page semantics: pushing a slugged URL means the browser's
   // back button closes the drawer instead of leaving the site entirely.
@@ -88,12 +86,6 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
           </p>
         </div>
 
-        {BLOG_POSTS.length > 0 && (
-          <div style={{ marginBottom: isMobile ? 12 : 16, padding: `0 ${inset}px` }}>
-            <BlogFilterTabs categories={BLOG_CATEGORIES} active={activeCategory} onChange={setActiveCategory} />
-          </div>
-        )}
-
         {BLOG_POSTS.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -117,19 +109,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
             </motion.div>
           </motion.div>
         ) : (
-          <>
-            <BlogJournal posts={filtered} isMobile={isMobile} onOpen={openPost} />
-
-            {/* Reference: a very different alternative layout to compare against the notebook */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: `0 ${inset}px`, margin: `${isMobile ? 40 : 56}px 0 14px` }}>
-              <span className="font-inclusive-sans font-semibold" style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.ink, backgroundColor: colors.pink, borderRadius: 20, padding: "3px 9px" }}>
-                reference
-              </span>
-              <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: colors.oliveDeep }}>lights off — an alternative</p>
-              <div style={{ flex: 1, height: 1, backgroundColor: withAlpha(colors.ink, 0.1) }} />
-            </div>
-            <BlogDarkRoom posts={filtered} isMobile={isMobile} onOpen={openPost} />
-          </>
+          <BlogDiary posts={BLOG_POSTS} isMobile={isMobile} onOpen={openPost} />
         )}
       </div>
     </section>
