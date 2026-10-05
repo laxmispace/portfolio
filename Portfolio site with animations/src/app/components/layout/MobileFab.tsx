@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from "motion/react";
 import { FileDown, Mail, Github, Linkedin } from "lucide-react";
 import { haptic } from "@/app/lib/feedback";
 import { colors, withAlpha } from "@/app/theme/tokens";
+import { RESUME_URL } from "@/app/lib/links";
 
 // ── Speed-dial FAB ────────────────────────────────────────────────────────────
 // Lives in the bottom sticky nav band (rendered by MobileBottomNav). The trigger
 // sits in normal flow so the parent can place it; the fanned-out actions and the
 // scrim are position:fixed so the band's overflow:hidden can't clip them.
 const ACTIONS = [
-  { label: "resume",   href: "https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing", Icon: FileDown },
+  { label: "resume",   href: RESUME_URL, Icon: FileDown },
   { label: "gmail",    href: "mailto:laxmimahajanwork@gmail.com", Icon: Mail },
   { label: "github",   href: "https://github.com/laxmispace", Icon: Github },
   { label: "linkedin", href: "https://in.linkedin.com/in/laxmi-mahajan", Icon: Linkedin },

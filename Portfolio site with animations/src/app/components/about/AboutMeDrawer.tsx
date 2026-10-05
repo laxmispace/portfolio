@@ -24,6 +24,7 @@ import stripPhoto6 from "@/assets/stack-images/optimized/20260803-120723-1.jpg";
 import stripPhoto7 from "@/assets/stack-images/optimized/img-20250816-120031-492-1.jpg";
 import stripPhoto8 from "@/assets/stack-images/optimized/img-20260321-190702-856-1.jpg";
 import { colors, withAlpha } from "@/app/theme/tokens";
+import { RESUME_URL } from "@/app/lib/links";
 
 // ── Work experience data ───────────────────────────────────────────────────────
 
@@ -1124,7 +1125,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                   {[
                     { label: "LinkedIn", href: "https://in.linkedin.com/in/laxmi-mahajan" },
                     { label: "Email", href: "mailto:laxmimahajanwork@gmail.com" },
-                    { label: "Resume", href: "https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing" },
+                    { label: "Resume", href: RESUME_URL },
                   ].map(({ label, href }) => (
                     <motion.a
                       key={label}

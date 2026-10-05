@@ -10,6 +10,7 @@ import { ArrowUpRight } from "lucide-react";
 import { colors, withAlpha } from "@/app/theme/tokens";
 import { STYLE_GUIDE_PATH } from "@/app/lib/routes";
 import { MadeWithLove } from "./MadeWithLove";
+import { RESUME_URL } from "@/app/lib/links";
 
 export type NavSection = "home" | "projects" | "ai-projects" | "blog";
 export type { NavSection as SideNavSection };
@@ -104,7 +105,7 @@ function NavIndicator({ section }: { section: NavSection }) {
 
 // ── Bottom links: vertical stack, each with a ↗, magnifies on hover ───────────
 const BOTTOM_LINKS: { label: string; href: string }[] = [
-  { label: "download resume", href: "https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing" },
+  { label: "download resume", href: RESUME_URL },
   { label: "gmail",           href: "mailto:laxmimahajanwork@gmail.com" },
   { label: "github",          href: "https://github.com/laxmispace" },
   { label: "linkedin",        href: "https://in.linkedin.com/in/laxmi-mahajan" },

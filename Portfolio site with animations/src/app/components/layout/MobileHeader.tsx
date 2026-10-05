@@ -1,5 +1,6 @@
 import svgPaths from "./mobileHeaderPaths";
 import { colors } from "@/app/theme/tokens";
+import { RESUME_URL } from "@/app/lib/links";
 
 // Logo SVG — mirrors Frame26 > Group3 from the Figma import (56.761 × 40)
 function MobileLogo() {
@@ -71,7 +72,7 @@ function MobileSocialIcons() {
 
       {/* Download button — Frame25 */}
       <a
-        href="https://drive.google.com/file/d/1cm1x-y31ugOERxl7MaLuoOYGnNq0r1p0/view?usp=sharing"
+        href={RESUME_URL}
         target="_blank"
         rel="noopener noreferrer"
         style={{
