@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { BLOG_POSTS, BLOG_CATEGORIES, type BlogPost, type BlogCategory } from "@/app/data/blogPosts";
-import { BlogFilterTabs, BlogJournal } from "@/app/components/blog/BlogJournal";
+import { BLOG_INSET, BlogFilterTabs, BlogJournal } from "@/app/components/blog/BlogJournal";
+import { BlogTrail } from "@/app/components/blog/BlogTrail";
+import { markPostRead } from "@/app/lib/readPosts";
 
 import { BlogPostDrawer } from "@/app/components/blog/BlogPostDrawer";
-import { colors } from "@/app/theme/tokens";
+import { colors, withAlpha } from "@/app/theme/tokens";
 
 
 // Blog post slug in the URL, e.g. /portfolio/blog/sukoon
@@ -24,10 +26,12 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
   useEffect(() => { onDrawerChange?.(!!selectedPost); }, [selectedPost, onDrawerChange]);
 
   const filtered = activeCategory ? BLOG_POSTS.filter((p) => p.category === activeCategory) : BLOG_POSTS;
+  const inset = isMobile ? BLOG_INSET.mobile : BLOG_INSET.desktop;
 
   // Give the drawer real page semantics: pushing a slugged URL means the browser's
   // back button closes the drawer instead of leaving the site entirely.
   const openPost = (post: BlogPost) => {
+    markPostRead(post.id);
     setSelectedPost(post);
     window.history.pushState({ blogSlug: post.slug }, "", blogUrl(post.slug));
   };
@@ -75,8 +79,9 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
         onNavigate={openPost}
       />
 
-      <div style={{ padding: isMobile ? "28px 16px 60px" : "40px 40px 80px" }}>
-        <div style={{ marginBottom: 28 }}>
+      {/* Edge to edge: only the text is inset, matching the case study cards (36px / 16px). */}
+      <div style={{ padding: isMobile ? "28px 0 48px" : "40px 0 64px" }}>
+        <div style={{ marginBottom: 20, padding: `0 ${inset}px` }}>
           <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: colors.oliveDeep, marginBottom: 8 }}>
             i write, sometimes
           </p>
@@ -86,8 +91,8 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
         </div>
 
         {BLOG_POSTS.length > 0 && (
-          <div style={{ marginBottom: isMobile ? 16 : 20 }}>
-            <BlogFilterTabs categories={BLOG_CATEGORIES} active={activeCategory} onChange={setActiveCategory} count={filtered.length} />
+          <div style={{ marginBottom: isMobile ? 12 : 16, padding: `0 ${inset}px` }}>
+            <BlogFilterTabs categories={BLOG_CATEGORIES} active={activeCategory} onChange={setActiveCategory} />
           </div>
         )}
 
@@ -114,7 +119,19 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
             </motion.div>
           </motion.div>
         ) : (
-          <BlogJournal posts={filtered} isMobile={isMobile} onOpen={openPost} newestId={BLOG_POSTS[0]?.id} />
+          <>
+            <BlogJournal posts={filtered} isMobile={isMobile} onOpen={openPost} />
+
+            {/* Reference: a game-like alternative layout to compare against the notebook */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: `0 ${inset}px`, margin: `${isMobile ? 40 : 56}px 0 14px` }}>
+              <span className="font-inclusive-sans font-semibold" style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.ink, backgroundColor: colors.pink, borderRadius: 20, padding: "3px 9px" }}>
+                reference
+              </span>
+              <p className="font-caslon" style={{ fontSize: 15, fontStyle: "italic", color: colors.oliveDeep }}>a gamified alternative</p>
+              <div style={{ flex: 1, height: 1, backgroundColor: withAlpha(colors.ink, 0.1) }} />
+            </div>
+            <BlogTrail posts={filtered} isMobile={isMobile} onOpen={openPost} />
+          </>
         )}
       </div>
     </section>

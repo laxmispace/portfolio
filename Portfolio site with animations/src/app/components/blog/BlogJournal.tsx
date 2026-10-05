@@ -1,66 +1,65 @@
-// The blog list as a page from a notebook: ruled lines, a pink margin, no cards.
-// Titles rise in word by word as they scroll into view. Hovering a post (or, on
-// mobile, scrolling it to the middle of the screen) makes its letters wave, scribbles
-// an underline in its category colour, pops a doodle and sets the chai steaming.
-// On web a little "read →" bubble trails the cursor.
+// The blog list as a page from a notebook: ruled lines, a pink margin, no cards,
+// running edge to edge. Text starts at the same 36px inset as the case study cards
+// (16px on mobile). Titles rise in word by word as they scroll into view; hovering a
+// post (or, on mobile, scrolling it to the middle of the screen) makes its letters
+// wave, scribbles an underline in its category colour, pops a doodle and sets the
+// chai steaming. On web a little "read →" bubble trails the cursor.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring } from "motion/react";
+import { motion, AnimatePresence, useMotionValue, useSpring, type MotionValue } from "motion/react";
 import type { BlogPost, BlogCategory } from "@/app/data/blogPosts";
 import { MARTEL } from "@/app/lib/devanagari";
 import { useScrollContainer } from "@/app/context/ScrollContext";
 import { colors, motionTokens, radii, withAlpha } from "@/app/theme/tokens";
 
-const CATEGORY_ACCENT: Record<BlogCategory, string> = {
+export const CATEGORY_ACCENT: Record<BlogCategory, string> = {
   "write about design": colors.orange,
   "personal musings": colors.pink,
   "life in a nutshell": colors.olive,
 };
-const CATEGORY_DOODLE: Record<BlogCategory, string> = {
+export const CATEGORY_DOODLE: Record<BlogCategory, string> = {
   "write about design": "✏️",
   "personal musings": "☁️",
   "life in a nutshell": "🌱",
 };
 
+// Horizontal layout, matched to the case study cards' 36px (desktop) / 16px (mobile) inset.
+export const BLOG_INSET = { desktop: 36, mobile: 16 } as const;
+const MARGIN_LINE_X = { desktop: 26, mobile: 8 } as const;
 const RULE_SPACING = 32;
-const MARGIN_X = 44;
 
 // ─── Filter tabs ──────────────────────────────────────────────────────────────
+// Each tab's pill has 12px of padding, so the row starts 12px left of the text inset.
 export function BlogFilterTabs({
-  categories, active, onChange, count,
+  categories, active, onChange,
 }: {
-  categories: BlogCategory[]; active: BlogCategory | null; onChange: (c: BlogCategory | null) => void; count: number;
+  categories: BlogCategory[]; active: BlogCategory | null; onChange: (c: BlogCategory | null) => void;
 }) {
   const tabs: (BlogCategory | null)[] = [null, ...categories];
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-      <div role="tablist" aria-label="Filter posts" style={{ display: "flex", gap: 4, overflowX: "auto", margin: "0 -4px", padding: "0 4px" }}>
-        {tabs.map((tab) => {
-          const on = tab === active;
-          return (
-            <motion.button
-              key={tab ?? "all"}
-              role="tab"
-              aria-selected={on}
-              onClick={() => onChange(tab)}
-              whileTap={{ scale: 0.94 }}
-              className="font-inclusive-sans"
-              style={{ position: "relative", border: "none", background: "none", cursor: "pointer", padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap", color: on ? colors.ink : withAlpha(colors.ink, 0.5), transition: "color 0.2s" }}
-            >
-              {on && (
-                <motion.span
-                  layoutId="blog-filter-highlight"
-                  transition={{ type: "spring", stiffness: 420, damping: 30 }}
-                  style={{ position: "absolute", inset: 0, borderRadius: radii.pill, backgroundColor: tab ? withAlpha(CATEGORY_ACCENT[tab], 0.3) : colors.sandPanel }}
-                />
-              )}
-              <span style={{ position: "relative" }}>{tab ? `${CATEGORY_DOODLE[tab]} ${tab}` : "everything"}</span>
-            </motion.button>
-          );
-        })}
-      </div>
-      <span className="font-inclusive-sans" style={{ fontSize: 11, color: withAlpha(colors.ink, 0.4), whiteSpace: "nowrap" }}>
-        {count} {count === 1 ? "essay" : "essays"}
-      </span>
+    <div role="tablist" aria-label="Filter posts" style={{ display: "flex", gap: 4, overflowX: "auto", marginLeft: -12, paddingRight: 12 }}>
+      {tabs.map((tab) => {
+        const on = tab === active;
+        return (
+          <motion.button
+            key={tab ?? "all"}
+            role="tab"
+            aria-selected={on}
+            onClick={() => onChange(tab)}
+            whileTap={{ scale: 0.94 }}
+            className="font-inclusive-sans"
+            style={{ position: "relative", border: "none", background: "none", cursor: "pointer", padding: "6px 12px", fontSize: 12, whiteSpace: "nowrap", color: on ? colors.ink : withAlpha(colors.ink, 0.5), transition: "color 0.2s" }}
+          >
+            {on && (
+              <motion.span
+                layoutId="blog-filter-highlight"
+                transition={{ type: "spring", stiffness: 420, damping: 30 }}
+                style={{ position: "absolute", inset: 0, borderRadius: radii.pill, backgroundColor: tab ? withAlpha(CATEGORY_ACCENT[tab], 0.3) : colors.sandPanel }}
+              />
+            )}
+            <span style={{ position: "relative" }}>{tab ? `${CATEGORY_DOODLE[tab]} ${tab}` : "everything"}</span>
+          </motion.button>
+        );
+      })}
     </div>
   );
 }
@@ -75,7 +74,7 @@ function WavyTitle({ text, active, isMobile }: { text: string; active: boolean; 
     <span style={{ display: "inline" }}>
       <span className="sr-only">{text}</span>
       {words.map((word, w) => {
-        const splittable = /^[\x00-\x7F’'—–-]+$/.test(word);
+        const splittable = /^[\x20-\x7E’'—–-]+$/.test(word);
         const units = splittable ? Array.from(word) : [word];
         return (
           <span key={w} style={{ display: "inline-block", overflow: "hidden", verticalAlign: "bottom", paddingBottom: 2, marginRight: "0.26em" }}>
@@ -92,7 +91,7 @@ function WavyTitle({ text, active, isMobile }: { text: string; active: boolean; 
                 return (
                   <motion.span
                     key={i}
-                    animate={active ? { y: [0, isMobile ? -4 : -7, 0] } : { y: 0 }}
+                    animate={active ? { y: [0, isMobile ? -4 : -6, 0] } : { y: 0 }}
                     transition={{ duration: 0.42, delay: i * 0.018, ease: "easeOut" }}
                     style={{ display: "inline-block", whiteSpace: "pre" }}
                   >
@@ -127,23 +126,28 @@ function Scribble({ color, active }: { color: string; active: boolean }) {
   );
 }
 
-// ☕ with three wisps of steam that only rise while the post is active.
-function SteamingChai({ readTime, active }: { readTime: string; active: boolean }) {
+// ☕ with three soft, round-capped wisps of steam that rise while the post is active.
+export function SteamingChai({ readTime, active }: { readTime: string; active: boolean }) {
   return (
     <span className="font-inclusive-sans" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: withAlpha(colors.ink, 0.55), whiteSpace: "nowrap" }}>
       <span style={{ position: "relative", display: "inline-block" }}>
         <AnimatePresence>
           {active &&
             [0, 1, 2].map((i) => (
-              <motion.span
+              <motion.svg
                 key={i}
                 aria-hidden="true"
-                initial={{ opacity: 0, y: 0 }}
-                animate={{ opacity: [0, 0.7, 0], y: -12 }}
+                width={6}
+                height={12}
+                viewBox="0 0 6 12"
+                initial={{ opacity: 0, y: 2 }}
+                animate={{ opacity: [0, 0.75, 0], y: -12 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 1.3, delay: i * 0.35, repeat: Infinity, ease: "easeOut" }}
-                style={{ position: "absolute", left: 3 + i * 4, top: -4, width: 2, height: 7, borderRadius: 2, backgroundColor: withAlpha(colors.ink, 0.35) }}
-              />
+                transition={{ duration: 1.4, delay: i * 0.4, repeat: Infinity, ease: "easeOut" }}
+                style={{ position: "absolute", left: 1 + i * 4, top: -8, overflow: "visible" }}
+              >
+                <path d="M3 11 C 0.5 8.5, 5.5 6.5, 3 4 S 4.5 1.5, 3 1" fill="none" stroke={withAlpha(colors.ink, 0.4)} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+              </motion.svg>
             ))}
         </AnimatePresence>
         <span aria-hidden="true">☕</span>
@@ -155,12 +159,15 @@ function SteamingChai({ readTime, active }: { readTime: string; active: boolean 
 
 // ─── One line in the notebook ─────────────────────────────────────────────────
 function NotebookEntry({
-  post, index, isNew, active, isMobile, onOpen, onHover, entryRef,
+  post, index, active, isMobile, onOpen, onHover, entryRef,
 }: {
-  post: BlogPost; index: number; isNew: boolean; active: boolean; isMobile: boolean;
+  post: BlogPost; index: number; active: boolean; isMobile: boolean;
   onOpen: () => void; onHover: (hovering: boolean) => void; entryRef: (el: HTMLButtonElement | null) => void;
 }) {
   const accent = CATEGORY_ACCENT[post.category];
+  const inset = isMobile ? BLOG_INSET.mobile : BLOG_INSET.desktop;
+  const date = <span className="font-inclusive-sans" style={{ fontSize: 12, color: withAlpha(colors.ink, 0.5), whiteSpace: "nowrap" }}>{post.date}</span>;
+
   return (
     <motion.button
       ref={entryRef}
@@ -168,43 +175,35 @@ function NotebookEntry({
       onClick={onOpen}
       onPointerEnter={() => onHover(true)}
       onPointerLeave={() => onHover(false)}
-      whileTap={{ scale: 0.985 }}
+      whileTap={{ scale: 0.99 }}
       style={{
         position: "relative", width: "100%", textAlign: "left", cursor: isMobile ? "pointer" : "none",
         border: "none", background: "none",
-        padding: `${isMobile ? 18 : 22}px 0 ${isMobile ? 18 : 22}px ${MARGIN_X + (isMobile ? 14 : 24)}px`,
+        padding: `${isMobile ? 18 : 22}px ${inset}px`,
         display: "flex", flexDirection: "column", gap: 10,
       }}
     >
-      {/* number in the margin */}
-      <motion.span
-        className="font-caslon"
-        animate={{ color: active ? accent : withAlpha(colors.ink, 0.3), scale: active ? 1.15 : 1 }}
-        transition={{ duration: 0.3 }}
-        style={{ position: "absolute", left: 0, width: MARGIN_X - 10, textAlign: "right", top: isMobile ? 22 : 30, fontSize: 15, fontStyle: "italic" }}
-      >
-        {String(index + 1).padStart(2, "0")}
-      </motion.span>
+      {/* number in the margin (desktop — the phone margin is too narrow) */}
+      {!isMobile && (
+        <motion.span
+          className="font-caslon"
+          animate={{ color: active ? accent : withAlpha(colors.ink, 0.3), scale: active ? 1.15 : 1 }}
+          transition={{ duration: 0.3 }}
+          style={{ position: "absolute", left: 0, width: MARGIN_LINE_X.desktop - 6, textAlign: "right", top: 26, fontSize: 13, fontStyle: "italic" }}
+        >
+          {String(index + 1).padStart(2, "0")}
+        </motion.span>
+      )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        {isNew && (
-          <motion.span
-            animate={{ rotate: [-4, 4, -4] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            className="font-inclusive-sans font-semibold"
-            style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: colors.ink, backgroundColor: colors.pink, borderRadius: radii.pill, padding: "2px 8px", display: "inline-block" }}
-          >
-            new
-          </motion.span>
-        )}
         <span className="font-inclusive-sans" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase", color: colors.oliveDeep }}>{post.category}</span>
         <span style={{ color: withAlpha(colors.ink, 0.25) }}>·</span>
-        <span className="font-inclusive-sans" style={{ fontSize: 12, color: withAlpha(colors.ink, 0.5) }}>{post.date}</span>
         <SteamingChai readTime={post.readTime} active={active} />
       </div>
 
+      {/* title + doodle, with the date pinned to the end of the line on desktop */}
       <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
-        <p className="font-caslon not-italic" style={{ position: "relative", fontSize: isMobile ? 26 : 38, lineHeight: isMobile ? "31px" : "44px", fontWeight: 600, color: colors.ink, letterSpacing: "-0.01em" }}>
+        <p className="font-caslon not-italic" style={{ position: "relative", fontSize: isMobile ? 24 : 32, lineHeight: isMobile ? "29px" : "38px", fontWeight: 600, color: colors.ink, letterSpacing: "-0.01em" }}>
           <WavyTitle text={post.title} active={active} isMobile={isMobile} />
           <Scribble color={accent} active={active} />
         </p>
@@ -213,41 +212,44 @@ function NotebookEntry({
           initial={false}
           animate={active ? { scale: 1, rotate: 0, y: 0, opacity: 1 } : { scale: 0, rotate: -40, y: 6, opacity: 0 }}
           transition={{ type: "spring", stiffness: 420, damping: 14 }}
-          style={{ fontSize: isMobile ? 22 : 30, lineHeight: 1, marginBottom: isMobile ? 4 : 6, display: "inline-block", flexShrink: 0 }}
+          style={{ fontSize: isMobile ? 20 : 26, lineHeight: 1, marginBottom: isMobile ? 4 : 6, display: "inline-block", flexShrink: 0 }}
         >
           {CATEGORY_DOODLE[post.category]}
         </motion.span>
+        {!isMobile && <span style={{ marginLeft: "auto", marginBottom: 8, flexShrink: 0 }}>{date}</span>}
       </div>
 
       <motion.p
         className="font-inclusive-sans"
-        animate={{ opacity: active ? 0.85 : 0.5, x: active && !isMobile ? 4 : 0 }}
+        animate={{ opacity: active ? 0.85 : 0.55, x: active && !isMobile ? 4 : 0 }}
         transition={{ duration: 0.35, ease: motionTokens.easeOut }}
-        style={{ fontSize: isMobile ? 13 : 15, lineHeight: isMobile ? "19px" : "22px", color: colors.ink, maxWidth: 620, marginTop: 6 }}
+        style={{ fontSize: isMobile ? 13 : 15, lineHeight: isMobile ? "19px" : "22px", fontWeight: 300, color: colors.ink, maxWidth: 620, marginTop: 6 }}
       >
         {post.subtitle}
       </motion.p>
+
+      {isMobile && date}
     </motion.button>
   );
 }
 
 // ─── Cursor bubble (web) ──────────────────────────────────────────────────────
-function ReadBubble({ x, y, visible }: { x: ReturnType<typeof useSpring>; y: ReturnType<typeof useSpring>; visible: boolean }) {
+function ReadBubble({ x, y, visible }: { x: MotionValue<number>; y: MotionValue<number>; visible: boolean }) {
   return (
     <motion.div style={{ position: "absolute", left: 0, top: 0, x, y, pointerEvents: "none", zIndex: 5 }}>
       <AnimatePresence>
         {visible && (
           <div style={{ transform: "translate(-50%, -50%)" }}>
-          <motion.div
-            initial={{ scale: 0, rotate: -12 }}
-            animate={{ scale: 1, rotate: -4 }}
-            exit={{ scale: 0, rotate: 8 }}
-            transition={{ type: "spring", stiffness: 500, damping: 22 }}
-            className="font-caslon"
-            style={{ backgroundColor: colors.ink, color: colors.sand, fontSize: 14, fontStyle: "italic", padding: "8px 14px", borderRadius: radii.pill, whiteSpace: "nowrap", boxShadow: "0 8px 20px rgba(33,32,18,0.22)" }}
-          >
-            read →
-          </motion.div>
+            <motion.div
+              initial={{ scale: 0, rotate: -12 }}
+              animate={{ scale: 1, rotate: -4 }}
+              exit={{ scale: 0, rotate: 8 }}
+              transition={{ type: "spring", stiffness: 500, damping: 22 }}
+              className="font-caslon"
+              style={{ backgroundColor: colors.ink, color: colors.sand, fontSize: 14, fontStyle: "italic", padding: "8px 14px", borderRadius: radii.pill, whiteSpace: "nowrap", boxShadow: `0 8px 20px ${withAlpha(colors.ink, 0.22)}` }}
+            >
+              read →
+            </motion.div>
           </div>
         )}
       </AnimatePresence>
@@ -256,11 +258,7 @@ function ReadBubble({ x, y, visible }: { x: ReturnType<typeof useSpring>; y: Ret
 }
 
 // ─── Notebook ─────────────────────────────────────────────────────────────────
-export function BlogJournal({
-  posts, isMobile, onOpen, newestId,
-}: {
-  posts: BlogPost[]; isMobile: boolean; onOpen: (post: BlogPost) => void; newestId?: number;
-}) {
+export function BlogJournal({ posts, isMobile, onOpen }: { posts: BlogPost[]; isMobile: boolean; onOpen: (post: BlogPost) => void }) {
   const pageRef = useRef<HTMLDivElement>(null);
   const entryRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [hovered, setHovered] = useState<number | null>(null);
@@ -305,6 +303,7 @@ export function BlogJournal({
 
   if (posts.length === 0) return null;
   const activeIndex = isMobile ? centred : hovered;
+  const marginX = isMobile ? MARGIN_LINE_X.mobile : MARGIN_LINE_X.desktop;
 
   return (
     <div
@@ -312,14 +311,13 @@ export function BlogJournal({
       onPointerMove={isMobile ? undefined : onMove}
       style={{
         position: "relative",
-        borderRadius: radii.xxl,
         backgroundColor: withAlpha(colors.white, 0.35),
         // ruled lines + the notebook's pink margin
         backgroundImage: [
-          `linear-gradient(90deg, transparent ${MARGIN_X}px, ${withAlpha(colors.pink, 0.55)} ${MARGIN_X}px, ${withAlpha(colors.pink, 0.55)} ${MARGIN_X + 1.5}px, transparent ${MARGIN_X + 1.5}px)`,
+          `linear-gradient(90deg, transparent ${marginX}px, ${withAlpha(colors.pink, 0.55)} ${marginX}px, ${withAlpha(colors.pink, 0.55)} ${marginX + 1.5}px, transparent ${marginX + 1.5}px)`,
           `repeating-linear-gradient(180deg, transparent 0, transparent ${RULE_SPACING - 1}px, ${withAlpha(colors.oliveDeep, 0.1)} ${RULE_SPACING - 1}px, ${withAlpha(colors.oliveDeep, 0.1)} ${RULE_SPACING}px)`,
         ].join(","),
-        padding: isMobile ? "8px 12px 8px 0" : "12px 28px 12px 0",
+        padding: "8px 0",
         overflow: "hidden",
       }}
     >
@@ -336,7 +334,6 @@ export function BlogJournal({
             <NotebookEntry
               post={post}
               index={i}
-              isNew={post.id === newestId}
               active={activeIndex === i}
               isMobile={isMobile}
               onOpen={() => onOpen(post)}

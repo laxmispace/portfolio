@@ -201,7 +201,7 @@ function EaseCurve() {
 
 function FilterTabsDemo() {
   const [active, setActive] = useState<BlogCategory | null>(null);
-  return <BlogFilterTabs categories={BLOG_CATEGORIES} active={active} onChange={setActive} count={active ? 1 : 3} />;
+  return <BlogFilterTabs categories={BLOG_CATEGORIES} active={active} onChange={setActive} />;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────

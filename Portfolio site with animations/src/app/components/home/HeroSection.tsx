@@ -245,7 +245,7 @@ export function HeroSection() {
         ) : (
           <motion.div
             className="flex items-center justify-between"
-            style={{ padding: "24px 40px 0" }}
+            style={{ padding: "24px 38px 0" }}
             initial={{ opacity: 0, y: -14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
