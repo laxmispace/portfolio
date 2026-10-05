@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import type { NavSection } from "./SideNav";
 import { haptic, softTick } from "@/app/lib/feedback";
 import { MobileFab } from "./MobileFab";
+import { ArrowDownToLine } from "lucide-react";
 import { MadeWithLove } from "./MadeWithLove";
 import { STYLE_GUIDE_PATH } from "@/app/lib/routes";
 import { colors, withAlpha } from "@/app/theme/tokens";
@@ -240,9 +241,10 @@ export function MobileBottomNav({
           href={STYLE_GUIDE_PATH}
           onClick={(e) => { e.preventDefault(); onOpenStyleGuide(); }}
           className="font-inclusive-sans"
-          style={{ fontSize: 10, color: colors.orange, textDecoration: "none", whiteSpace: "nowrap" }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10, color: colors.orange, textDecoration: "none", whiteSpace: "nowrap" }}
         >
-          style guide ↗
+          <ArrowDownToLine size={10} strokeWidth={2.2} />
+          style guide
         </a>
       </div>
     </div>

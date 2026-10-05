@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { motion, useAnimationControls } from "motion/react";
+import { motion, useAnimationControls, useReducedMotion } from "motion/react";
 import confetti from "canvas-confetti";
 import { haptic } from "@/app/lib/feedback";
 import { colors } from "@/app/theme/tokens";
@@ -48,6 +48,8 @@ function burstHearts(from: DOMRect) {
 export function MadeWithLove({ fontSize = 12, color = colors.oliveDeep }: { fontSize?: number; color?: string }) {
   const heartRef = useRef<HTMLButtonElement>(null);
   const pulse = useAnimationControls();
+  const reduceMotion = useReducedMotion();
+  const ringSize = fontSize + 8;
 
   const celebrate = async () => {
     haptic(12);
@@ -68,9 +70,25 @@ export function MadeWithLove({ fontSize = 12, color = colors.oliveDeep }: { font
         animate={pulse}
         whileHover={{ scale: 1.15 }}
         aria-label="Send some love"
-        style={{ display: "inline-flex", padding: 2, margin: -2, border: "none", background: "none", cursor: "pointer" }}
+        style={{ position: "relative", display: "inline-flex", padding: 2, margin: -2, border: "none", background: "none", cursor: "pointer" }}
       >
-        <svg width={fontSize + 2} height={fontSize + 2} viewBox="0 0 24 24" aria-hidden="true">
+        {/* Two staggered ripples breathe out from behind the heart so it reads as tappable */}
+        {!reduceMotion &&
+          [0, 1].map((i) => (
+            <motion.span
+              key={i}
+              aria-hidden="true"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: [0.6, 1.5], opacity: [0.45, 0] }}
+              transition={{ duration: 1.8, delay: i * 0.9, repeat: Infinity, repeatDelay: 0.6, ease: "easeOut" }}
+              style={{
+                position: "absolute", left: "50%", top: "50%", width: ringSize, height: ringSize,
+                marginLeft: -ringSize / 2, marginTop: -ringSize / 2, borderRadius: "50%",
+                border: `1.5px solid ${colors.orange}`, pointerEvents: "none",
+              }}
+            />
+          ))}
+        <svg width={fontSize + 2} height={fontSize + 2} viewBox="0 0 24 24" aria-hidden="true" style={{ position: "relative" }}>
           <path d={HEART_PATH} fill={colors.orange} />
         </svg>
       </motion.button>

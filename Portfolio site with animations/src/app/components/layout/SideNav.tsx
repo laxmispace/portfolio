@@ -6,7 +6,7 @@ import {
   animate,
   AnimatePresence,
 } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowDownToLine, ArrowUpRight, type LucideIcon } from "lucide-react";
 import { colors, withAlpha } from "@/app/theme/tokens";
 import { STYLE_GUIDE_PATH } from "@/app/lib/routes";
 import { MadeWithLove } from "./MadeWithLove";
@@ -28,32 +28,33 @@ const STAR_LARGE_PATH =
 // ── Layout constants ───────────────────────────────────────────────────────────
 const PADDING = 28;         // equal left/right padding: name, resume, links all at 28px
 
-// Nav block starts at left=12px from sidebar edge.
-// Items at 12+18=30px (≈28px), indicator at 12+5=17px, line at 12+8=20px.
+// Nav block starts 12px from the sidebar edge; the rule sits 8px into it and the
+// labels 18px in (9px clear of the rule).
 const NAV_BLOCK_LEFT = 12;
-const RULE_LEFT = 8;       // line left within nav block → 12+8=20px from sidebar edge
-const INDICATOR_LEFT = 5;        // indicator left within nav block → 12+5=17px from sidebar edge
-const NAV_TEXT_PADDING_LEFT = 18; // text padding-left within nav block → 12+18=30px from sidebar edge
-// Gap from line right edge (21px) to text (30px) = 9px — within user-spec of 8-12px ✓
+const RULE_LEFT = 8;
+const RULE_WIDTH = 1;
+const NAV_TEXT_PADDING_LEFT = 18;
 
 // ── Item layout: height=18 + gap=16 → item tops at 0, 34, 68, 102 ─────────────
 // 18+16 = 34px pitch. 16px gap between text blocks as per spec.
 const ITEM_HEIGHT = 18;
 const ITEM_GAP = 16;
 
-// ── Indicator size +4px: 5px → 9px ────────────────────────────────────────────
+// ── Indicator ─────────────────────────────────────────────────────────────────
+// Each shape is positioned by its centre: horizontally on the rule's centre line,
+// vertically on the centre of its label's row — so single and stacked shapes alike
+// sit exactly on the rule, level with their label.
 const INDICATOR_SIZE = 9;
+// The two pieces of a stacked shape (projects ▼▲, alter ego ●●) overlap by 4px.
+const STACK_OVERLAP = 4;
+const RULE_CENTER_X = RULE_LEFT + RULE_WIDTH / 2;
 
-// Indicator is vertically centred in each 18px row.
-// Centred y-offset from row top: (ITEM_H − IND_SZ) / 2 = 4.5 ≈ 5
-const INDICATOR_OFFSET = 5;
-
-// Indicator y-positions within nav block (indicator top = row_top + IND_OFFSET)
+const rowCenter = (row: number) => row * (ITEM_HEIGHT + ITEM_GAP) + ITEM_HEIGHT / 2;
 const INDICATOR_Y: Record<NavSection, number> = {
-  home:            0 + INDICATOR_OFFSET,  //  5
-  projects:       34 + INDICATOR_OFFSET,  // 39
-  "ai-projects": 68 + INDICATOR_OFFSET, // 73
-  blog:          102 + INDICATOR_OFFSET,  // 107
+  home: rowCenter(0),          //   9
+  projects: rowCenter(1),      //  43
+  "ai-projects": rowCenter(2), //  77
+  blog: rowCenter(3),          // 111
 };
 
 // ── Rule height: spans from 0 to bottom of the blog row ──────────────────────
@@ -88,27 +89,28 @@ function NavIndicator({ section }: { section: NavSection }) {
   if (section === "home") return tri();
   if (section === "projects")
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
         {tri(true)}
-        {tri()}
+        <div style={{ marginTop: -STACK_OVERLAP }}>{tri()}</div>
       </div>
     );
   if (section === "ai-projects") return dot();
   // alter ego
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    <div style={{ display: "flex", flexDirection: "column" }}>
       {dot()}
-      {dot()}
+      <div style={{ marginTop: -STACK_OVERLAP }}>{dot()}</div>
     </div>
   );
 }
 
-// ── Bottom links: vertical stack, each with a ↗, magnifies on hover ───────────
-const BOTTOM_LINKS: { label: string; href: string }[] = [
-  { label: "download resume", href: RESUME_URL },
-  { label: "gmail",           href: "mailto:laxmimahajanwork@gmail.com" },
-  { label: "github",          href: "https://github.com/laxmispace" },
-  { label: "linkedin",        href: "https://in.linkedin.com/in/laxmi-mahajan" },
+// ── Bottom links: vertical stack, magnify on hover ────────────────────────────
+// External links get ↗; the resume download gets ⤓ (down arrow onto a base line).
+const BOTTOM_LINKS: { label: string; href: string; Icon: LucideIcon }[] = [
+  { label: "download resume", href: RESUME_URL, Icon: ArrowDownToLine },
+  { label: "gmail",           href: "mailto:laxmimahajanwork@gmail.com", Icon: ArrowUpRight },
+  { label: "github",          href: "https://github.com/laxmispace", Icon: ArrowUpRight },
+  { label: "linkedin",        href: "https://in.linkedin.com/in/laxmi-mahajan", Icon: ArrowUpRight },
 ];
 
 function BottomLinks({ onOpenStyleGuide }: { onOpenStyleGuide: () => void }) {
@@ -137,7 +139,7 @@ function BottomLinks({ onOpenStyleGuide }: { onOpenStyleGuide: () => void }) {
           whileHover={hover}
           transition={hoverTransition}
         >
-          <ArrowUpRight size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
+          <l.Icon size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
           {l.label}
         </motion.a>
       ))}
@@ -149,7 +151,7 @@ function BottomLinks({ onOpenStyleGuide }: { onOpenStyleGuide: () => void }) {
         whileHover={hover}
         transition={hoverTransition}
       >
-        <ArrowUpRight size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
+        <ArrowDownToLine size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
         style guide
       </motion.a>
       <div style={{ height: 1, alignSelf: "stretch", backgroundColor: withAlpha(colors.oliveDeep, 0.15), margin: "4px 0" }} />
@@ -168,10 +170,9 @@ interface SideNavProps {
 export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNavProps) {
   const indicatorY = useMotionValue(INDICATOR_Y[activeSection]);
 
-  // fillH tracks indicatorY via a smooth transform — no separate animation needed.
-  // At home (y=5) → fill covers home indicator bottom (≈14px).
-  // At alter ego (y=83) → fill reaches LINE_H (96px).
-  const fillH = useTransform(indicatorY, [INDICATOR_Y.home, INDICATOR_Y.blog], [INDICATOR_SIZE + INDICATOR_OFFSET, RULE_HEIGHT]);
+  // The filled part of the rule follows the indicator: from just past the home
+  // shape down to the full rule at the last row.
+  const fillH = useTransform(indicatorY, [INDICATOR_Y.home, INDICATOR_Y.blog], [INDICATOR_Y.home + INDICATOR_SIZE / 2, RULE_HEIGHT]);
 
   useEffect(() => {
     animate(indicatorY, INDICATOR_Y[activeSection], {
@@ -225,7 +226,7 @@ export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNav
         {/* Background track: full LINE_H, very faint */}
         <div style={{
           position: "absolute", left: RULE_LEFT, top: 0,
-          width: 1, height: RULE_HEIGHT,
+          width: RULE_WIDTH, height: RULE_HEIGHT,
           backgroundColor: colors.sandLine,
         }} />
 
@@ -233,15 +234,16 @@ export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNav
             fillH is derived from indicatorY, so it spring-animates in sync. */}
         <motion.div style={{
           position: "absolute", left: RULE_LEFT, top: 0,
-          width: 1, height: fillH,
+          width: RULE_WIDTH, height: fillH,
           backgroundColor: colors.oliveDeep,
         }} />
 
-        {/* Single indicator — springs between NAV_Y positions */}
+        {/* Single indicator — springs between rows; its centre rides the rule's centre line */}
         <motion.div style={{
-          position: "absolute", left: INDICATOR_LEFT, top: 0,
+          position: "absolute", left: RULE_CENTER_X, top: 0,
           y: indicatorY,
-          display: "flex", alignItems: "center",
+          width: 0, height: 0,
+          display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <AnimatePresence mode="wait">
             <motion.div
@@ -256,9 +258,7 @@ export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNav
           </AnimatePresence>
         </motion.div>
 
-        {/* Nav items:
-            height=ITEM_H(18) + gap=ITEM_GAP(8) → 18+8=26px pitch
-            → item tops: 0, 26, 52, 78 = NAV_Y row tops ✓ (alignment fixed) */}
+        {/* Nav items: fixed 18px rows, 16px apart — the same rows INDICATOR_Y is centred on */}
         <div style={{
           display: "flex",
           flexDirection: "column",
@@ -273,8 +273,7 @@ export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNav
                 onClick={() => onNavigate(item.id)}
                 className={isActive ? "font-caslon not-italic" : "font-inclusive-sans font-normal uppercase"}
                 style={{
-                  // Fixed row height keeps item tops at exact NAV_Y row positions.
-                  // Text is centred vertically inside via alignItems.
+                  // Fixed row height keeps each label centred on its INDICATOR_Y row.
                   height: ITEM_HEIGHT,
                   display: "flex",
                   alignItems: "center",
