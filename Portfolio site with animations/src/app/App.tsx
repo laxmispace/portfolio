@@ -24,7 +24,8 @@ export default function App() {
   const isMobile = useIsMobile();
   const [page, setPage] = useState<Page>(() => (typeof window !== "undefined" && isStyleGuidePath() ? "style-guide" : "portfolio"));
   // The orange loading screen plays once per page load, only when arriving on the portfolio itself.
-  const [introDone, setIntroDone] = useState(() => page !== "portfolio");
+  const [showIntro] = useState(() => page === "portfolio");
+  const [introDone, setIntroDone] = useState(!showIntro);
 
   const openStyleGuide = useCallback(() => {
     window.history.pushState({ page: "style-guide" }, "", STYLE_GUIDE_PATH);
@@ -158,7 +159,8 @@ export default function App() {
 
   return (
     <>
-    {!introDone && <IntroLoader onDone={() => setIntroDone(true)} />}
+    {/* stays mounted so it can fade itself out over the hero */}
+    {showIntro && <IntroLoader onDone={() => setIntroDone(true)} />}
     <div
       className="app-shell h-screen w-screen bg-white flex overflow-hidden"
       style={{ padding: 12 }}

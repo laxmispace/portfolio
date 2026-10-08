@@ -29,10 +29,15 @@ function LiveClock() {
 
 // Entrances wait for the loading screen to finish (`ready`), so they play in view.
 const EASE = [0.16, 1, 0.3, 1] as const;
+// The copy glides up from the bottom of the screen into place as the loader fades.
 const rise = (delay: number) => ({
-  hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
-  shown: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.9, ease: EASE, delay } },
+  hidden: { opacity: 0, y: 260 },
+  shown: { opacity: 1, y: 0, transition: { duration: 1.3, ease: EASE, delay } },
 });
+const fadeIn = {
+  hidden: { opacity: 0 },
+  shown: { opacity: 1, transition: { duration: 0.8, ease: EASE, delay: 0.4 } },
+};
 
 export function HeroSection({ ready = true }: { ready?: boolean }) {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -45,8 +50,8 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
 
   const copy = {
     fontFamily: fonts.serif,
-    fontSize: isMobile ? 24 : 36,
-    lineHeight: isMobile ? "31px" : "46px",
+    fontSize: isMobile ? 24 : 27,
+    lineHeight: isMobile ? "31px" : "35px",
     letterSpacing: "-0.01em",
     color: colors.ink,
   } as const;
@@ -55,7 +60,7 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
   return (
     <div ref={sectionRef} style={{ height: "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
       <motion.div style={{ display: "flex", flexDirection: "column", height: "100%", opacity, y: contentY, position: "relative", zIndex: 2 }}>
-        <motion.div initial="hidden" animate={state} variants={rise(0)}>
+        <motion.div initial="hidden" animate={state} variants={fadeIn}>
           {isMobile ? (
             <MobileHeader />
           ) : (
@@ -69,15 +74,15 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
         </motion.div>
 
         {/* Intro copy */}
-        <div style={{ padding: isMobile ? "40px 16px 0" : "clamp(48px, 9vh, 112px) 12% 0", position: "relative", zIndex: 1 }}>
-          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={{ ...copy, color: colors.oliveDeep, marginBottom: isMobile ? 24 : 40 }}>
+        <div style={{ padding: isMobile ? "40px 16px 0" : "40px 38px 0", position: "relative", zIndex: 1 }}>
+          <motion.p initial="hidden" animate={state} variants={rise(0)} style={{ ...copy, color: colors.oliveDeep, marginBottom: isMobile ? 24 : 30 }}>
             Hello, this is Laxmi!
           </motion.p>
-          <motion.p initial="hidden" animate={state} variants={rise(0.2)} style={{ ...copy, marginBottom: isMobile ? 24 : 40 }}>
+          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={{ ...copy, marginBottom: isMobile ? 24 : 30 }}>
             I’m a product designer with 3+ years of work experience.{br}
             Previously designed experiences for ICICI Bank and a few B2B startups.
           </motion.p>
-          <motion.p initial="hidden" animate={state} variants={rise(0.3)} style={copy}>
+          <motion.p initial="hidden" animate={state} variants={rise(0.2)} style={copy}>
             Currently building small ai projects, upskilling and trying to be a{br}
             <em>Design Engineer</em> who can design, code and ship!
           </motion.p>
