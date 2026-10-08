@@ -8,22 +8,16 @@ import {
 } from "motion/react";
 import { ArrowDownToLine, ArrowUpRight, type LucideIcon } from "lucide-react";
 import { colors, withAlpha } from "@/app/theme/tokens";
-import { STYLE_GUIDE_PATH } from "@/app/lib/routes";
 import { MadeWithLove } from "./MadeWithLove";
+import { Logo } from "./Logo";
 import { RESUME_URL } from "@/app/lib/links";
 
-export type NavSection = "home" | "projects" | "ai-projects" | "blog";
+export type NavSection = "home" | "projects" | "ai-projects" | "about" | "blog";
 export type { NavSection as SideNavSection };
 
 // ── SVG paths ──────────────────────────────────────────────────────────────────
 const TRIANGLE_PATH =
   "M1.70796 0.5C2.05998 -0.166667 2.94002 -0.166666 3.29204 0.5L4.87611 3.5C5.22812 4.16667 4.7881 5 4.08407 5H0.915928C0.211896 5 -0.228123 4.16667 0.123893 3.5L1.70796 0.5Z";
-const BEE_PATH =
-  "M1.00004 7.22702C8.13081 1.66116 18.6884 -0.660392 25.6965 2.28072C32.6733 5.20872 36.9205 12.1424 32.6479 19.1012C31.3596 21.6302 26.8821 26.9654 19.2788 28.0744";
-const STAR_SMALL_PATH =
-  "M1.66713 0.175007C1.69652 -0.0583347 2.0346 -0.0583359 2.06399 0.175005L2.22316 1.43869C2.2335 1.52079 2.29333 1.58804 2.37366 1.60787L3.57906 1.90545C3.78181 1.95551 3.78181 2.24374 3.57906 2.29379L2.37366 2.59138C2.29333 2.61121 2.2335 2.67846 2.22316 2.76056L2.06399 4.02424C2.0346 4.25758 1.69652 4.25758 1.66713 4.02424L1.50796 2.76056C1.49762 2.67846 1.43779 2.61121 1.35746 2.59138L0.152064 2.29379C-0.0506878 2.24374 -0.0506879 1.95551 0.152064 1.90545L1.35746 1.60787C1.43779 1.58804 1.49762 1.52079 1.50796 1.43869L1.66713 0.175007Z";
-const STAR_LARGE_PATH =
-  "M2.21925 0.17665C2.24694 -0.058882 2.58883 -0.0588837 2.61652 0.176648L2.85171 2.17727C2.8613 2.25884 2.9198 2.32626 2.9992 2.34727L4.68692 2.79369C4.88539 2.84619 4.88539 3.12789 4.68692 3.18039L2.9992 3.62681C2.9198 3.64781 2.8613 3.71523 2.85171 3.79681L2.61652 5.79743C2.58883 6.03296 2.24694 6.03296 2.21926 5.79743L1.98406 3.79681C1.97447 3.71523 1.91598 3.64781 1.83657 3.62681L0.148856 3.18039C-0.0496193 3.12789 -0.0496184 2.84619 0.148857 2.79369L1.83657 2.34727C1.91598 2.32626 1.97447 2.25884 1.98406 2.17727L2.21925 0.17665Z";
 
 // ── Layout constants ───────────────────────────────────────────────────────────
 const PADDING = 28;         // equal left/right padding: name, resume, links all at 28px
@@ -54,19 +48,21 @@ const INDICATOR_Y: Record<NavSection, number> = {
   home: rowCenter(0),          //   9
   projects: rowCenter(1),      //  43
   "ai-projects": rowCenter(2), //  77
-  blog: rowCenter(3),          // 111
+  about: rowCenter(3),         // 111
+  blog: rowCenter(4),          // 145
 };
 
-// ── Rule height: spans from 0 to bottom of the blog row ──────────────────────
-// Row tops: 0, 34, 68, 102. Row height: 18. Last row bottom: 102+18=120.
-const RULE_HEIGHT = 120;
+// ── Rule height: spans from 0 to bottom of the blogs row ─────────────────────
+// Row tops: 0, 34, 68, 102, 136. Row height: 18. Last row bottom: 136+18=154.
+const RULE_HEIGHT = 154;
 
 // ── Display labels ─────────────────────
 const NAV_ITEMS: { id: NavSection; label: string }[] = [
   { id: "home",           label: "home" },
   { id: "projects",       label: "projects" },
-  { id: "ai-projects",    label: "ai playground" },
-  { id: "blog",           label: "alter ego" },
+  { id: "ai-projects",    label: "playground" },
+  { id: "about",          label: "about me" },
+  { id: "blog",           label: "blogs" },
 ];
 
 // ── Indicator shapes ───────────────────────────────────────────────────────────
@@ -95,7 +91,13 @@ function NavIndicator({ section }: { section: NavSection }) {
       </div>
     );
   if (section === "ai-projects") return dot();
-  // alter ego
+  if (section === "about")
+    return (
+      <svg width={INDICATOR_SIZE} height={INDICATOR_SIZE} viewBox="0 0 5 5" fill="none">
+        <rect x="0.9" y="0.9" width="3.2" height="3.2" rx="0.5" transform="rotate(45 2.5 2.5)" fill={colors.oliveDeep} />
+      </svg>
+    );
+  // blogs
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       {dot()}
@@ -113,7 +115,7 @@ const BOTTOM_LINKS: { label: string; href: string; Icon: LucideIcon }[] = [
   { label: "linkedin",        href: "https://in.linkedin.com/in/laxmi-mahajan", Icon: ArrowUpRight },
 ];
 
-function BottomLinks({ onOpenStyleGuide }: { onOpenStyleGuide: () => void }) {
+function BottomLinks() {
   const linkStyle = {
     display: "inline-flex", alignItems: "center", gap: 5,
     fontSize: 13, letterSpacing: "0.02em", color: colors.oliveDeep,
@@ -143,17 +145,6 @@ function BottomLinks({ onOpenStyleGuide }: { onOpenStyleGuide: () => void }) {
           {l.label}
         </motion.a>
       ))}
-      <motion.a
-        href={STYLE_GUIDE_PATH}
-        onClick={(e) => { e.preventDefault(); onOpenStyleGuide(); }}
-        className="font-inclusive-sans lowercase"
-        style={linkStyle}
-        whileHover={hover}
-        transition={hoverTransition}
-      >
-        <ArrowDownToLine size={14} strokeWidth={2} color={colors.orange} style={{ flexShrink: 0 }} />
-        style guide
-      </motion.a>
       <div style={{ height: 1, alignSelf: "stretch", backgroundColor: withAlpha(colors.oliveDeep, 0.15), margin: "4px 0" }} />
       <MadeWithLove fontSize={11} />
     </div>
@@ -164,10 +155,9 @@ function BottomLinks({ onOpenStyleGuide }: { onOpenStyleGuide: () => void }) {
 interface SideNavProps {
   activeSection: NavSection;
   onNavigate: (section: NavSection) => void;
-  onOpenStyleGuide: () => void;
 }
 
-export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNavProps) {
+export function SideNav({ activeSection, onNavigate }: SideNavProps) {
   const indicatorY = useMotionValue(INDICATOR_Y[activeSection]);
 
   // The filled part of the rule follows the indicator: from just past the home
@@ -186,38 +176,9 @@ export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNav
   return (
     <div className="w-[195px] flex-shrink-0 flex flex-col h-full relative">
 
-      {/* ── Name — left edge at PAD=28px ── */}
-      <div style={{ position: "absolute", top: 49, left: PADDING }}>
-        {/* Bee illustration (relative to name) */}
-        <div style={{ position: "absolute", left: 22, top: -18, pointerEvents: "none" }}>
-          <svg width="36" height="30" viewBox="0 0 35.3604 29.0746" fill="none">
-            <path d={BEE_PATH} stroke={colors.ink} strokeLinecap="round" strokeWidth="2" />
-          </svg>
-          <svg style={{ position: "absolute", top: -2, left: 14 }} width="15" height="8" viewBox="0 0 15 7.8036" fill="none">
-            <ellipse cx="7.5" cy="3.9018" fill={colors.ink} rx="7.5" ry="3.9018" />
-          </svg>
-          <svg style={{ position: "absolute", top: 5, left: 17 }} width="9" height="5" viewBox="0 0 9.3057 4.44875" fill="none">
-            <ellipse cx="4.65285" cy="2.22437" fill={colors.oliveDeep} rx="4.65285" ry="2.22437" />
-          </svg>
-          <svg style={{ position: "absolute", top: -2, left: 26 }} width="15" height="8" viewBox="0 0 15 7.66673" fill="none">
-            <ellipse cx="7.5" cy="3.83336" fill={colors.ink} rx="7.5" ry="3.83336" />
-          </svg>
-          <svg style={{ position: "absolute", top: 5, left: 28 }} width="9" height="5" viewBox="0 0 8.87671 4.74718" fill="none">
-            <ellipse cx="4.43835" cy="2.37359" fill={colors.oliveDeep} rx="4.43835" ry="2.37359" />
-          </svg>
-          <svg style={{ position: "absolute", top: -3, left: 34 }} width="5" height="5" viewBox="0 0 3.73112 4.19925" fill="none">
-            <path d={STAR_SMALL_PATH} fill={colors.ink} />
-          </svg>
-          <svg style={{ position: "absolute", top: -9, left: 37 }} width="7" height="8" viewBox="0 0 4.83577 5.97408" fill="none">
-            <path d={STAR_LARGE_PATH} fill={colors.ink} />
-          </svg>
-        </div>
-        <p className="font-caslon text-ink uppercase leading-tight" style={{ fontSize: 24, letterSpacing: "-1.92px" }}>
-          Laxmi
-        </p>
-        <p className="font-caslon text-ink leading-tight" style={{ fontSize: 24, letterSpacing: "-1.68px" }}>
-          MAHA<em>J</em>AN
-        </p>
+      {/* ── Logo — left edge at PAD=28px ── */}
+      <div style={{ position: "absolute", top: 40, left: PADDING }}>
+        <Logo height={64} />
       </div>
 
       {/* ── Navigation block — left edge at NAV_BLOCK_L=12px ── */}
@@ -298,7 +259,7 @@ export function SideNav({ activeSection, onNavigate, onOpenStyleGuide }: SideNav
       </div>
 
       {/* ── Bottom links — vertical, arrowed, magnify on hover ── */}
-      <BottomLinks onOpenStyleGuide={onOpenStyleGuide} />
+      <BottomLinks />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { BLOG_POSTS, type BlogPost } from "@/app/data/blogPosts";
-import { BlogDiary } from "@/app/components/blog/BlogDiary";
+import { BlogStamps } from "@/app/components/blog/BlogStamps";
 
 import { BlogPostDrawer } from "@/app/components/blog/BlogPostDrawer";
 import { colors } from "@/app/theme/tokens";
@@ -76,12 +76,12 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
       />
 
       {/* Edge to edge: only the text is inset, matching the case study cards (36px / 16px). */}
-      <div style={{ padding: isMobile ? "28px 0 48px" : "40px 0 64px" }}>
-        <div style={{ marginBottom: 20, padding: `0 ${inset}px` }}>
+      <div style={{ padding: isMobile ? "28px 0 32px" : "40px 0 48px" }}>
+        <div style={{ marginBottom: 4, padding: `0 ${inset}px` }}>
           <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: colors.oliveDeep, marginBottom: 8 }}>
             i write, sometimes
           </p>
-          <p className="font-caslon not-italic" style={{ fontSize: 36, lineHeight: "44px", color: colors.ink, fontWeight: 600 }}>
+          <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 28, lineHeight: isMobile ? "30px" : "34px", color: colors.ink, fontWeight: 600 }}>
             ideas that probably<br />should stay in my notes app
           </p>
         </div>
@@ -109,7 +109,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
             </motion.div>
           </motion.div>
         ) : (
-          <BlogDiary posts={BLOG_POSTS} isMobile={isMobile} onOpen={openPost} />
+          <BlogStamps posts={BLOG_POSTS} isMobile={isMobile} onOpen={openPost} />
         )}
       </div>
     </section>

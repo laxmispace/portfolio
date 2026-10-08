@@ -1,6 +1,6 @@
 // Design tokens — the single source of truth for the portfolio's colours, type,
 // spacing and radii. Components import these instead of hard-coding values, and
-// the style guide page (/style-guide) renders straight from this file.
+// every component reads from this file.
 // The same colours exist as CSS variables / Tailwind colours in src/styles/theme.css.
 
 export const colors = {
@@ -26,9 +26,6 @@ export const colors = {
   sandBorder: "#DACCBE",
   sandLine: "#D1C0AE",
 
-  // Objects (the blog diary)
-  paper: "#F7F1E3",
-  leather: "#4B4628",
 
   // Feedback
   error: "#C0392B",
@@ -47,7 +44,7 @@ export const fonts = {
   sans: "'Inclusive Sans', sans-serif", // body copy and UI
   label: "'Plus Jakarta Sans', sans-serif", // small labels, captions, numerals
   devanagari: "'Martel', serif", // Hindi words (सुकून)
-  mono: "'Spline Sans Mono', monospace", // code and token names (style guide)
+  mono: "'Spline Sans Mono', monospace", // code-ish accents
   hand: "'Caveat', cursive", // handwriting: the diary and post-its
   display: "'Chicle', cursive", // the loader's "hey!"
 } as const;

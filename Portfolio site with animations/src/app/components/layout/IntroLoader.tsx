@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Walker } from "@/app/components/walker/Walker";
+import { Logo } from "./Logo";
 import { colors, fonts } from "@/app/theme/tokens";
 
 const WALK_MS = 3000; // one full loop of the walker
@@ -54,14 +55,8 @@ function Hey() {
 
 function Name() {
   return (
-    <div style={{ marginTop: -10, width: STAGE + 16, textAlign: "center" }}>
-      <p style={{ fontFamily: fonts.hand, fontWeight: 600, fontSize: 26, lineHeight: "30px", color: colors.ink, transform: "rotate(-3deg)" }}>
-        laxmi mahajan
-      </p>
-      {/* the lower line of the banner (the walker's ground is the upper one) */}
-      <svg viewBox="0 0 220 16" width={STAGE + 16} height="12" style={{ display: "block", marginTop: 2, overflow: "visible" }} aria-hidden="true">
-        <path d="M4 12 C 50 15, 80 2, 128 4 S 196 10, 216 7" fill="none" stroke={colors.ink} strokeWidth="3" strokeLinecap="round" />
-      </svg>
+    <div style={{ marginTop: -6, display: "flex", justifyContent: "center" }}>
+      <Logo height={40} />
     </div>
   );
 }

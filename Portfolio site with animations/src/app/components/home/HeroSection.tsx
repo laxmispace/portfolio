@@ -50,15 +50,15 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
 
   const copy = {
     fontFamily: fonts.serif,
-    fontSize: isMobile ? 24 : 27,
-    lineHeight: isMobile ? "31px" : "35px",
+    fontSize: isMobile ? 20 : 27,
+    lineHeight: isMobile ? "27px" : "35px",
     letterSpacing: "-0.01em",
     color: colors.ink,
   } as const;
   const br = isMobile ? " " : <br />;
 
   return (
-    <div ref={sectionRef} style={{ height: "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+    <div ref={sectionRef} style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
       <motion.div style={{ display: "flex", flexDirection: "column", height: "100%", opacity, y: contentY, position: "relative", zIndex: 2 }}>
         <motion.div initial="hidden" animate={state} variants={fadeIn}>
           {isMobile ? (
@@ -74,11 +74,11 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
         </motion.div>
 
         {/* Intro copy */}
-        <div style={{ padding: isMobile ? "40px 16px 0" : "40px 38px 0", position: "relative", zIndex: 1 }}>
-          <motion.p initial="hidden" animate={state} variants={rise(0)} style={{ ...copy, color: colors.oliveDeep, marginBottom: isMobile ? 24 : 30 }}>
+        <div style={{ padding: isMobile ? "28px 16px 0" : "40px 38px 0", position: "relative", zIndex: 1 }}>
+          <motion.p initial="hidden" animate={state} variants={rise(0)} style={{ ...copy, color: colors.oliveDeep, marginBottom: isMobile ? 16 : 30 }}>
             Hello, this is Laxmi!
           </motion.p>
-          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={{ ...copy, marginBottom: isMobile ? 24 : 30 }}>
+          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={{ ...copy, marginBottom: isMobile ? 16 : 30 }}>
             I’m a product designer with 3+ years of work experience.{br}
             Previously designed experiences for ICICI Bank and a few B2B startups.
           </motion.p>
@@ -94,7 +94,7 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
           animate={ready ? { opacity: 1, x: 0, transition: { duration: 1.1, ease: EASE, delay: 0.25 } } : { opacity: 0, x: 60 }}
           style={
             isMobile
-              ? { width: "82%", alignSelf: "flex-end", marginTop: "auto", marginBottom: 32, marginRight: 8 }
+              ? { width: "min(80%, 40dvh)", alignSelf: "flex-end", marginTop: "auto", marginBottom: 20, marginRight: 8 }
               : { position: "absolute", right: "5%", bottom: "4%", width: "clamp(300px, 36%, 600px)" }
           }
         >

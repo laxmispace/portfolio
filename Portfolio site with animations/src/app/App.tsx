@@ -9,40 +9,21 @@ import { AiProjectsSection } from "@/app/components/home/AiProjectsSection";
 import { BlogSection } from "@/app/components/home/BlogSection";
 import { GuestbookSection } from "@/app/components/home/GuestbookSection";
 import { AiProjectsPage } from "@/app/components/ai-projects/AiProjectsPage";
-import { StyleGuidePage } from "@/app/components/style-guide/StyleGuidePage";
 import { PersonalSection } from "@/app/components/home/PersonalSection";
 import { MobileBottomNav } from "@/app/components/layout/MobileBottomNav";
+import { MadeWithLove } from "@/app/components/layout/MadeWithLove";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { softTick } from "@/app/lib/feedback";
-import { STYLE_GUIDE_PATH, isStyleGuidePath } from "@/app/lib/routes";
 import { colors } from "@/app/theme/tokens";
  
-// /portfolio/style-guide is a real URL: linkable, and back/forward move between it and the portfolio.
-type Page = "portfolio" | "ai-projects" | "style-guide";
+type Page = "portfolio" | "ai-projects";
 
 export default function App() {
   const isMobile = useIsMobile();
-  const [page, setPage] = useState<Page>(() => (typeof window !== "undefined" && isStyleGuidePath() ? "style-guide" : "portfolio"));
-  // The orange loading screen plays once per page load, only when arriving on the portfolio itself.
-  const [showIntro] = useState(() => page === "portfolio");
-  const [introDone, setIntroDone] = useState(!showIntro);
+  const [page, setPage] = useState<Page>("portfolio");
+  // The orange loading screen plays once per page load.
+  const [introDone, setIntroDone] = useState(false);
 
-  const openStyleGuide = useCallback(() => {
-    window.history.pushState({ page: "style-guide" }, "", STYLE_GUIDE_PATH);
-    setPage("style-guide");
-  }, []);
-  const closeStyleGuide = useCallback(() => {
-    if (window.history.state?.page === "style-guide") window.history.back();
-    else {
-      window.history.replaceState(null, "", import.meta.env.BASE_URL);
-      setPage("portfolio");
-    }
-  }, []);
-  useEffect(() => {
-    const onPopState = () => setPage((current) => (isStyleGuidePath() ? "style-guide" : current === "style-guide" ? "portfolio" : current));
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, []);
   const [activeSection, setActiveSection] = useState<NavSection>("home");
   const [aboutOpen, setAboutOpen] = useState(() => {
     // Reopen the About Me drawer after the Spotify OAuth redirect lands back
@@ -67,6 +48,7 @@ export default function App() {
   const homeRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const aiProjectsRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
   const blogRef = useRef<HTMLDivElement>(null);
 
   // Suppress the manual-scroll sound while a nav-driven smooth scroll is running.
@@ -76,7 +58,7 @@ export default function App() {
 
   const navigateTo = useCallback((section: NavSection) => {
     const map: Record<NavSection, React.RefObject<HTMLDivElement | null>> = {
-      home: homeRef, projects: projectsRef, "ai-projects": aiProjectsRef, blog: blogRef,
+      home: homeRef, projects: projectsRef, "ai-projects": aiProjectsRef, about: aboutRef, blog: blogRef,
     };
     const target = map[section].current;
     const container = scrollRef.current;
@@ -118,7 +100,7 @@ export default function App() {
         entries.forEach((e) => intersecting.set(e.target.id, e.isIntersecting));
 
         // First section in DOM order that is currently crossing the centre wins
-        const order: NavSection[] = ["home", "projects", "ai-projects", "blog"];
+        const order: NavSection[] = ["home", "projects", "ai-projects", "about", "blog"];
         for (const id of order) {
           if (intersecting.get(id)) {
             setActiveSection(id);
@@ -133,7 +115,7 @@ export default function App() {
       }
     );
 
-    [homeRef, projectsRef, aiProjectsRef, blogRef].forEach((r) => {
+    [homeRef, projectsRef, aiProjectsRef, aboutRef, blogRef].forEach((r) => {
       if (r.current) observer.observe(r.current);
     });
 
@@ -141,10 +123,6 @@ export default function App() {
     // Re-run once the scroll element (and with it the section refs) has mounted —
     // on first render those refs are still null and nothing gets observed.
   }, [scrollEl]);
-
-  if (page === "style-guide") {
-    return <StyleGuidePage onBack={closeStyleGuide} />;
-  }
 
   if (page === "ai-projects") {
     return (
@@ -160,7 +138,7 @@ export default function App() {
   return (
     <>
     {/* stays mounted so it can fade itself out over the hero */}
-    {showIntro && <IntroLoader onDone={() => setIntroDone(true)} />}
+    <IntroLoader onDone={() => setIntroDone(true)} />
     <div
       className="app-shell h-screen w-screen bg-white flex overflow-hidden"
       style={{ padding: 12 }}
@@ -172,7 +150,7 @@ export default function App() {
           onViewAiProjects={() => { setAboutOpen(false); setPage("ai-projects"); }}
         />
         <div className="app-shell__side-nav">
-          <SideNav activeSection={activeSection} onNavigate={navigateTo} onOpenStyleGuide={openStyleGuide} />
+          <SideNav activeSection={activeSection} onNavigate={navigateTo} />
         </div>
 
         <div ref={scrollCallbackRef} onScroll={isMobile ? handleCardScroll : undefined} className="flex-1 overflow-y-auto app-shell__scroller" style={{ scrollbarWidth: "none", position: "relative" }}>
@@ -200,7 +178,9 @@ export default function App() {
                     <AiProjectsSection onViewAll={() => setPage("ai-projects")} />
                   </div>
 
-                  <PersonalSection onAboutOpen={() => setAboutOpen(true)} />
+                  <div ref={aboutRef} id="about">
+                    <PersonalSection onAboutOpen={() => setAboutOpen(true)} />
+                  </div>
 
                   <div ref={blogRef} id="blog">
                     <BlogSection onDrawerChange={setBlogOpen} />
@@ -211,6 +191,12 @@ export default function App() {
                   </div>
                 </>
               )}
+              {/* On phones the sign-off lives at the very end of the page, not in the sticky nav */}
+              {isMobile && scrollEl && (
+                <div style={{ display: "flex", justifyContent: "center", padding: "8px 16px 0" }}>
+                  <MadeWithLove fontSize={11} />
+                </div>
+              )}
               {/* Breathing room above the card's rounded bottom edge */}
               <div className="rounded-b-2xl" style={{ height: isMobile ? 20 : 33, backgroundColor: isMobile ? colors.sand : colors.oliveLight }} />
             </div>
@@ -219,7 +205,7 @@ export default function App() {
 
         {/* Bottom nav band — fixed to the lower 20%, homepage only, no drawer open */}
         {isMobile && !aboutOpen && !csDrawerOpen && !blogOpen && (
-          <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} onOpenStyleGuide={openStyleGuide} />
+          <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} />
         )}
       </div>
     </div>

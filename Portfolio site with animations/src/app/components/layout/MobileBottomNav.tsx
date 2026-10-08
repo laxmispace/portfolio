@@ -3,31 +3,30 @@ import { motion } from "motion/react";
 import type { NavSection } from "./SideNav";
 import { haptic, softTick } from "@/app/lib/feedback";
 import { MobileFab } from "./MobileFab";
-import { ArrowDownToLine } from "lucide-react";
-import { MadeWithLove } from "./MadeWithLove";
-import { STYLE_GUIDE_PATH } from "@/app/lib/routes";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
 // Fixed order — items never reflow. Only the active row changes style.
 const NAV_ITEMS: { id: NavSection; label: string }[] = [
   { id: "home",          label: "home" },
   { id: "projects",      label: "projects" },
-  { id: "ai-projects",   label: "ai playground" },
-  { id: "blog",          label: "tinkering hobbies" },
+  { id: "ai-projects",   label: "playground" },
+  { id: "about",         label: "about me" },
+  { id: "blog",          label: "blogs" },
 ];
 
+// Must match --mobile-nav-height in styles/layout.css (the page scroller stops above it).
 const BAND_HEIGHT = 72;
-// Slim sign-off row under the band. BAND_HEIGHT + FOOTER_HEIGHT must match
-// --mobile-nav-height in styles/layout.css (the page scroller stops above it).
-const FOOTER_HEIGHT = 26;
+// Label rows: inactive 12px, active 16px, 4px apart — the column slides so the
+// active label sits in the middle of the band.
+const ROW = 12, ACTIVE_ROW = 16, ROW_GAP = 4;
 const BAND_WIDTH = 328;
 
 // ── Ruler / scrubbing scale ──────────────────────────────────────────────────
-// A ragged stack of 13 thin rules. One "major" line per section (indices 2,5,8,
-// 11); the active section's line is the long dark one, its immediate neighbours
+// A ragged stack of 15 thin rules. One "major" line per section (indices 1,4,7,
+// 10,13); the active section's line is the long dark one, its immediate neighbours
 // a touch darker, the rest faint. Drag or tap to scrub sections.
-const TOTAL_LINES = 13;
-const MAJOR_INDICES = [2, 5, 8, 11];
+const TOTAL_LINES = 15;
+const MAJOR_INDICES = [1, 4, 7, 10, 13];
 
 function SectionRuler({ count, activeIndex, onScrub }: { count: number; activeIndex: number; onScrub: (i: number) => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -92,13 +91,12 @@ function SectionRuler({ count, activeIndex, onScrub }: { count: number; activeIn
 export function MobileBottomNav({
   activeSection,
   onNavigate,
-  onOpenStyleGuide,
 }: {
   activeSection: NavSection;
   onNavigate: (s: NavSection) => void;
-  onOpenStyleGuide: () => void;
 }) {
   const activeIndex = Math.max(0, NAV_ITEMS.findIndex((i) => i.id === activeSection));
+  const columnY = BAND_HEIGHT / 2 - (activeIndex * (ROW + ROW_GAP) + ACTIVE_ROW / 2);
 
   return (
     <div
@@ -107,7 +105,7 @@ export function MobileBottomNav({
         left: 0,
         right: 0,
         bottom: 0,
-        height: BAND_HEIGHT + FOOTER_HEIGHT,
+        height: BAND_HEIGHT,
         zIndex: 9000,
         background: colors.sandLight,
         display: "flex",
@@ -147,20 +145,7 @@ export function MobileBottomNav({
             onScrub={(i) => onNavigate(NAV_ITEMS[i].id)}
           />
 
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: activeIndex >= 2 ? "flex-end" : "flex-start",
-              alignItems: "flex-start",
-              gap: 4,
-              padding: "12px 0",
-              flexGrow: 1,
-              minWidth: 0,
-              height: BAND_HEIGHT,
-            }}
-          >
+          <div style={{ position: "relative", flexGrow: 1, minWidth: 0, height: BAND_HEIGHT, overflow: "hidden" }}>
             {/* Top fade */}
             <div
               style={{
@@ -175,6 +160,25 @@ export function MobileBottomNav({
               }}
             />
 
+            {/* Bottom fade */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 12,
+                background: `linear-gradient(0deg, ${colors.sandLight} 30%, rgba(236,230,223,0) 100%)`,
+                pointerEvents: "none",
+                zIndex: 2,
+              }}
+            />
+
+            <motion.div
+              animate={{ y: columnY }}
+              transition={{ type: "spring", stiffness: 380, damping: 36 }}
+              style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: ROW_GAP }}
+            >
             {NAV_ITEMS.map((item) => {
               const isActive = item.id === activeSection;
               return (
@@ -203,6 +207,7 @@ export function MobileBottomNav({
                 </motion.button>
               );
             })}
+            </motion.div>
           </div>
         </div>
 
@@ -223,30 +228,6 @@ export function MobileBottomNav({
         </div>
       </div>
 
-      {/* Sign-off row */}
-      <div
-        style={{
-          width: BAND_WIDTH,
-          maxWidth: "calc(100vw - 20px)",
-          height: FOOTER_HEIGHT,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 8,
-          borderTop: `1px solid ${withAlpha(colors.oliveDeep, 0.12)}`,
-        }}
-      >
-        <MadeWithLove fontSize={10} />
-        <a
-          href={STYLE_GUIDE_PATH}
-          onClick={(e) => { e.preventDefault(); onOpenStyleGuide(); }}
-          className="font-inclusive-sans"
-          style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10, color: colors.orange, textDecoration: "none", whiteSpace: "nowrap" }}
-        >
-          <ArrowDownToLine size={10} strokeWidth={2.2} />
-          style guide
-        </a>
-      </div>
     </div>
   );
 }
