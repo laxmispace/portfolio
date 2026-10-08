@@ -9,7 +9,7 @@ import { MARTEL, withMartel } from "@/app/lib/devanagari";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
 // Pre-generated ElevenLabs narration + word timing live in public/audio/blog/
-// (see scripts/generate-voiceovers.mjs) — base-aware so it resolves whether
+// (see scripts/generate-voiceovers.mjs) - base-aware so it resolves whether
 // served at "/" locally or "/portfolio/" on GitHub Pages.
 const blogAudioUrl = (slug: string) => `${import.meta.env.BASE_URL}audio/blog/${slug}.mp3`;
 const blogWordsUrl = (slug: string) => `${import.meta.env.BASE_URL}audio/blog/${slug}.words.json`;

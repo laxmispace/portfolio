@@ -4,7 +4,7 @@ import confetti from "canvas-confetti";
 import { haptic } from "@/app/lib/feedback";
 import { colors } from "@/app/theme/tokens";
 
-// Heart outline in a 24×24 box — used both for the button and for every confetti particle.
+// Heart outline in a 24×24 box - used both for the button and for every confetti particle.
 const HEART_PATH =
   "M12 21s-7.5-4.6-9.6-9.2C.9 8.5 2.6 4.5 6.3 4.1c2.1-.2 3.9.9 5.7 3 1.8-2.1 3.6-3.2 5.7-3 3.7.4 5.4 4.4 3.9 7.7C19.5 16.4 12 21 12 21z";
 

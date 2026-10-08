@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ExternalLink, Download, CirclePlay } from "lucide-react";
+import { X } from "lucide-react";
 import type { AiProject } from "@/app/data/aiProjects";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { colors, withAlpha } from "@/app/theme/tokens";
+import { BracketButton } from "@/app/components/ui/Bracket";
 
 interface AiProjectDrawerProps {
   project: AiProject | null;
@@ -72,39 +73,12 @@ function ExtensionBody({ project }: { project: AiProject }) {
         {project.longDescription}
       </p>
 
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
         {project.downloadUrl && (
-          <a
-            href={project.downloadUrl}
-            download
-            style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "12px 20px", borderRadius: 10,
-              backgroundColor: project.accent, textDecoration: "none",
-            }}
-          >
-            <Download size={15} color={colors.ink} />
-            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: colors.ink }}>
-              download extension
-            </span>
-          </a>
+          <BracketButton href={project.downloadUrl} download color={project.accent} size={13}>download extension</BracketButton>
         )}
         {project.videoUrl && (
-          <button
-            onClick={() => setShowVideo((v) => !v)}
-            style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "12px 20px", borderRadius: 10,
-              backgroundColor: withAlpha(colors.sand, 0.08),
-              border: `1px solid ${withAlpha(colors.sand, 0.2)}`,
-              cursor: "pointer",
-            }}
-          >
-            <CirclePlay size={15} color={colors.sand} />
-            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: colors.sand }}>
-              {showVideo ? "hide walkthrough" : "how to use"}
-            </span>
-          </button>
+          <BracketButton onClick={() => setShowVideo((v) => !v)} color={colors.sand} size={13} arrow={!showVideo}>{showVideo ? "hide walkthrough" : "how to use"}</BracketButton>
         )}
       </div>
 
@@ -121,7 +95,7 @@ function ExtensionBody({ project }: { project: AiProject }) {
         >
           <iframe
             src={project.videoUrl}
-            title={`${project.title} — how to use`}
+            title={`${project.title} - how to use`}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none" }}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
@@ -133,7 +107,7 @@ function ExtensionBody({ project }: { project: AiProject }) {
 }
 
 // Wide side drawer (like the blog drawer) that either runs a project's live
-// url as an iframe, or — for browser extensions — shows a download button
+// url as an iframe, or - for browser extensions - shows a download button
 // and an inline "how to use" video walkthrough.
 export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
   const isMobile = useIsMobile(768);
@@ -235,26 +209,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
               </div>
 
               {!isExtension && project.url && (
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 14px",
-                    borderRadius: 8,
-                    border: `1px solid ${withAlpha(colors.sand, 0.15)}`,
-                    textDecoration: "none",
-                    flexShrink: 0,
-                  }}
-                >
-                  <span className="font-inclusive-sans" style={{ fontSize: 12, color: colors.sand }}>
-                    open in new tab
-                  </span>
-                  <ExternalLink size={13} color={colors.sand} />
-                </a>
+                <BracketButton href={project.url} target="_blank" color={colors.sand} size={12} style={{ flexShrink: 0 }}>open in new tab</BracketButton>
               )}
             </div>
 

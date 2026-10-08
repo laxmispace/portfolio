@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform, type OGLRenderingContext } from "ogl";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
-// A circular, infinitely-wrapping WebGL photo carousel — ported from the
+// A circular, infinitely-wrapping WebGL photo carousel - ported from the
 // mechanics of https://github.com/bizarro/infinite-circular-webgl-gallery
 // (Codrops, MIT licensed), reworked to run confined to a container element
 // instead of the page: its own canvas size, its own scroll/drag capture,
@@ -109,7 +109,7 @@ class CircularGalleryEngine {
 
     this.renderer = new Renderer({ alpha: false, dpr: Math.min(window.devicePixelRatio, 2) });
     this.gl = this.renderer.gl;
-    this.gl.clearColor(0.851, 0.827, 0.769, 1); // #d9d3c4 — soft neutral frame, close to the page cream
+    this.gl.clearColor(0.851, 0.827, 0.769, 1); // #d9d3c4 - soft neutral frame, close to the page cream
 
     const canvas = this.gl.canvas as HTMLCanvasElement;
     Object.assign(canvas.style, { width: "100%", height: "100%", display: "block", touchAction: "pan-y" });

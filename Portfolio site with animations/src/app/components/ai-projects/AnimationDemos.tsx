@@ -121,7 +121,7 @@ function NameAsImageDemo() {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 02 · THE WHOLE SCENE TILTS
-// Not individual photos — the entire 3D scene rotates on mouse.
+// Not individual photos - the entire 3D scene rotates on mouse.
 // Photos at different Z depths diverge. Looks like actual space.
 // This is what Apple does for M-series chip hero pages.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -265,7 +265,7 @@ function SceneTiltDemo() {
           pointerEvents: "none",
         }}
       >
-        move or drag — the whole scene tilts
+        move or drag - the whole scene tilts
       </p>
     </div>
   );
@@ -274,7 +274,7 @@ function SceneTiltDemo() {
 // ─────────────────────────────────────────────────────────────────────────────
 // 03 · RACK FOCUS
 // Three photos side by side. One is sharp; the others blur out.
-// Every 3 seconds the focus shifts — smooth cinematic DOF transition.
+// Every 3 seconds the focus shifts - smooth cinematic DOF transition.
 // No interaction needed. Works on all devices identically.
 // A camera metaphor: a designer who notices what others blur out.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -383,8 +383,8 @@ function RackFocusDemo() {
 // ─────────────────────────────────────────────────────────────────────────────
 // 04 · ELASTIC WEB
 // Five photos orbiting a center, connected by elastic SVG lines.
-// Move the mouse near a photo — it bends toward you, lines stretch.
-// Move away — spring physics snap everything back. The whole thing is alive.
+// Move the mouse near a photo - it bends toward you, lines stretch.
+// Move away - spring physics snap everything back. The whole thing is alive.
 // SVG lines updated directly each frame (no React re-renders) for 60fps.
 // ─────────────────────────────────────────────────────────────────────────────
 function ElasticWebDemo() {
@@ -537,7 +537,7 @@ function ElasticWebDemo() {
           pointerEvents: "none",
         }}
       >
-        approach any photo — it bends toward you
+        approach any photo - it bends toward you
       </p>
     </div>
   );
@@ -547,7 +547,7 @@ function ElasticWebDemo() {
 // 05 · CINEMATIC STRIP
 // A horizontal filmstrip you drag with momentum + snap-to-frame.
 // Sprocket holes, frame numbers, caption reveals.
-// Feels like holding a real roll of film — physical and intentional.
+// Feels like holding a real roll of film - physical and intentional.
 // ─────────────────────────────────────────────────────────────────────────────
 function CinematicStripDemo() {
   const trackRef  = useRef<HTMLDivElement>(null);
@@ -750,25 +750,25 @@ export const ANIMATION_DEMOS = [
   {
     number: "01",
     title: "Name as Image",
-    tagline: "The word 'laxmi' is the canvas — photos fill the letterforms. Your name and your work are literally one thing.",
+    tagline: "The word 'laxmi' is the canvas - photos fill the letterforms. Your name and your work are literally one thing.",
     Component: NameAsImageDemo,
   },
   {
     number: "02",
     title: "The Whole Scene Tilts",
-    tagline: "Not individual photos moving — the entire 3D scene rotates on mouse. Exactly what Apple uses for M-series hero pages.",
+    tagline: "Not individual photos moving - the entire 3D scene rotates on mouse. Exactly what Apple uses for M-series hero pages.",
     Component: SceneTiltDemo,
   },
   {
     number: "03",
     title: "Rack Focus",
-    tagline: "Three photos, one sharp at a time. Every 3 seconds the focus shifts — smooth cinematic DOF. No interaction. Works on everything.",
+    tagline: "Three photos, one sharp at a time. Every 3 seconds the focus shifts - smooth cinematic DOF. No interaction. Works on everything.",
     Component: RackFocusDemo,
   },
   {
     number: "04",
     title: "Elastic Web",
-    tagline: "Five photos on invisible elastic strings. Move close — they bend toward you. Pull away — spring physics snap them back.",
+    tagline: "Five photos on invisible elastic strings. Move close - they bend toward you. Pull away - spring physics snap them back.",
     Component: ElasticWebDemo,
   },
   {

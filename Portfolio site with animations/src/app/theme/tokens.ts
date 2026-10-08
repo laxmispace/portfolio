@@ -1,4 +1,4 @@
-// Design tokens — the single source of truth for the portfolio's colours, type,
+// Design tokens - the single source of truth for the portfolio's colours, type,
 // spacing and radii. Components import these instead of hard-coding values, and
 // every component reads from this file.
 // The same colours exist as CSS variables / Tailwind colours in src/styles/theme.css.
@@ -15,6 +15,7 @@ export const colors = {
   oliveDeep: "#625E37",
   orange: "#C67D39",
   orangeLight: "#D19761",
+  orangeDot: "#D29760", // the loading screen's dotted grid
   pink: "#DDA1AE",
   pinkLight: "#EBC7CF",
   brown: "#735933",

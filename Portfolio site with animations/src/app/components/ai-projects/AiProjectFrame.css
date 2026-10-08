@@ -1,5 +1,5 @@
 /* Hover interaction for AI-project card artwork.
-   Only the foreground photo scales — the grid pattern and logo stay put.
+   Only the foreground photo scales - the grid pattern and logo stay put.
    Each photo keeps its own anchor, so `transform-origin` pins it to the
    edge/point it's positioned against and it scales up from there. */
 

@@ -1,4 +1,4 @@
-/* Portfolio theme — mirrors src/app/theme/tokens.ts.
+/* Portfolio theme - mirrors src/app/theme/tokens.ts.
    @theme turns each colour into Tailwind utilities too (bg-ink, text-orange, …). */
 
 @theme {

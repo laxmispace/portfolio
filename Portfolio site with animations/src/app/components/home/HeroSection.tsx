@@ -14,7 +14,7 @@ function LiveClock() {
         timeZone: "Asia/Kolkata",
         hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
       });
-      setTime(`IST — ${t.toUpperCase()}`);
+      setTime(`IST - ${t.toUpperCase()}`);
     };
     update();
     const id = setInterval(update, 1000);
@@ -58,7 +58,7 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
   const br = isMobile ? " " : <br />;
 
   return (
-    <div ref={sectionRef} style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+    <div ref={sectionRef} data-no-reveal style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
       <motion.div style={{ display: "flex", flexDirection: "column", height: "100%", opacity, y: contentY, position: "relative", zIndex: 2 }}>
         <motion.div initial="hidden" animate={state} variants={fadeIn}>
           {isMobile ? (

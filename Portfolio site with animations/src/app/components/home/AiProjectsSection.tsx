@@ -6,6 +6,7 @@ import { AI_PROJECTS as ALL_AI_PROJECTS, isOpenableAiProject, type AiProject } f
 import { AiProjectDrawer } from "@/app/components/ai-projects/AiProjectDrawer";
 import { AiProjectFrame } from "@/app/components/ai-projects/AiProjectFrame";
 import { colors, withAlpha } from "@/app/theme/tokens";
+import { BracketLabel } from "@/app/components/ui/Bracket";
 
 // Featured on the homepage: openable projects first, then fill up to 3 with the rest.
 const FEATURED_AI_PROJECTS: AiProject[] = [...ALL_AI_PROJECTS]
@@ -22,17 +23,7 @@ function ViewAllButton({ onClick }: { onClick: () => void }) {
       onMouseLeave={() => setHovered(false)}
       style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 4 }}
     >
-      <p className="font-caslon" style={{ fontSize: 14, color: colors.sand, fontStyle: "italic", textDecoration: hovered ? "underline" : "none", transition: "text-decoration 0.1s" }}>
-        view all ai projects
-      </p>
-      <motion.p
-        animate={{ x: hovered ? 4 : 0 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="font-caslon"
-        style={{ fontSize: 15, color: colors.sand, lineHeight: 1 }}
-      >
-        →
-      </motion.p>
+      <BracketLabel open={hovered} color={colors.sand}>view all ai projects</BracketLabel>
     </button>
   );
 }
@@ -74,7 +65,7 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
           )}
         </div>
 
-        {/* Project cards — clickable only when there's something to open */}
+        {/* Project cards - clickable only when there's something to open */}
         <div style={{ display: "flex", gap: isMobile ? 40 : 16, flexDirection: isMobile ? "column" : "row" }}>
           {FEATURED_AI_PROJECTS.map((project, i) => {
             const clickable = isOpenableAiProject(project);
@@ -109,7 +100,7 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
                   {!project.frameKey && (
                     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: project.accent, opacity: 0.5 }} />
                   )}
-                  {/* Subtle expand hint — web only; mobile shows the inline arrow instead */}
+                  {/* Subtle expand hint - web only; mobile shows the inline arrow instead */}
                   {clickable && !isMobile && (
                     <div style={{ position: "absolute", top: 12, right: 12, width: 24, height: 24, borderRadius: "50%", backgroundColor: project.frameKey ? withAlpha(colors.ink, 0.18) : withAlpha(colors.sand, 0.06), display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none">

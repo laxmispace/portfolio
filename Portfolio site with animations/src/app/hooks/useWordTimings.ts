@@ -8,7 +8,7 @@ export interface WordTiming {
 
 // One array of word timings per paragraph, matching the shape written by
 // scripts/generate-voiceovers.mjs. Returns null until loaded, or if the
-// slug has no .words.json yet (narration not generated) — callers should
+// slug has no .words.json yet (narration not generated) - callers should
 // fall back to plain text rendering in that case.
 export function useWordTimings(url: string): WordTiming[][] | null {
   const [timings, setTimings] = useState<WordTiming[][] | null>(null);

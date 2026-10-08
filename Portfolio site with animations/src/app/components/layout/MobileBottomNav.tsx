@@ -5,7 +5,7 @@ import { haptic, softTick } from "@/app/lib/feedback";
 import { MobileFab } from "./MobileFab";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
-// Fixed order — items never reflow. Only the active row changes style.
+// Fixed order - items never reflow. Only the active row changes style.
 const NAV_ITEMS: { id: NavSection; label: string }[] = [
   { id: "home",          label: "home" },
   { id: "projects",      label: "projects" },
@@ -16,7 +16,7 @@ const NAV_ITEMS: { id: NavSection; label: string }[] = [
 
 // Must match --mobile-nav-height in styles/layout.css (the page scroller stops above it).
 const BAND_HEIGHT = 72;
-// Label rows: inactive 12px, active 16px, 4px apart — the column slides so the
+// Label rows: inactive 12px, active 16px, 4px apart - the column slides so the
 // active label sits in the middle of the band.
 const ROW = 12, ACTIVE_ROW = 16, ROW_GAP = 4;
 const BAND_WIDTH = 328;
@@ -125,7 +125,7 @@ export function MobileBottomNav({
           gap: 4,
         }}
       >
-        {/* Left group — ruler + section labels */}
+        {/* Left group - ruler + section labels */}
         <div
           style={{
             display: "flex",

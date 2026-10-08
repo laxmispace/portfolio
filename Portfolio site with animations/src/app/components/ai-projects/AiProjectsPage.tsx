@@ -128,7 +128,7 @@ function BubbleField() {
 }
 
 // ── LabMark ────────────────────────────────────────────────────────────────────
-// The orange container from the header. Placeholder for the real animation —
+// The orange container from the header. Placeholder for the real animation -
 // for now, bubbles quietly rise inside it so it reads as "brewing".
 
 function LabMark() {
@@ -193,7 +193,7 @@ const TABS: { key: TabKey; label: string }[] = [
 
 const GOO_ID = "ai-projects-tab-goo";
 
-// The gooey filter itself — dropped once into the page. Blur + a hard alpha
+// The gooey filter itself - dropped once into the page. Blur + a hard alpha
 // contrast so overlapping opaque shapes fuse into a metaball / liquid blob.
 function GooDefs() {
   return (
@@ -212,7 +212,7 @@ function GooDefs() {
   );
 }
 
-// Opaque equivalent of rgba(227,217,206,0.18) over the #212012 header — needed
+// Opaque equivalent of rgba(227,217,206,0.18) over the #212012 header - needed
 // because the gooey alpha trick only works on near-opaque sources.
 const PILL = "#444134";
 
@@ -250,7 +250,7 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
       ref={wrapRef}
       style={{ position: "relative", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}
     >
-      {/* Gooey highlight — two blobs chase the same target at different spring
+      {/* Gooey highlight - two blobs chase the same target at different spring
           rates, so during a click they stretch apart then fuse under the filter.
           The button text lives outside this layer, so it never distorts. */}
       {target && (
@@ -316,7 +316,7 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
 
 // ── Cards ──────────────────────────────────────────────────────────────────────
 
-// Three across, 16px gutters — the inner rows are flex, not a grid.
+// Three across, 16px gutters - the inner rows are flex, not a grid.
 const CARD_BASIS = "calc((100% - 32px) / 3)";
 
 const demoShell: React.CSSProperties = {
@@ -335,7 +335,7 @@ const cardEnter = {
   animate: { opacity: 1, y: 0 },
 };
 
-// Project row — full-width, no artwork: title, byline, tag pills. Nothing else.
+// Project row - full-width, no artwork: title, byline, tag pills. Nothing else.
 function AiProjectCard({
   project,
   index,
@@ -453,7 +453,7 @@ function AnimationDemoCard({
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 interface AiProjectsPageProps {
-  /** Kept for the host route — no visible control; Esc returns to the portfolio. */
+  /** Kept for the host route - no visible control; Esc returns to the portfolio. */
   onBack?: () => void;
 }
 
@@ -480,7 +480,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
 
       <AiProjectDrawer project={selected} onClose={() => setSelected(null)} />
 
-      {/* Header — orange lab mark + title, filter tabs on the right */}
+      {/* Header - orange lab mark + title, filter tabs on the right */}
       <header
         style={{
           position: "relative",
@@ -508,7 +508,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
         </div>
       </header>
 
-      {/* The raised olive container — full-bleed, painted on top of the bubble layer.
+      {/* The raised olive container - full-bleed, painted on top of the bubble layer.
           Projects fill it edge to edge; the animation grid keeps a 36px inset. */}
       <main
         style={{

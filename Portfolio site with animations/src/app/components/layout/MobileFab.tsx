@@ -21,7 +21,7 @@ export function MobileFab() {
 
   return (
     <>
-      {/* Scrim — tap anywhere to close */}
+      {/* Scrim - tap anywhere to close */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -35,7 +35,7 @@ export function MobileFab() {
         )}
       </AnimatePresence>
 
-      {/* Fanned-out actions — fixed, just above the nav band */}
+      {/* Fanned-out actions - fixed, just above the nav band */}
       <div
         style={{
           position: "fixed",
@@ -98,7 +98,7 @@ export function MobileFab() {
         </AnimatePresence>
       </div>
 
-      {/* Trigger — plain olive circle, placed by the parent inside the band */}
+      {/* Trigger - plain olive circle, placed by the parent inside the band */}
       <motion.button
         onClick={() => { haptic(8); setOpen((v) => !v); }}
         whileTap={{ scale: 0.92 }}

@@ -25,6 +25,7 @@ import stripPhoto7 from "@/assets/stack-images/optimized/img-20250816-120031-492
 import stripPhoto8 from "@/assets/stack-images/optimized/img-20260321-190702-856-1.jpg";
 import { colors, withAlpha } from "@/app/theme/tokens";
 import { RESUME_URL } from "@/app/lib/links";
+import { BracketButton } from "@/app/components/ui/Bracket";
 
 // ── Work experience data ───────────────────────────────────────────────────────
 
@@ -35,7 +36,7 @@ const EXPERIENCE = [
     company: "Canvs Club · ICICI Bank",
     location: "Remote",
     bullets: [
-      "Owned end-to-end product design across ICICI Bank's digital ecosystem — UCJ, CSP, RIB, Global App and iMobile — designing 100+ flows across live, in-development, and net-new design environments.",
+      "Owned end-to-end product design across ICICI Bank's digital ecosystem - UCJ, CSP, RIB, Global App and iMobile - designing 100+ flows across live, in-development, and net-new design environments.",
       "Independently drove the Services platform and led design for Credit Cards and Forex Cards, turning complex banking journeys into clean, accessible experiences.",
       "Partnered closely with developers and cross-functional teams to ship quality work at speed in a fully remote, fast-paced environment, while reworking and scaling the design system independently.",
       "Mentored junior designers and led peer design reviews, raising craft and consistency across the team.",
@@ -62,7 +63,7 @@ const EXPERIENCE = [
     location: "Bangalore",
     bullets: [
       "Addressed user and client challenges through comprehensive research, competitor analysis, and user interviews.",
-      "Conceptualised information architectures, crafted user flows, and translated them into visually compelling web and mobile interfaces — websites, dashboards, web apps, and mobile apps.",
+      "Conceptualised information architectures, crafted user flows, and translated them into visually compelling web and mobile interfaces - websites, dashboards, web apps, and mobile apps.",
       "Developed style guides and design systems to streamline collaboration between design and development.",
     ],
     skills: ["UI Design", "Interaction Design", "Problem Solving"],
@@ -70,7 +71,7 @@ const EXPERIENCE = [
 ];
 
 // ── Books / Movies / Resources data ───────────────────────────────────────────
-// `cover`/`poster`/`art` are optional — entries without one render a titled
+// `cover`/`poster`/`art` are optional - entries without one render a titled
 // placeholder tile until the real asset is dropped in. Currently-reading books
 // carry `reading: true` and are pinned to the front of the Books carousel.
 
@@ -79,7 +80,7 @@ type MovieItem = { title: string; year: string; poster?: string };
 type ResourceItem = { title: string; kind: string; art?: string };
 
 const BOOKS: BookItem[] = [
-  // currently reading — pinned first
+  // currently reading - pinned first
   { title: "Good Material", author: "Dolly Alderton", reading: true },
   { title: "Gujarat Diaries", author: "Rana Ayyub", reading: true },
   { title: "Design as an Art", author: "Bruno Munari", reading: true },
@@ -171,7 +172,7 @@ function movieSlotStyle(slot: BookSlot): React.CSSProperties {
 }
 
 // Each slot remounts on index change (its key includes the item's own index),
-// so a plain CSS transition can't animate it — GSAP gives it a subtle fade+settle
+// so a plain CSS transition can't animate it - GSAP gives it a subtle fade+settle
 // entrance instead.
 function MovieImage({ src, alt, slot }: { src?: string; alt: string; slot: BookSlot }) {
   const elRef = useRef<HTMLDivElement>(null);
@@ -367,7 +368,7 @@ function ResourcesPanel({ activeIdx }: { activeIdx: number }) {
 }
 
 // ── MusicPlayerCard ──────────────────────────────────────────────────────────────
-// Connected to the real Spotify account authorized in this browser — shows
+// Connected to the real Spotify account authorized in this browser - shows
 // whatever is actually playing and controls that real playback (play/pause,
 // seek). Spotify's control endpoints require Premium and an active device.
 
@@ -401,9 +402,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
         <>
           <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>Nothing playing right now</p>
           <p className="font-inclusive-sans" style={{ fontSize: 11, color: withAlpha(colors.ink, 0.5), marginTop: 4 }}>Start a track on Spotify, then check back</p>
-          <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.4), background: "none", border: "none", cursor: "pointer", marginTop: 10, textDecoration: "underline" }}>
-            disconnect spotify
-          </button>
+          <BracketButton onClick={disconnect} color={withAlpha(colors.ink, 0.45)} size={10} arrow={false} style={{ marginTop: 10 }}>disconnect spotify</BracketButton>
         </>
       ) : status === "connecting" ? (
         <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>Connecting…</p>
@@ -412,13 +411,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
           <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, marginBottom: 12 }}>
             {status === "error" ? errorMessage : "See what I'm actually listening to"}
           </p>
-          <button
-            onClick={connect}
-            className="font-inclusive-sans font-medium"
-            style={{ fontSize: 13, color: colors.white, backgroundColor: "#1db954", border: "none", borderRadius: 20, padding: "10px 20px", cursor: "pointer" }}
-          >
-            Connect Spotify
-          </button>
+          <BracketButton onClick={connect} color={colors.ink} size={13}>connect spotify</BracketButton>
         </>
       )}
     </div>
@@ -582,9 +575,7 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
             {errorMessage && (
               <p className="font-inclusive-sans" style={{ fontSize: 11, color: colors.orange, textAlign: "center", marginTop: -12 }}>{errorMessage}</p>
             )}
-            <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.4), background: "none", border: "none", cursor: "pointer", marginTop: -12, textDecoration: "underline" }}>
-              disconnect spotify
-            </button>
+            <BracketButton onClick={disconnect} color={withAlpha(colors.ink, 0.45)} size={10} arrow={false} style={{ marginTop: 10 }}>disconnect spotify</BracketButton>
           </>
         ) : (
           notPlayingState
@@ -707,13 +698,7 @@ function AiProjectsRow({ isMobile, onViewAll }: { isMobile: boolean; onViewAll?:
           AI projects I've been tinkering with...
         </p>
         {onViewAll && (
-          <button
-            onClick={onViewAll}
-            className="font-inclusive-sans font-medium"
-            style={{ fontSize: 12, color: colors.orange, textDecoration: "underline", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}
-          >
-            View all
-          </button>
+          <BracketButton onClick={onViewAll} color={colors.orange} size={12} style={{ flexShrink: 0 }}>view all</BracketButton>
         )}
       </div>
       {/* Same card structure as the landing-page AI section (framed artwork +
@@ -763,7 +748,7 @@ function AiProjectsRow({ isMobile, onViewAll }: { isMobile: boolean; onViewAll?:
 
 // ── PhotoFrameSection ────────────────────────────────────────────────────────────
 // An endlessly looping film-strip of personal photos under the work-experience
-// shelf. The row is a FIXED-HEIGHT track, so nothing in the layout ever shifts —
+// shelf. The row is a FIXED-HEIGHT track, so nothing in the layout ever shifts -
 // only the frames scale within it. Each frame's height + opacity follow its live
 // distance from the centre of the track, so whatever sits dead-centre is always
 // full size (MAX_H) and fully opaque, tapering smoothly out to the edges. Scroll
@@ -779,7 +764,7 @@ const N_PHOTOS = STRIP_PHOTOS.length;
 const LOOP_PHOTOS = [...STRIP_PHOTOS, ...STRIP_PHOTOS, ...STRIP_PHOTOS];
 
 function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
-  const MAX_H = isMobile ? 168 : 230;      // fixed centre height — never changes
+  const MAX_H = isMobile ? 168 : 230;      // fixed centre height - never changes
   const MIN_H = isMobile ? 96 : 128;       // furthest-out frame
   const TRACK_H = MAX_H + 24;       // fixed row height → zero layout shift
   const SPAN = isMobile ? 400 : 620;       // px over which a frame tapers MAX_H → MIN_H
@@ -815,7 +800,7 @@ function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
     }
   };
 
-  // Keep the scroll position inside the middle copy — invisible because all
+  // Keep the scroll position inside the middle copy - invisible because all
   // three copies are identical.
   const wrap = () => {
     const scroller = scrollerRef.current;
@@ -887,7 +872,7 @@ function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
   };
 
   // Seed the track and centre it. Re-runs when the breakpoint flips (MAX_H
-  // changes). No animation here — purely the resting layout.
+  // changes). No animation here - purely the resting layout.
   useLayoutEffect(() => {
     frameRefs.current.forEach((el) => { if (el) el.style.height = `${MAX_H}px`; });
     const startEl = frameRefs.current[N_PHOTOS + Math.floor(N_PHOTOS / 2)];
@@ -922,7 +907,7 @@ function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
         <span style={{ width: 2, height: 36, backgroundColor: colors.ink }} />
       </div>
 
-      {/* Looping film-strip track — fixed height, deliberately wider than the drawer */}
+      {/* Looping film-strip track - fixed height, deliberately wider than the drawer */}
       <div
         ref={scrollerRef}
         onScroll={onScroll}
@@ -1045,7 +1030,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
               flexDirection: "column",
             }}
           >
-            {/* Close button — always floats over whatever content is scrolled beneath it */}
+            {/* Close button - always floats over whatever content is scrolled beneath it */}
             <button
               onClick={onClose}
               style={{
@@ -1097,7 +1082,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                       {/* Boomerang between the two wave poses. Both frames live in
                           one fixed-ratio box (the wider pose's ratio) and are pinned
                           top-left at a matched pixel scale, so the head never moves
-                          or resizes between frames — only the hand appears to wave.
+                          or resizes between frames - only the hand appears to wave.
                           Crossfade, never a hard src swap. */}
                       <div style={{ position: "relative", width: "100%", paddingBottom: "126.8%" }}>
                         <img
@@ -1145,18 +1130,7 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                     { label: "Email", href: "mailto:laxmimahajanwork@gmail.com" },
                     { label: "Resume", href: RESUME_URL },
                   ].map(({ label, href }) => (
-                    <motion.a
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ y: -1 }}
-                      transition={{ duration: 0.15 }}
-                      className="font-inclusive-sans font-medium"
-                      style={{ fontSize: 14, color: colors.orange, textDecoration: "none" }}
-                    >
-                      {label}
-                    </motion.a>
+                    <BracketButton key={label} href={href} target="_blank" color={colors.orange} size={13}>{label}</BracketButton>
                   ))}
                 </div>
               </div>
@@ -1164,11 +1138,11 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
               {/* ── Section B2: personal photo strip ── */}
               <PhotoFrameSection isMobile={isMobile} />
 
-              {/* ── Section B3: things outside work — books/films, music, resources ── */}
+              {/* ── Section B3: things outside work - books/films, music, resources ── */}
               <div style={{ backgroundColor: colors.sand }}>
                 <div style={{ backgroundColor: colors.olive, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
                   <p className="font-inclusive-sans" style={{ fontSize: isMobile ? 14 : 18, lineHeight: isMobile ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: colors.ink, maxWidth: 560, margin: "0 auto", marginBottom: isMobile ? 24 : 32 }}>
-                    A small window into the things I return to outside of work — the books I read, the films I rewatch, and the songs on repeat.
+                    A small window into the things I return to outside of work - the books I read, the films I rewatch, and the songs on repeat.
                   </p>
 
                   {/* Books and Movies & resources stack beside the music player: two 188px

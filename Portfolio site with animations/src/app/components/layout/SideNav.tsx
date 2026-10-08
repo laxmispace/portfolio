@@ -36,7 +36,7 @@ const ITEM_GAP = 16;
 
 // ── Indicator ─────────────────────────────────────────────────────────────────
 // Each shape is positioned by its centre: horizontally on the rule's centre line,
-// vertically on the centre of its label's row — so single and stacked shapes alike
+// vertically on the centre of its label's row - so single and stacked shapes alike
 // sit exactly on the rule, level with their label.
 const INDICATOR_SIZE = 9;
 // The two pieces of a stacked shape (projects ▼▲, alter ego ●●) overlap by 4px.
@@ -176,12 +176,12 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
   return (
     <div className="w-[195px] flex-shrink-0 flex flex-col h-full relative">
 
-      {/* ── Logo — left edge at PAD=28px ── */}
+      {/* ── Logo - left edge at PAD=28px ── */}
       <div style={{ position: "absolute", top: 40, left: PADDING }}>
         <Logo height={64} />
       </div>
 
-      {/* ── Navigation block — left edge at NAV_BLOCK_L=12px ── */}
+      {/* ── Navigation block - left edge at NAV_BLOCK_L=12px ── */}
       <div style={{ position: "absolute", top: 306, left: NAV_BLOCK_LEFT }}>
 
         {/* Background track: full LINE_H, very faint */}
@@ -199,7 +199,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
           backgroundColor: colors.oliveDeep,
         }} />
 
-        {/* Single indicator — springs between rows; its centre rides the rule's centre line */}
+        {/* Single indicator - springs between rows; its centre rides the rule's centre line */}
         <motion.div style={{
           position: "absolute", left: RULE_CENTER_X, top: 0,
           y: indicatorY,
@@ -219,7 +219,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
           </AnimatePresence>
         </motion.div>
 
-        {/* Nav items: fixed 18px rows, 16px apart — the same rows INDICATOR_Y is centred on */}
+        {/* Nav items: fixed 18px rows, 16px apart - the same rows INDICATOR_Y is centred on */}
         <div style={{
           display: "flex",
           flexDirection: "column",
@@ -258,7 +258,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
         </div>
       </div>
 
-      {/* ── Bottom links — vertical, arrowed, magnify on hover ── */}
+      {/* ── Bottom links - vertical, arrowed, magnify on hover ── */}
       <BottomLinks />
     </div>
   );

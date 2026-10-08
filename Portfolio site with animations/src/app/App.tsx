@@ -13,7 +13,8 @@ import { PersonalSection } from "@/app/components/home/PersonalSection";
 import { MobileBottomNav } from "@/app/components/layout/MobileBottomNav";
 import { MadeWithLove } from "@/app/components/layout/MadeWithLove";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
-import { softTick } from "@/app/lib/feedback";
+import { useScrollReveal } from "@/app/hooks/useScrollReveal";
+import { softTick, windowsClick } from "@/app/lib/feedback";
 import { colors } from "@/app/theme/tokens";
  
 type Page = "portfolio" | "ai-projects";
@@ -24,10 +25,20 @@ export default function App() {
   // The orange loading screen plays once per page load.
   const [introDone, setIntroDone] = useState(false);
 
+  // Every button and link on the site answers with the old-Windows click.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const el = (e.target as HTMLElement | null)?.closest("button, a, [role='button']");
+      if (el && !(el as HTMLButtonElement).disabled) windowsClick();
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
   const [activeSection, setActiveSection] = useState<NavSection>("home");
   const [aboutOpen, setAboutOpen] = useState(() => {
     // Reopen the About Me drawer after the Spotify OAuth redirect lands back
-    // here — the player that started the connect lives inside it.
+    // here - the player that started the connect lives inside it.
     if (typeof window === "undefined") return false;
     const returningFromSpotify =
       window.location.search.includes("code=") ||
@@ -39,6 +50,9 @@ export default function App() {
   const [blogOpen, setBlogOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
+  // Lines of text rise into place as they scroll into view (starts once the loader is gone).
+  useScrollReveal(scrollEl, introDone);
+
   const scrollCallbackRef = useCallback((node: HTMLDivElement | null) => {
     (scrollRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
     setScrollEl(node);
@@ -79,7 +93,7 @@ export default function App() {
     scrollIdleTimer.current = setTimeout(() => { scrollIdle.current = true; }, 240);
   }, []);
 
-  // Lock background scroll while the About Me drawer is open — otherwise
+  // Lock background scroll while the About Me drawer is open - otherwise
   // wheel/trackpad input over the drawer also scrolls the page behind it.
   useEffect(() => {
     const el = scrollRef.current;
@@ -120,7 +134,7 @@ export default function App() {
     });
 
     return () => observer.disconnect();
-    // Re-run once the scroll element (and with it the section refs) has mounted —
+    // Re-run once the scroll element (and with it the section refs) has mounted -
     // on first render those refs are still null and nothing gets observed.
   }, [scrollEl]);
 
@@ -203,7 +217,7 @@ export default function App() {
           </ScrollContext.Provider>
         </div>
 
-        {/* Bottom nav band — fixed to the lower 20%, homepage only, no drawer open */}
+        {/* Bottom nav band - fixed to the lower 20%, homepage only, no drawer open */}
         {isMobile && !aboutOpen && !csDrawerOpen && !blogOpen && (
           <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} />
         )}

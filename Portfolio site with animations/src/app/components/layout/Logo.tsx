@@ -1,5 +1,5 @@
 // The "laxmi mahajan" logo, used in the side nav, the mobile header and the loader.
-// The artwork lives in src/assets/logo/laxmi-mahajan-logo.svg — swap that file to
+// The artwork lives in src/assets/logo/laxmi-mahajan-logo.svg - swap that file to
 // update the logo everywhere. Until it has content, the name shows in handwriting.
 import type { CSSProperties } from "react";
 import logoSvg from "@/assets/logo/laxmi-mahajan-logo.svg?raw";

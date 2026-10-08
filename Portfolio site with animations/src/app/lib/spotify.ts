@@ -1,4 +1,4 @@
-// Spotify auth via Authorization Code + PKCE — no client secret needed, so it's
+// Spotify auth via Authorization Code + PKCE - no client secret needed, so it's
 // safe to run entirely in the browser. Redirect URI must match exactly what's
 // registered in the Spotify Developer Dashboard.
 

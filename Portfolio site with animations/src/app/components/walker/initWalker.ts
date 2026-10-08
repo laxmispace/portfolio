@@ -1,4 +1,4 @@
-// @ts-nocheck — ported as-is from the hand-tuned walking-character prototype
+// @ts-nocheck - ported as-is from the hand-tuned walking-character prototype
 // (Desktop/Pookie-dump/walking-character.html); the rig maths is untyped by design.
 // The walking character: blends two leg drawings over a 3-bone rig and scrolls the
 // ground, so the figure walks in place. Ids inside the SVG are prefixed per instance.

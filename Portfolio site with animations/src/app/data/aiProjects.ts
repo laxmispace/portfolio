@@ -1,7 +1,7 @@
 
 import { colors, withAlpha } from "@/app/theme/tokens";export type AiProjectKind = "webapp" | "extension";
 
-/** Projects with hand-designed card artwork — see AiProjectFrame. */
+/** Projects with hand-designed card artwork - see AiProjectFrame. */
 export type AiProjectFrameKey = "piano" | "job-tracker" | "breathing";
 
 export interface AiProject {
@@ -16,7 +16,7 @@ export interface AiProject {
   statusColor: string;
   accent: string;
   year?: string;
-  /** webapp: live, embeddable demo URL — runs inside the side drawer as an iframe. */
+  /** webapp: live, embeddable demo URL - runs inside the side drawer as an iframe. */
   url?: string;
   /** extension: link to the packaged extension file, offered as a download. */
   downloadUrl?: string;
@@ -26,7 +26,7 @@ export interface AiProject {
   frameKey?: AiProjectFrameKey;
 }
 
-// A project is clickable/openable when it has something to actually show —
+// A project is clickable/openable when it has something to actually show -
 // a live url for webapps, or a download/video for extensions.
 export function isOpenableAiProject(project: AiProject): boolean {
   if (project.kind === "extension") return Boolean(project.downloadUrl || project.videoUrl);
@@ -40,9 +40,9 @@ export const AI_PROJECTS: AiProject[] = [
     id: 9,
     title: "Browser piano",
     description:
-      "A tiny playable piano that lives in a browser tab — mouse or computer keyboard, sound on, no install.",
+      "A tiny playable piano that lives in a browser tab - mouse or computer keyboard, sound on, no install.",
     longDescription:
-      "A small piano you can play right in the browser — click the keys or use your computer keyboard, with a clean tactile keybed and nothing else in the way. Built on the Web Audio API on a slow afternoon because I wanted to noodle without opening a DAW. No sign-up, no tracking, just open it and play.",
+      "A small piano you can play right in the browser - click the keys or use your computer keyboard, with a clean tactile keybed and nothing else in the way. Built on the Web Audio API on a slow afternoon because I wanted to noodle without opening a DAW. No sign-up, no tracking, just open it and play.",
     tags: ["Web Audio", "Interactive", "Web app"],
     status: "Live",
     statusColor: colors.orange,
@@ -56,12 +56,12 @@ export const AI_PROJECTS: AiProject[] = [
     title: "Job hunt tracker",
     description: "A Chrome extension for keeping track of job applications without leaving the browser.",
     longDescription:
-      "A lightweight Chrome extension that helps track job applications — company, role, status, and dates — right from the browser toolbar instead of a scattered spreadsheet. Download the packaged extension below, or watch the walkthrough to see it in action.",
+      "A lightweight Chrome extension that helps track job applications - company, role, status, and dates - right from the browser toolbar instead of a scattered spreadsheet. Download the packaged extension below, or watch the walkthrough to see it in action.",
     tags: ["Chrome extension", "Job search", "Productivity"],
     status: "Live",
     statusColor: colors.orange,
     accent: colors.orange,
-    // Served as a static file — drop the packaged extension at
+    // Served as a static file - drop the packaged extension at
     // public/downloads/job-hunt-tracker.zip (see public/downloads/README.md).
     downloadUrl: `${import.meta.env.BASE_URL}downloads/job-hunt-tracker.zip`,
     frameKey: "job-tracker",
@@ -70,9 +70,9 @@ export const AI_PROJECTS: AiProject[] = [
     id: 0,
     title: "Breathing app for anxiety",
     description:
-      "A guided breathing exercise app to help calm anxiety in the moment — open it and it just works.",
+      "A guided breathing exercise app to help calm anxiety in the moment - open it and it just works.",
     longDescription:
-      "A small web app that walks you through a paced breathing pattern with a calming visual guide. Built as a personal tool first — something to open on a hard day without having to think — then cleaned up enough to share. No sign-up, no tracking, just open it and breathe.",
+      "A small web app that walks you through a paced breathing pattern with a calming visual guide. Built as a personal tool first - something to open on a hard day without having to think - then cleaned up enough to share. No sign-up, no tracking, just open it and breathe.",
     tags: ["Wellness", "Interactive", "Web app"],
     status: "Live",
     statusColor: colors.olive,
@@ -83,9 +83,9 @@ export const AI_PROJECTS: AiProject[] = [
   {
     id: 1,
     title: "Therapy app",
-    description: "A gentle, guided space to check in with yourself — built the same way the breathing app was.",
+    description: "A gentle, guided space to check in with yourself - built the same way the breathing app was.",
     longDescription:
-      "A companion to the breathing app — a small web tool for checking in with how you're actually doing, built out of the same personal need. No sign-up, no tracking, just open it and use it.",
+      "A companion to the breathing app - a small web tool for checking in with how you're actually doing, built out of the same personal need. No sign-up, no tracking, just open it and use it.",
     tags: ["Wellness", "Interactive", "Web app"],
     status: "Live",
     statusColor: colors.pink,
@@ -145,7 +145,7 @@ export const AI_PROJECTS: AiProject[] = [
     title: "Design token documenter",
     description: "Reads a Figma library and auto-generates a living design system documentation site.",
     longDescription:
-      "Connects to the Figma REST API, pulls all published styles and components, and generates a structured doc site with usage examples and do/don't guidelines. The LLM layer writes the rationale for each token based on usage context — so the docs explain *why* the token exists, not just what value it holds.",
+      "Connects to the Figma REST API, pulls all published styles and components, and generates a structured doc site with usage examples and do/don't guidelines. The LLM layer writes the rationale for each token based on usage context - so the docs explain *why* the token exists, not just what value it holds.",
     tags: ["Figma REST API", "Static site gen", "LLM", "Design systems"],
     status: "Paused",
     statusColor: withAlpha(colors.sand, 0.4),

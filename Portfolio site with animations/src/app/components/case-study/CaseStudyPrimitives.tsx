@@ -1,4 +1,4 @@
-// Shared building blocks for case study pages — layout, type and image/gallery helpers.
+// Shared building blocks for case study pages - layout, type and image/gallery helpers.
 // Kept separate from the protected content (protectedCaseStudies.tsx) so they ship in the
 // public bundle while the case study text and screens stay encrypted until unlocked.
 import { useRef, useState, useEffect } from "react";
@@ -35,7 +35,7 @@ export function ThumbnailPlaceholder({
 }
 
 // ─── Universal image treatment: 5px-rounded, 1px white stroke sitting outside the edge ──
-// A plain `border` sits inside the box and dents the rounded clip — this draws the stroke
+// A plain `border` sits inside the box and dents the rounded clip - this draws the stroke
 // as a separate absolutely-positioned sibling instead, exactly like PhoneStrip's original technique.
 export function StrokedImage({
   src, alt = "", bgColor = colors.sandPanel, strokeColor = colors.orange, iconSize = 32,
@@ -111,12 +111,12 @@ export function SubHeading({ children, isMobile = false }: { children: React.Rea
   );
 }
 
-// Carousel — one Figma-exact "Frame 1597884708" card (584×645 @ desktop) shown fully,
+// Carousel - one Figma-exact "Frame 1597884708" card (584×645 @ desktop) shown fully,
 // the rest of the slides reduced to 60×40px (scaled down on mobile) clickable thumbnails.
 interface CarouselSlide {
   src?: string;
   /** Interactive embed (e.g. a Figma prototype URL). Takes precedence over `src`
-      for both the staged frame and its thumbnail — the thumbnail shows a scaled,
+      for both the staged frame and its thumbnail - the thumbnail shows a scaled,
       non-interactive preview of the same embed. */
   embed?: string;
   /** A set of phone screens laid out side by side inside the 8:5 frame (and its thumbnail). */
@@ -185,7 +185,7 @@ export function ImageCarousel({ slides, isMobile = false, bgColor = colors.sandP
 
   return (
     <div className="case-study-media" style={{ display: "flex", flexDirection: "column", gap: isMobile ? 10 : 12, width: "100%", maxWidth: isMobile ? undefined : maxWidth }}>
-      {/* Full frame — the one active slide. Web: 16/12 padding, rounded 8. Mobile: edge-to-edge
+      {/* Full frame - the one active slide. Web: 16/12 padding, rounded 8. Mobile: edge-to-edge
           (no side padding, no rounding), just a 10px gap before the caption row. */}
       <div
         style={{
@@ -245,7 +245,7 @@ export function ImageCarousel({ slides, isMobile = false, bgColor = colors.sandP
         </div>
       </div>
 
-      {/* Thumbnails — always all N slides (N = the counter's total), active one highlighted.
+      {/* Thumbnails - always all N slides (N = the counter's total), active one highlighted.
           Never conditionally removed, so the row never reorders and every slide stays reachable. */}
       {slides.length > 1 && (
         <div className="case-study-thumb-row" style={{ display: "flex", flexWrap: "nowrap", gap: 12, padding: isMobile ? "0 24px" : 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
@@ -299,7 +299,7 @@ export function ImageCarousel({ slides, isMobile = false, bgColor = colors.sandP
   );
 }
 
-// Before/after comparison panel — matches Figma "Frame 1597884703" 1:1 (584×298 @ desktop):
+// Before/after comparison panel - matches Figma "Frame 1597884703" 1:1 (584×298 @ desktop):
 // a single "before" image on top (#E7DED5), two "after" images side by side below (#ECE6DF),
 // each with its own caption. Percentages/aspect-ratio driven so it scales proportionally on mobile.
 export function LandingComparisonPanel({
@@ -356,7 +356,7 @@ export function IterationLabel({ children, isMobile = false }: { children: React
   );
 }
 
-// Iteration thumbnail row — matches Figma's "Iteration - N" pattern: a caption above a
+// Iteration thumbnail row - matches Figma's "Iteration - N" pattern: a caption above a
 // row of small same-height state thumbnails (not a big-image carousel like ImageCarousel).
 export function IterationThumbnailRow({ caption, images, aspectRatio = "98 / 48", isMobile = false }: { caption: string; images: string[]; aspectRatio?: string; isMobile?: boolean }) {
   return (
@@ -382,7 +382,7 @@ export function IterationThumbnailRow({ caption, images, aspectRatio = "98 / 48"
   );
 }
 
-// State → treatment table (CS2 card exploration, iteration 3) — same visual language as JTBDTable.
+// State → treatment table (CS2 card exploration, iteration 3) - same visual language as JTBDTable.
 interface StateTreatmentRow { state: string; treatment: string; }
 
 export function StateTreatmentTable({ rows, isMobile = false }: { rows: StateTreatmentRow[]; isMobile?: boolean }) {
@@ -420,7 +420,7 @@ export function StateTreatmentTable({ rows, isMobile = false }: { rows: StateTre
   );
 }
 
-// Simple 2x2 image grid (CS2 recharge "the problem" — old reference flows, no per-image caption)
+// Simple 2x2 image grid (CS2 recharge "the problem" - old reference flows, no per-image caption)
 export function ImageGrid2x2({ images }: { images: string[] }) {
   return (
     <div className="case-study-media" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, width: "100%" }}>
@@ -431,7 +431,7 @@ export function ImageGrid2x2({ images }: { images: string[] }) {
   );
 }
 
-// Vertical divider between the JTBD/Context columns — table border colour, 1px stroke,
+// Vertical divider between the JTBD/Context columns - table border colour, 1px stroke,
 // stretches to the height of whichever row it sits in.
 export function TableColumnDivider() {
   return <div style={{ alignSelf: "stretch", width: 1, backgroundColor: colors.sandBorder, flexShrink: 0 }} />;

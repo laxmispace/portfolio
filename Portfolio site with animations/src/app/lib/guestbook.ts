@@ -99,7 +99,7 @@ export async function postNote(draft: GuestbookDraft): Promise<GuestbookNote> {
       from_name: "Portfolio guestbook",
       name: note.name,
       company: note.company,
-      linkedin: note.linkedin ?? "—",
+      linkedin: note.linkedin ?? "-",
       message: note.message,
     }),
   }).catch(() => null);

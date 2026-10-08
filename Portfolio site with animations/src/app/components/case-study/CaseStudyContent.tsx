@@ -26,18 +26,18 @@ import imgFastagNonIcici from "@/assets/case-studies/fastag/my-fastag/lp/1-non-u
 import imgFastagAutoOff from "@/assets/case-studies/fastag/my-fastag/lp/2-ub-nar.png";
 import imgFastagAutoOn from "@/assets/case-studies/fastag/my-fastag/lp/3-ub-ar.png";
 
-// Landing page — section 1 (user/landing states)
+// Landing page - section 1 (user/landing states)
 import imgLandingEmpty from "@/assets/case-studies/fastag/landing-page/landing-section-1/landing-empty.png";
 import imgLandingExisting from "@/assets/case-studies/fastag/landing-page/landing-section-1/landing-e.png";
 import imgLandingScrolled from "@/assets/case-studies/fastag/landing-page/landing-section-1/lpe-scrolled.png";
 import imgLandingMenuOpen from "@/assets/case-studies/fastag/landing-page/landing-section-1/lpe-menu-open.png";
 
-// Landing page — section 2 (the TAB decision)
+// Landing page - section 2 (the TAB decision)
 import imgTabOld from "@/assets/case-studies/fastag/landing-page/tab-section-2/old-ft.png";
 import imgTabMyFastag from "@/assets/case-studies/fastag/landing-page/tab-section-2/my-bank-ft.png";
 import imgTabOtherFastag from "@/assets/case-studies/fastag/landing-page/tab-section-2/other-f-t.png";
 
-// Card exploration — iteration thumbnail rows
+// Card exploration - iteration thumbnail rows
 import imgIter1_1 from "@/assets/case-studies/fastag/card-exploration/iteration-1/1.png";
 import imgIter1_2 from "@/assets/case-studies/fastag/card-exploration/iteration-1/2.png";
 import imgIter1_3 from "@/assets/case-studies/fastag/card-exploration/iteration-1/3.png";
@@ -56,7 +56,7 @@ import imgIter3_3 from "@/assets/case-studies/fastag/card-exploration/iteration-
 import imgIter3_4 from "@/assets/case-studies/fastag/card-exploration/iteration-3/4.png";
 import imgIter3_5 from "@/assets/case-studies/fastag/card-exploration/iteration-3/5.png";
 
-// All FASTag details — "All states"
+// All FASTag details - "All states"
 import imgStateDownload from "@/assets/case-studies/fastag/my-fastag/all-states/1-download.png";
 import imgStateFleetDropdown from "@/assets/case-studies/fastag/my-fastag/all-states/2-hover-on-dd-multiple-fts.png";
 import imgStateHoverServices from "@/assets/case-studies/fastag/my-fastag/all-states/3-hover-on-services.png";
@@ -83,7 +83,7 @@ import imgRechargeNew5 from "@/assets/case-studies/fastag/recharge/new/5.png";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
 
-// ─── JTBD table (CS2 "Users and JTBD") — matches Figma "Frame 1597884686" 1:1 ──
+// ─── JTBD table (CS2 "Users and JTBD") - matches Figma "Frame 1597884686" 1:1 ──
 interface JtbdRow { job: string; context: string; }
 interface JtbdGroup { label: string; rows: JtbdRow[]; }
 
@@ -91,15 +91,15 @@ const JTBD_GROUPS: JtbdGroup[] = [
   {
     label: "FREQUENT + TIME-SENSITIVE + SURFACED ON CARD",
     rows: [
-      { job: "Recharge an existing FASTag", context: "Often urgent — user may be driving toward a toll gate" },
-      { job: "Check available balance", context: "Often urgent — user may be driving toward a toll gate" },
+      { job: "Recharge an existing FASTag", context: "Often urgent - user may be driving toward a toll gate" },
+      { job: "Check available balance", context: "Often urgent - user may be driving toward a toll gate" },
     ],
   },
   {
     label: "OCCASIONAL + DELIBERATE + LIVES DEEPER",
     rows: [
       { job: "Link or buy a new FASTag", context: "Considered action, done once, needs guidance" },
-      { job: "Check recharge or transaction history", context: "Review mode — user is looking back, not forward" },
+      { job: "Check recharge or transaction history", context: "Review mode - user is looking back, not forward" },
     ],
   },
 ];
@@ -166,7 +166,7 @@ function JtbdTable({ isMobile = false }: { isMobile?: boolean }) {
   );
 }
 
-// ─── CS1 content (ICICI Bank iTravel) — Figma "Frame 38" (584px column) ───────
+// ─── CS1 content (ICICI Bank iTravel) - Figma "Frame 38" (584px column) ───────
 // Its own type scale, tighter than the shared helpers: 20/26 Caslon headings,
 // 14/20 Inclusive Sans body, 12px rhythm inside a section, 52px between sections.
 
@@ -202,7 +202,7 @@ const ITRAVEL_HMWS = [
 
 const ITRAVEL_ENTRY_STATES: [string, string][] = [
   ["App installed, has CC", "Auth → iTravel activation drawer"],
-  ["App installed, has no CC", "Auth → card application drawer — iTravel becomes the acquisition hook"],
+  ["App installed, has no CC", "Auth → card application drawer - iTravel becomes the acquisition hook"],
   ["App installed, session expired", "Re-auth → routes into above"],
   ["App not installed", "Web promo page, both audiences"],
 ];
@@ -216,7 +216,7 @@ function ItravelEntryPanel() {
         </p>
       </div>
       <div style={{ padding: "17px 4% 16px" }}>
-        {/* 150 : 320 split with a 66px gap at design width — all proportional so it fits any width */}
+        {/* 150 : 320 split with a 66px gap at design width - all proportional so it fits any width */}
         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: "7%" }}>
           <div style={{ flex: "150 1 0", minWidth: 0, maxWidth: 150, display: "flex", flexDirection: "column", gap: 12 }}>
             <PhoneRow gap="0">
@@ -240,7 +240,7 @@ function ItravelEntryPanel() {
 function ItravelCroppedShot() {
   return (
     <div className="case-study-media" style={{ width: "100%", height: 123, backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden", display: "flex", justifyContent: "center", paddingTop: 16, boxSizing: "border-box" }}>
-      <img src={imgAutoExpiry} alt="Additional preferences — auto-disable after trip" style={{ width: 150, height: "auto", alignSelf: "flex-start", display: "block" }} />
+      <img src={imgAutoExpiry} alt="Additional preferences - auto-disable after trip" style={{ width: 150, height: "auto", alignSelf: "flex-start", display: "block" }} />
     </div>
   );
 }
@@ -336,9 +336,9 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 512, margin: "0 auto" }}>
               <MediaCaption>All states of preferences</MediaCaption>
               <PhoneRow gap="6%">
-                <PhoneScreen src={imgPrefsDefault} alt="Preferences — default" />
-                <PhoneScreen src={imgPrefsEditing} alt="Preferences — editing a limit" />
-                <PhoneScreen src={imgPrefsFilled} alt="Preferences — filled" />
+                <PhoneScreen src={imgPrefsDefault} alt="Preferences - default" />
+                <PhoneScreen src={imgPrefsEditing} alt="Preferences - editing a limit" />
+                <PhoneScreen src={imgPrefsFilled} alt="Preferences - filled" />
               </PhoneRow>
             </div>
           </MediaPanel>
@@ -403,7 +403,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
             <SectionHeading isMobile={isMobile}>It's 11pm on the highway, and the toll is ahead</SectionHeading>
 
             <BodyText isMobile={isMobile}>
-              Think about Job 1 for a second — someone's checking their FASTag balance while driving toward a toll plaza. They're not relaxed, they're not browsing. They need an answer in a glance. Urgent, quick, no room for hunting.
+              Think about Job 1 for a second - someone's checking their FASTag balance while driving toward a toll plaza. They're not relaxed, they're not browsing. They need an answer in a glance. Urgent, quick, no room for hunting.
             </BodyText>
             <SubHeading isMobile={isMobile}>
               That's exactly why the card works the way it does:
@@ -435,7 +435,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               </li>
             </ul>
             <BodyText isMobile={isMobile}>
-              The secondary stuff (tag replacement, KYC, close tag, raise a query) — sure, it matters. But it's not why someone opens FASTag at 11pm on the highway. Keeping it secondary isn't a compromise. That's the whole point.
+              The secondary stuff (tag replacement, KYC, close tag, raise a query) - sure, it matters. But it's not why someone opens FASTag at 11pm on the highway. Keeping it secondary isn't a compromise. That's the whole point.
             </BodyText>
           </div>
         </div>
@@ -446,7 +446,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
           <SectionHeading isMobile={isMobile}>1. Landing page</SectionHeading>
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <BodyText isMobile={isMobile}>
-              One landing page. Three user types. Multiple card states. Everything had to be readable at a glance — including for fleet owners managing 20+ FASTags simultaneously.
+              One landing page. Three user types. Multiple card states. Everything had to be readable at a glance - including for fleet owners managing 20+ FASTags simultaneously.
             </BodyText>
             <SubHeading isMobile={isMobile}>
               There are 3 user types:
@@ -462,21 +462,21 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               slides={[
                 {
                   embed: "https://embed.figma.com/proto/zhkgGHFZUiEiSgc7WO4FQ6/Laxmi-s-portfolio---only-for-recruiters?node-id=105-28114&scaling=min-zoom&content-scaling=fixed&page-id=71%3A2831&embed-host=share",
-                  caption: "Interactive prototype — walk through the landing flow",
+                  caption: "Interactive prototype - walk through the landing flow",
                 },
                 { src: imgLandingEmpty, caption: "New user with no FASTags" },
                 { src: imgLandingExisting, caption: "Existing user with ICICI Bank and other bank FASTag" },
-                { src: imgLandingScrolled, caption: "Critical usecase, scrolled state — callout for critical action" },
+                { src: imgLandingScrolled, caption: "Critical usecase, scrolled state - callout for critical action" },
                 { src: imgLandingMenuOpen, caption: "Three-dot menu open state" },
               ]}
             />
 
             <SectionHeading isMobile={isMobile}>The TAB decision</SectionHeading>
             <BodyText isMobile={isMobile}>
-              Early versions showed all FASTags in one mixed list — ICICI and non-ICICI together, sorted by recency. The problem: a just-linked third-party FASTag would float to the top, pushing the user's ICICI card down the scroll. Wrong for the user. Wrong for the bank.
+              Early versions showed all FASTags in one mixed list - ICICI and non-ICICI together, sorted by recency. The problem: a just-linked third-party FASTag would float to the top, pushing the user's ICICI card down the scroll. Wrong for the user. Wrong for the bank.
             </BodyText>
             <BodyText isMobile={isMobile}>
-              Splitting into two tabs — My FASTag and Other bank FASTag — solved both at once. ICICI cards always surface first. The tab structure tells the user what service level to expect before they open a single card.
+              Splitting into two tabs - My FASTag and Other bank FASTag - solved both at once. ICICI cards always surface first. The tab structure tells the user what service level to expect before they open a single card.
             </BodyText>
 
             <LandingComparisonPanel
@@ -497,13 +497,13 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               The problem
             </SubHeading>
             <BodyText isMobile={isMobile}>
-              The card had to do five jobs: identify the vehicle, show balance, trigger recharge, flag errors, and indicate auto-recharge status. New edge cases kept arriving after the first drop — RC rejected, KYV pending, low balance, inactive — and each new state changed the layout.
+              The card had to do five jobs: identify the vehicle, show balance, trigger recharge, flag errors, and indicate auto-recharge status. New edge cases kept arriving after the first drop - RC rejected, KYV pending, low balance, inactive - and each new state changed the layout.
             </BodyText>
             <BodyText isMobile={isMobile}>
               I went through multiple rounds before the card resolved.
             </BodyText>
 
-            <IterationLabel isMobile={isMobile}>Iteration 1 — Started simple</IterationLabel>
+            <IterationLabel isMobile={isMobile}>Iteration 1 - Started simple</IterationLabel>
             <IterationThumbnailRow
               isMobile={isMobile}
               caption="Iteration - 1"
@@ -511,10 +511,10 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               images={[imgIter1_1, imgIter1_2, imgIter1_3, imgIter1_4, imgIter1_5, imgIter1_6]}
             />
             <BodyText isMobile={isMobile}>
-              This card was the gateway to everything — all details, services, history. Get it wrong and the whole page falls apart. The first drop focused on the essentials: vehicle number, model, balance, recharge, overflow menu. The client liked it, then added to it. Urgency signals, auto-recharge status, and other bank FASTag callouts all needed to live here too.
+              This card was the gateway to everything - all details, services, history. Get it wrong and the whole page falls apart. The first drop focused on the essentials: vehicle number, model, balance, recharge, overflow menu. The client liked it, then added to it. Urgency signals, auto-recharge status, and other bank FASTag callouts all needed to live here too.
             </BodyText>
 
-            <IterationLabel isMobile={isMobile}>Iteration 2 — Absorbed the feedback</IterationLabel>
+            <IterationLabel isMobile={isMobile}>Iteration 2 - Absorbed the feedback</IterationLabel>
             <IterationThumbnailRow
               isMobile={isMobile}
               caption="Iteration - 2"
@@ -522,10 +522,10 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               images={[imgIter2_1, imgIter2_2, imgIter2_3, imgIter2_4, imgIter2_5, imgIter2_6]}
             />
             <BodyText isMobile={isMobile}>
-              It held for simple cases. Then an edge case surfaced: what if a user has low balance and a rejected RC simultaneously? Two unrelated error states, both needing attention, both fighting for the same space. They couldn't be merged — they were different problems requiring different actions. The card broke under the combination.
+              It held for simple cases. Then an edge case surfaced: what if a user has low balance and a rejected RC simultaneously? Two unrelated error states, both needing attention, both fighting for the same space. They couldn't be merged - they were different problems requiring different actions. The card broke under the combination.
             </BodyText>
 
-            <IterationLabel isMobile={isMobile}>Iteration 3 — Give errors room</IterationLabel>
+            <IterationLabel isMobile={isMobile}>Iteration 3 - Give errors room</IterationLabel>
             <BodyText isMobile={isMobile}>
               The fix was giving urgency signals their own space rather than forcing them into the card body. A few more variants, shown to the client, and this was approved, yayy!
             </BodyText>
@@ -545,7 +545,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               ]}
             />
             <BodyText isMobile={isMobile}>
-              The anchor across all states: vehicle number, balance, recharge — always visible, always in the same position.
+              The anchor across all states: vehicle number, balance, recharge - always visible, always in the same position.
             </BodyText>
           </div>
         </div>
@@ -557,7 +557,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>Three card types, one layout</SubHeading>
             <BodyText isMobile={isMobile}>
-              The detail page is structurally identical across all three FASTag types. What changes is the right column — the service set available to that specific tag.
+              The detail page is structurally identical across all three FASTag types. What changes is the right column - the service set available to that specific tag.
             </BodyText>
             <BodyText isMobile={isMobile}>
               For an ICICI FASTag this is the full service suite: Recharge, Auto recharge, Tag replacement, Update RC, Know Your Vehicle, Close FASTag, Raise a query, View tag details.
@@ -569,8 +569,8 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               isMobile={isMobile}
               slides={[
                 { src: imgFastagNonIcici, caption: "Non-ICICI Bank FASTag" },
-                { src: imgFastagAutoOff, caption: "ICICI Bank FASTag — Auto-recharge off" },
-                { src: imgFastagAutoOn, caption: "ICICI Bank FASTag — Auto-recharge on" },
+                { src: imgFastagAutoOff, caption: "ICICI Bank FASTag - Auto-recharge off" },
+                { src: imgFastagAutoOn, caption: "ICICI Bank FASTag - Auto-recharge on" },
               ]}
             />
 
@@ -589,7 +589,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
 
             <SubHeading isMobile={isMobile}>Filter and email FASTag history</SubHeading>
             <BodyText isMobile={isMobile}>
-              <strong>Filter history</strong> — Chips were added for easily filtering of the history. For customized dates, the user can filter by start and end date.
+              <strong>Filter history</strong> - Chips were added for easily filtering of the history. For customized dates, the user can filter by start and end date.
             </BodyText>
             <ImageCarousel
               isMobile={isMobile}
@@ -599,7 +599,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               ]}
             />
             <BodyText isMobile={isMobile}>
-              <strong>Email statement</strong> — After the 1st drop, there was an additional requirement from the client that the user can only fetch the history for up to 90 days on the interface, and payments older than that would be emailed to their registered email ID.
+              <strong>Email statement</strong> - After the 1st drop, there was an additional requirement from the client that the user can only fetch the history for up to 90 days on the interface, and payments older than that would be emailed to their registered email ID.
             </BodyText>
             <ImageCarousel
               isMobile={isMobile}
@@ -621,13 +621,13 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>The problem with the first version</SubHeading>
             <BodyText isMobile={isMobile}>
-              The mobile reference flows had three separate recharge experiences depending on where the user came from — ICICI FASTag, linked non-ICICI, and first-time non-linked. Some were modals, some full-page, each with different data points. The same action looked different every time and the client pushed for an experience of keeping them as is. It was unsustainable to maintain, and expensive to build.
+              The mobile reference flows had three separate recharge experiences depending on where the user came from - ICICI FASTag, linked non-ICICI, and first-time non-linked. Some were modals, some full-page, each with different data points. The same action looked different every time and the client pushed for an experience of keeping them as is. It was unsustainable to maintain, and expensive to build.
             </BodyText>
             <ImageGrid2x2 images={[imgRechargeOld1, imgRechargeOld2, imgRechargeOld3, imgRechargeOld4]} />
 
             <IterationLabel isMobile={isMobile}>The fix</IterationLabel>
             <BodyText isMobile={isMobile}>
-              One standard recharge flow. Regardless of entry point — dashboard card, detail page, quick action panel — the user lands on the same experience with the same data points.
+              One standard recharge flow. Regardless of entry point - dashboard card, detail page, quick action panel - the user lands on the same experience with the same data points.
             </BodyText>
             <SubHeading isMobile={isMobile}>
               The vehicle type determines what's shown within that standard flow:
@@ -671,7 +671,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               The requirements were half-baked and the timeline was too short for the volume. The biggest thing I learned: negotiate on scope or timeline upfront, not after you're already deep in it.
             </BodyText>
             <BodyText isMobile={isMobile}>
-              Working solo on something this large taught me what I'm actually capable of under pressure. Every interaction, every click path — I was the only one deciding. That's a different kind of responsibility than working in a team, and I didn't fully appreciate it until I was in it.
+              Working solo on something this large taught me what I'm actually capable of under pressure. Every interaction, every click path - I was the only one deciding. That's a different kind of responsibility than working in a team, and I didn't fully appreciate it until I was in it.
             </BodyText>
             <BodyText isMobile={isMobile}>
               Redesigning an entire flow midway, defending the decision to stakeholders, and still handing off on time gave me a confidence I didn't have going in. This project showed me I can hold complexity and ship.

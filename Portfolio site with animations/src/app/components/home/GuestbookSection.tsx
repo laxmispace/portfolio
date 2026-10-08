@@ -1,4 +1,4 @@
-// "Post-its for me" — a small, quiet section at the end of the page. Visitors write
+// "Post-its for me" - a small, quiet section at the end of the page. Visitors write
 // a note (name, company, optional LinkedIn, message); posting emails it to me and
 // pins it to a thread where everyone's notes hang, swaying, and scroll sideways.
 import { useEffect, useRef, useState, type FormEvent } from "react";
@@ -11,6 +11,7 @@ import {
 } from "@/app/lib/guestbook";
 import { haptic } from "@/app/lib/feedback";
 import { colors, fonts, motionTokens, withAlpha } from "@/app/theme/tokens";
+import { BracketButton } from "@/app/components/ui/Bracket";
 
 const NOTE_COLORS = [colors.pinkLight, colors.oliveLight, colors.orangeLight, colors.sandLight];
 const EMPTY_DRAFT: GuestbookDraft = { name: "", company: "", linkedin: "", message: "" };
@@ -70,7 +71,7 @@ function Composer({ isMobile, onPosted }: { isMobile: boolean; onPosted: (note: 
       setMessage("pinned! it's on the wall, and in my inbox 💌");
     } catch (err) {
       setStatus("error");
-      setMessage(err instanceof Error ? err.message : "something went wrong — try again?");
+      setMessage(err instanceof Error ? err.message : "something went wrong - try again?");
     }
   };
 
@@ -114,7 +115,7 @@ function Composer({ isMobile, onPosted }: { isMobile: boolean; onPosted: (note: 
         <input value={draft.linkedin} onChange={set("linkedin")} inputMode="url" placeholder="linkedin.com/in/…" style={{ ...handInput, fontSize: 18 }} />
       </Field>
 
-      {/* honeypot — hidden from people, irresistible to bots */}
+      {/* honeypot - hidden from people, irresistible to bots */}
       <input
         value={trap}
         onChange={(e) => setTrap(e.target.value)}
@@ -143,21 +144,9 @@ function Composer({ isMobile, onPosted }: { isMobile: boolean; onPosted: (note: 
             </span>
           )}
         </AnimatePresence>
-        <motion.button
-          type="submit"
-          disabled={!isGuestbookConfigured || status === "sending"}
-          whileHover={isGuestbookConfigured ? { y: -2, rotate: -1 } : undefined}
-          whileTap={isGuestbookConfigured ? { scale: 0.96 } : undefined}
-          className="font-inclusive-sans font-medium"
-          style={{
-            border: "none", borderRadius: 999, padding: "9px 16px", fontSize: 12,
-            backgroundColor: colors.ink, color: colors.sand,
-            cursor: isGuestbookConfigured ? "pointer" : "not-allowed", opacity: isGuestbookConfigured ? 1 : 0.45,
-            boxShadow: `0 4px 0 ${withAlpha(colors.ink, 0.25)}`,
-          }}
-        >
-          {status === "sending" ? "pinning…" : "pin it 📌"}
-        </motion.button>
+        <BracketButton type="submit" disabled={!isGuestbookConfigured || status === "sending"} color={colors.ink} size={13}>
+          {status === "sending" ? "pinning…" : "pin it"}
+        </BracketButton>
       </div>
     </form>
   );
@@ -172,7 +161,7 @@ function Composer({ isMobile, onPosted }: { isMobile: boolean; onPosted: (note: 
 const PROMPTS: GuestbookNote[] = [
   { id: "prompt-1", created_at: "", name: "laxmi", company: "this wall", linkedin: null, message: "your note could hang right here ✨" },
   { id: "prompt-2", created_at: "", name: "laxmi", company: "this wall", linkedin: null, message: "say hi, share feedback, or tell me what you're building 👋" },
-  { id: "prompt-3", created_at: "", name: "laxmi", company: "this wall", linkedin: null, message: "recruiters, designers, curious humans — all welcome 💌" },
+  { id: "prompt-3", created_at: "", name: "laxmi", company: "this wall", linkedin: null, message: "recruiters, designers, curious humans - all welcome 💌" },
 ];
 
 interface Swing { angle: number; vel: number; phase: number; enteredAt: number }
@@ -225,7 +214,7 @@ function HangingNote({ note, width, prompt }: { note: GuestbookNote; width: numb
       </p>
       <div style={{ marginTop: "auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
         <p className="font-inclusive-sans" style={{ fontSize: 10, lineHeight: "13px", color: withAlpha(colors.ink, 0.65), minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          — {note.name}, <span style={{ color: withAlpha(colors.ink, 0.45) }}>{note.company}</span>
+          - {note.name}, <span style={{ color: withAlpha(colors.ink, 0.45) }}>{note.company}</span>
         </p>
         {note.linkedin && (
           <a href={note.linkedin} target="_blank" rel="noopener noreferrer nofollow" aria-label={`${note.name} on LinkedIn`} style={{ flexShrink: 0, display: "inline-flex", color: colors.oliveDeep }}>
@@ -384,16 +373,9 @@ export function GuestbookSection({ isMobile }: { isMobile: boolean }) {
             post-its for me
           </p>
         </div>
-        <motion.button
-          type="button"
-          onClick={() => setWriting((w) => !w)}
-          whileHover={{ y: -2 }}
-          whileTap={{ scale: 0.96 }}
-          className="font-inclusive-sans font-medium"
-          style={{ border: `1px solid ${withAlpha(colors.ink, 0.2)}`, borderRadius: 999, padding: "8px 14px", fontSize: 12, background: writing ? colors.ink : "transparent", color: writing ? colors.sand : colors.ink, cursor: "pointer" }}
-        >
-          {writing ? "close ✕" : "post a message for me 📌"}
-        </motion.button>
+        <BracketButton onClick={() => setWriting((w) => !w)} color={colors.ink} size={12} arrow={!writing}>
+          {writing ? "close" : "post a message for me"}
+        </BracketButton>
       </div>
 
       <AnimatePresence initial={false}>

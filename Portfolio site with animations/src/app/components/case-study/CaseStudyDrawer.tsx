@@ -8,12 +8,12 @@ import { Spacer, ThumbnailPlaceholder, StrokedImage, SectionBlock, SectionHeadin
 import { ItravelCaseStudy, FastagCaseStudy } from "./CaseStudyContent";
 import "./CaseStudy.css";
 
-// ─── CS2 cover (ICICI FASTag) — animated cover, native size 1800×1200 (3:2) ───
+// ─── CS2 cover (ICICI FASTag) - animated cover, native size 1800×1200 (3:2) ───
 import coverAnimationUrl from "@/assets/case-studies/fastag/videos/cover-nw.json?url";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
 // Pre-generated ElevenLabs narration lives in public/audio/ (see scripts/generate-voiceovers.mjs)
-// — base-aware so it resolves correctly whether served at "/" locally or "/portfolio/" on GitHub Pages.
+// - base-aware so it resolves correctly whether served at "/" locally or "/portfolio/" on GitHub Pages.
 const caseStudyAudioUrl = (slug: string) => `${import.meta.env.BASE_URL}audio/case-study/${slug}.mp3`;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -84,7 +84,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     status: "Under review",
     year: "2023",
     client: "ICICI Bank",
-    designTeam: "Canvs — Harleen Chatha (Design manager), Laxmi Mahajan (Designer)",
+    designTeam: "Canvs - Harleen Chatha (Design manager), Laxmi Mahajan (Designer)",
     crossTeam: "Product Manager, Engineering, Risk & Compliance (stakeholder reviewers)",
     timeline: "2 weeks",
     statusFull: "Final design iteration complete (Currently with the client for review, pre-launch)",
@@ -98,7 +98,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     textColor: colors.ink,
     imageBg: colors.orangeLight,
     dotColor: colors.orange,
-    title: "Bringing India's most-used toll payment system to ICICI's web platform — for the first time.",
+    title: "Bringing India's most-used toll payment system to ICICI's web platform - for the first time.",
     type: "UX + UI",
     role: "Sole designer",
     status: "Ongoing",
@@ -128,7 +128,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     crossTeam: "8 external designers (workshop participants)",
     timeline: "6 weeks",
     statusFull: "Research published, workshop format being adapted internally at Canvs",
-    overview: "Explored how generative AI can augment design without stripping creative ownership — 3× faster first prototypes.",
+    overview: "Explored how generative AI can augment design without stripping creative ownership - 3× faster first prototypes.",
     comingSoon: true,
   },
 ];
@@ -150,7 +150,7 @@ function CoverAnimation({ radius = 0 }: { radius?: number }) {
 // by an italic Caslon label and the value, each chip sliding in left→right on mount.
 type MetaChipShape = "square" | "diamond" | "circle" | "arrow";
 
-// Every marker reads left→right as: [lead shape] — [line] ▸ [diamond arrowhead].
+// Every marker reads left→right as: [lead shape] - [line] ▸ [diamond arrowhead].
 // The lead shape (square / diamond / circle) differentiates the rows; the "arrow"
 // row has no lead shape, just the line + arrowhead.
 function MetaChipMarker({ shape }: { shape: MetaChipShape }) {
@@ -160,7 +160,7 @@ function MetaChipMarker({ shape }: { shape: MetaChipShape }) {
       {shape === "diamond" && <div style={{ width: 6, height: 6, backgroundColor: colors.orange, transform: "rotate(45deg)", flexShrink: 0 }} />}
       {shape === "circle" && <div style={{ width: 7, height: 7, borderRadius: 8, backgroundColor: colors.orange, flexShrink: 0 }} />}
       <div style={{ flex: 1, minWidth: 5, height: 1, backgroundColor: colors.orange }} />
-      {/* diamond arrowhead — a rotated square clipped to its leading half so it points right */}
+      {/* diamond arrowhead - a rotated square clipped to its leading half so it points right */}
       <div style={{ width: 6, height: 6, backgroundColor: colors.orange, transform: "rotate(45deg)", flexShrink: 0 }} />
     </div>
   );
@@ -192,13 +192,13 @@ function MetaChipStrip({ caseStudy }: { caseStudy: CaseStudyInfo }) {
         <MetaChip shape="circle" label="project is" value={caseStudy.status.toLowerCase()} grow delay={0.12} />
       </div>
       <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 16, width: "100%" }}>
-        <MetaChip shape="arrow" label="canvs team" value={caseStudy.designTeam.replace(/^Canvs\s*—\s*/, "")} grow delay={0.18} />
+        <MetaChip shape="arrow" label="canvs team" value={caseStudy.designTeam.replace(/^Canvs\s*-\s*/, "")} grow delay={0.18} />
       </div>
     </div>
   );
 }
 
-// Mobile meta table — matches Viewport/Expanded Figma exactly
+// Mobile meta table - matches Viewport/Expanded Figma exactly
 function MobileMetaTable({ cs }: { cs: CaseStudyInfo }) {
   const rows = [
     { label: "Client", value: cs.client },
@@ -383,7 +383,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
   const isMobile = useIsMobile(768);
   const scrollableRef = useRef<HTMLDivElement>(null);
   // Desktop only: the right pane scrolls independently so the left index/listen
-  // column never moves — the outer scrollableRef stays fixed for desktop.
+  // column never moves - the outer scrollableRef stays fixed for desktop.
   const rightPaneRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
@@ -433,7 +433,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
   }, []);
 
   const sections = caseStudy ? (SECTIONS_BY_CASE_STUDY[caseStudy.index] ?? []) : [];
-  // Running number for the index list — items flagged `noNumber` (e.g. Introduction)
+  // Running number for the index list - items flagged `noNumber` (e.g. Introduction)
   // are skipped so the first *numbered* section reads as "1.".
   const numberedSections = (() => {
     let n = 0;
@@ -472,7 +472,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
               overflow: "hidden",
             }}
           >
-            {/* Close button — desktop only (mobile has it in the sticky header) */}
+            {/* Close button - desktop only (mobile has it in the sticky header) */}
             {!isMobile && (
               <button
                 onClick={onClose}
@@ -562,7 +562,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                     <Spacer size={20} />
                     <Spacer size={8} />
 
-                    {/* Media strip — dark card */}
+                    {/* Media strip - dark card */}
                     <motion.div
                       initial={{ opacity: 0, y: 16 }}
                       whileInView={{ opacity: 1, y: 0 }}
@@ -576,7 +576,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                     <Spacer size={20} />
                     <Spacer size={8} />
 
-                    {/* Related case studies — vertical stack on mobile */}
+                    {/* Related case studies - vertical stack on mobile */}
                     <div>
                       <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 12 }}>
                         Read more
@@ -593,7 +593,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                 /* ── DESKTOP LAYOUT ── */
                 <>
 
-                  {/* Header — hugs the title with tight padding (no reserved dead space). It
+                  {/* Header - hugs the title with tight padding (no reserved dead space). It
                       collapses on scroll: the title eases down a few px and the padding tightens,
                       and the body below (flex:1) reclaims the freed height in the same motion. */}
                   <motion.div
@@ -625,7 +625,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       left/top/bottom, 36px gap to the right pane. */}
                   <div style={{ flex: 1, minHeight: 0, display: "flex", gap: 36, padding: "16px 36px 16px 16px", position: "relative", boxSizing: "border-box" }}>
 
-                    {/* Left panel — fixed-height sticky card. Never expands/contracts, never scrolls. */}
+                    {/* Left panel - fixed-height sticky card. Never expands/contracts, never scrolls. */}
                     <div
                       style={{
                         width: 212, flexShrink: 0, alignSelf: "stretch",
@@ -663,7 +663,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       </div>
                     </div>
 
-                    {/* Right pane — the only thing that scrolls */}
+                    {/* Right pane - the only thing that scrolls */}
                     <div ref={rightPaneRef} style={{ flex: 1, minWidth: 0, maxWidth: 900, overflowY: "auto", overflowX: "hidden", scrollbarWidth: "none" }}>
 
                       <motion.div
@@ -712,7 +712,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         <AudioPlayer color={caseStudy.color} slug={caseStudy.slug} />
                       </motion.div>
 
-                      {/* Related — now scrolls inside the same right pane */}
+                      {/* Related - now scrolls inside the same right pane */}
                       <motion.div
                         initial={{ opacity: 0, y: 16 }}
                         whileInView={{ opacity: 1, y: 0 }}

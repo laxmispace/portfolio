@@ -8,8 +8,9 @@ import { MARTEL } from "@/app/lib/devanagari";
 import { haptic } from "@/app/lib/feedback";
 import { colors, fonts, withAlpha } from "@/app/theme/tokens";
 import { CATEGORY_ACCENT, CATEGORY_DOODLE } from "./blogCategories";
+import { BracketLabel } from "@/app/components/ui/Bracket";
 
-const isLatin = (text: string) => /^[\x20-\x7E’'—–-]+$/.test(text);
+const isLatin = (text: string) => /^[\x20-\x7E’'–-]+$/.test(text);
 const FACES = [colors.pinkLight, colors.oliveLight, colors.sandLight];
 const TILTS = [-2.5, 1.8, -1.2, 2.4];
 
@@ -147,7 +148,7 @@ function Stamp({ post, index, isMobile, onOpen }: { post: BlogPost; index: numbe
               {post.readTime.replace(/\D+/g, "")}
               <span className="font-inclusive-sans uppercase" style={{ fontSize: 9, letterSpacing: "0.1em", marginLeft: 3, color: colors.oliveDeep }}>min</span>
             </span>
-            <span className="font-inclusive-sans" style={{ fontSize: 11, color: colors.orange }}>read →</span>
+            <BracketLabel color={colors.orange} size={10}>read</BracketLabel>
           </div>
         </div>
       </div>
