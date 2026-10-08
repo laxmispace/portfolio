@@ -12,6 +12,11 @@ export interface BlogPost {
   subtitle: string;
   body: ReactNode[];
   category: BlogCategory;
+  /** The label next to the read time on the stamp; falls back to the category. */
+  topic?: string;
+  /** The picture on the stamp: import it from src/assets/Blogs, designed at 1200×1080
+   *  (10:9). It's cropped to fill, so keep the subject inside the middle ~80%. */
+  stampImage?: string;
 }
 
 // Media for "The tactile charm of micro-interactions" lives in
@@ -96,6 +101,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Mar 2025",
     readTime: "9 min read",
     category: "write about design" as BlogCategory,
+    topic: "Design and Interactions",
     title: "The tactile charm of micro-interactions",
     subtitle:
       "From the subtle bounce of a loading screen to the satisfying feedback of a tap - the small details that turn ordinary actions into intentional experiences.",

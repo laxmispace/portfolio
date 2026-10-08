@@ -22,7 +22,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
   // Let the host (App) hide the mobile bottom nav while a blog post is open.
   useEffect(() => { onDrawerChange?.(!!selectedPost); }, [selectedPost, onDrawerChange]);
 
-  // Text sits on the same inset as the case study cards' content (36px / 16px).
+  // Content sits on the same inset as the case study cards' content (36px / 16px).
   const inset = isMobile ? 16 : 36;
 
   // Give the drawer real page semantics: pushing a slugged URL means the browser's
@@ -67,6 +67,17 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const intro = (
+    <div>
+      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: colors.oliveDeep, marginBottom: 8 }}>
+        i write, sometimes
+      </p>
+      <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 28, lineHeight: isMobile ? "30px" : "34px", color: colors.ink, fontWeight: 600 }}>
+        ideas that probably<br />should stay in my notes app
+      </p>
+    </div>
+  );
+
   return (
     <section>
       <BlogPostDrawer
@@ -75,41 +86,34 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
         onNavigate={openPost}
       />
 
-      {/* Edge to edge: only the text is inset, matching the case study cards (36px / 16px). */}
       <div style={{ padding: isMobile ? "28px 0 32px" : "40px 0 48px" }}>
-        <div style={{ marginBottom: 4, padding: `0 ${inset}px` }}>
-          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: colors.oliveDeep, marginBottom: 8 }}>
-            i write, sometimes
-          </p>
-          <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 28, lineHeight: isMobile ? "30px" : "34px", color: colors.ink, fontWeight: 600 }}>
-            ideas that probably<br />should stay in my notes app
-          </p>
-        </div>
-
         {BLOG_POSTS.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            style={{ paddingTop: 48, paddingBottom: 32, textAlign: "center" }}
-          >
-            <p className="font-caslon not-italic" style={{ fontSize: 28, color: colors.ink, fontWeight: 600, marginBottom: 8, lineHeight: "36px" }}>
-              <em>working on something worth reading</em>
-            </p>
-            <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep, opacity: 0.6, lineHeight: "20px" }}>
-              check back soon - the drafts are living their best life in my notes app
-            </p>
+          <>
+            <div style={{ padding: `0 ${inset}px` }}>{intro}</div>
             <motion.div
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-              style={{ marginTop: 28 }}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              style={{ paddingTop: 48, paddingBottom: 32, textAlign: "center" }}
             >
-              <span style={{ fontSize: 28 }}>✍️</span>
+              <p className="font-caslon not-italic" style={{ fontSize: 28, color: colors.ink, fontWeight: 600, marginBottom: 8, lineHeight: "36px" }}>
+                <em>working on something worth reading</em>
+              </p>
+              <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep, opacity: 0.6, lineHeight: "20px" }}>
+                check back soon - the drafts are living their best life in my notes app
+              </p>
+              <motion.div
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                style={{ marginTop: 28 }}
+              >
+                <span style={{ fontSize: 28 }}>✍️</span>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </>
         ) : (
-          <BlogStamps posts={BLOG_POSTS} isMobile={isMobile} onOpen={openPost} />
+          <BlogStamps posts={BLOG_POSTS} isMobile={isMobile} intro={intro} onOpen={openPost} />
         )}
       </div>
     </section>
