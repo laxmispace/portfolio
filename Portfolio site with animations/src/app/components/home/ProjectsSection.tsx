@@ -6,7 +6,6 @@ import { CaseStudyDrawer, CASE_STUDY_DATA, type CaseStudyInfo } from "@/app/comp
 import { ThumbnailPlaceholder } from "@/app/components/case-study/CaseStudyPrimitives";
 import imgIciciLogo from "@/assets/case-studies/icici-logo.png";
 import { colors, withAlpha } from "@/app/theme/tokens";
-import { BracketLabel } from "@/app/components/ui/Bracket";
 
 const DESKTOP_HEADER_HEIGHT = 183;
 const DESKTOP_CARD_HEIGHT = 418;
@@ -198,7 +197,28 @@ function CardFooter({ card, hovered }: { card: CardConfig; hovered: boolean }) {
             coming soon
           </p>
         ) : (
-          <BracketLabel open={hovered} color={colors.ink} size={13} style={{ flexShrink: 0 }}>read case study</BracketLabel>
+          <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
+            <p
+              className="font-caslon"
+              style={{
+                fontSize: 14,
+                color: colors.ink,
+                fontStyle: "italic",
+                textDecoration: hovered ? "underline" : "none",
+                transition: "text-decoration 0.1s",
+              }}
+            >
+              read case study
+            </p>
+            <motion.p
+              animate={{ x: hovered ? 4 : 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="font-caslon"
+              style={{ fontSize: 15, color: colors.ink, lineHeight: 1 }}
+            >
+              →
+            </motion.p>
+          </div>
         )}
       </div>
     </div>

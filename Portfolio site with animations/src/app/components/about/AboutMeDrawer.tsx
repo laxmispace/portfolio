@@ -25,7 +25,6 @@ import stripPhoto7 from "@/assets/stack-images/optimized/img-20250816-120031-492
 import stripPhoto8 from "@/assets/stack-images/optimized/img-20260321-190702-856-1.jpg";
 import { colors, withAlpha } from "@/app/theme/tokens";
 import { RESUME_URL } from "@/app/lib/links";
-import { BracketButton } from "@/app/components/ui/Bracket";
 
 // ── Work experience data ───────────────────────────────────────────────────────
 
@@ -402,7 +401,9 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
         <>
           <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>Nothing playing right now</p>
           <p className="font-inclusive-sans" style={{ fontSize: 11, color: withAlpha(colors.ink, 0.5), marginTop: 4 }}>Start a track on Spotify, then check back</p>
-          <BracketButton onClick={disconnect} color={withAlpha(colors.ink, 0.45)} size={10} arrow={false} style={{ marginTop: 10 }}>disconnect spotify</BracketButton>
+          <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.4), background: "none", border: "none", cursor: "pointer", marginTop: 10, textDecoration: "underline" }}>
+            disconnect spotify
+          </button>
         </>
       ) : status === "connecting" ? (
         <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>Connecting…</p>
@@ -411,7 +412,13 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
           <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, marginBottom: 12 }}>
             {status === "error" ? errorMessage : "See what I'm actually listening to"}
           </p>
-          <BracketButton onClick={connect} color={colors.ink} size={13}>connect spotify</BracketButton>
+          <button
+            onClick={connect}
+            className="font-inclusive-sans font-medium"
+            style={{ fontSize: 13, color: colors.white, backgroundColor: "#1db954", border: "none", borderRadius: 20, padding: "10px 20px", cursor: "pointer" }}
+          >
+            Connect Spotify
+          </button>
         </>
       )}
     </div>
@@ -575,7 +582,9 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
             {errorMessage && (
               <p className="font-inclusive-sans" style={{ fontSize: 11, color: colors.orange, textAlign: "center", marginTop: -12 }}>{errorMessage}</p>
             )}
-            <BracketButton onClick={disconnect} color={withAlpha(colors.ink, 0.45)} size={10} arrow={false} style={{ marginTop: 10 }}>disconnect spotify</BracketButton>
+            <button onClick={disconnect} className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.4), background: "none", border: "none", cursor: "pointer", marginTop: -12, textDecoration: "underline" }}>
+              disconnect spotify
+            </button>
           </>
         ) : (
           notPlayingState
@@ -698,7 +707,13 @@ function AiProjectsRow({ isMobile, onViewAll }: { isMobile: boolean; onViewAll?:
           AI projects I've been tinkering with...
         </p>
         {onViewAll && (
-          <BracketButton onClick={onViewAll} color={colors.orange} size={12} style={{ flexShrink: 0 }}>view all</BracketButton>
+          <button
+            onClick={onViewAll}
+            className="font-inclusive-sans font-medium"
+            style={{ fontSize: 12, color: colors.orange, textDecoration: "underline", background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}
+          >
+            View all
+          </button>
         )}
       </div>
       {/* Same card structure as the landing-page AI section (framed artwork +
@@ -1130,7 +1145,18 @@ export function AboutMeDrawer({ open, onClose, onViewAiProjects }: AboutMeDrawer
                     { label: "Email", href: "mailto:laxmimahajanwork@gmail.com" },
                     { label: "Resume", href: RESUME_URL },
                   ].map(({ label, href }) => (
-                    <BracketButton key={label} href={href} target="_blank" color={colors.orange} size={13}>{label}</BracketButton>
+                    <motion.a
+                      key={label}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ y: -1 }}
+                      transition={{ duration: 0.15 }}
+                      className="font-inclusive-sans font-medium"
+                      style={{ fontSize: 14, color: colors.orange, textDecoration: "none" }}
+                    >
+                      {label}
+                    </motion.a>
                   ))}
                 </div>
               </div>

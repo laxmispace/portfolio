@@ -6,7 +6,6 @@ import { AI_PROJECTS as ALL_AI_PROJECTS, isOpenableAiProject, type AiProject } f
 import { AiProjectDrawer } from "@/app/components/ai-projects/AiProjectDrawer";
 import { AiProjectFrame } from "@/app/components/ai-projects/AiProjectFrame";
 import { colors, withAlpha } from "@/app/theme/tokens";
-import { BracketLabel } from "@/app/components/ui/Bracket";
 
 // Featured on the homepage: openable projects first, then fill up to 3 with the rest.
 const FEATURED_AI_PROJECTS: AiProject[] = [...ALL_AI_PROJECTS]
@@ -23,7 +22,17 @@ function ViewAllButton({ onClick }: { onClick: () => void }) {
       onMouseLeave={() => setHovered(false)}
       style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 4 }}
     >
-      <BracketLabel open={hovered} color={colors.sand}>view all ai projects</BracketLabel>
+      <p className="font-caslon" style={{ fontSize: 14, color: colors.sand, fontStyle: "italic", textDecoration: hovered ? "underline" : "none", transition: "text-decoration 0.1s" }}>
+        view all ai projects
+      </p>
+      <motion.p
+        animate={{ x: hovered ? 4 : 0 }}
+        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="font-caslon"
+        style={{ fontSize: 15, color: colors.sand, lineHeight: 1 }}
+      >
+        →
+      </motion.p>
     </button>
   );
 }

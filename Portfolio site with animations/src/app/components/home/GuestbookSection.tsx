@@ -11,7 +11,6 @@ import {
 } from "@/app/lib/guestbook";
 import { haptic } from "@/app/lib/feedback";
 import { colors, fonts, motionTokens, withAlpha } from "@/app/theme/tokens";
-import { BracketButton } from "@/app/components/ui/Bracket";
 
 const NOTE_COLORS = [colors.pinkLight, colors.oliveLight, colors.orangeLight, colors.sandLight];
 const EMPTY_DRAFT: GuestbookDraft = { name: "", company: "", linkedin: "", message: "" };
@@ -144,9 +143,21 @@ function Composer({ isMobile, onPosted }: { isMobile: boolean; onPosted: (note: 
             </span>
           )}
         </AnimatePresence>
-        <BracketButton type="submit" disabled={!isGuestbookConfigured || status === "sending"} color={colors.ink} size={13}>
-          {status === "sending" ? "pinning…" : "pin it"}
-        </BracketButton>
+        <motion.button
+          type="submit"
+          disabled={!isGuestbookConfigured || status === "sending"}
+          whileHover={isGuestbookConfigured ? { y: -2, rotate: -1 } : undefined}
+          whileTap={isGuestbookConfigured ? { scale: 0.96 } : undefined}
+          className="font-inclusive-sans font-medium"
+          style={{
+            border: "none", borderRadius: 999, padding: "9px 16px", fontSize: 12,
+            backgroundColor: colors.ink, color: colors.sand,
+            cursor: isGuestbookConfigured ? "pointer" : "not-allowed", opacity: isGuestbookConfigured ? 1 : 0.45,
+            boxShadow: `0 4px 0 ${withAlpha(colors.ink, 0.25)}`,
+          }}
+        >
+          {status === "sending" ? "pinning…" : "pin it 📌"}
+        </motion.button>
       </div>
     </form>
   );
@@ -373,9 +384,16 @@ export function GuestbookSection({ isMobile }: { isMobile: boolean }) {
             post-its for me
           </p>
         </div>
-        <BracketButton onClick={() => setWriting((w) => !w)} color={colors.ink} size={12} arrow={!writing}>
-          {writing ? "close" : "post a message for me"}
-        </BracketButton>
+        <motion.button
+          type="button"
+          onClick={() => setWriting((w) => !w)}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.96 }}
+          className="font-inclusive-sans font-medium"
+          style={{ border: `1px solid ${withAlpha(colors.ink, 0.2)}`, borderRadius: 999, padding: "8px 14px", fontSize: 12, background: writing ? colors.ink : "transparent", color: writing ? colors.sand : colors.ink, cursor: "pointer" }}
+        >
+          {writing ? "close ✕" : "post a message for me 📌"}
+        </motion.button>
       </div>
 
       <AnimatePresence initial={false}>

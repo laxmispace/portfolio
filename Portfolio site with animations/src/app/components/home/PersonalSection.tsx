@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { InfiniteCircularGallery } from "@/app/components/about/InfiniteCircularGallery";
 import { colors } from "@/app/theme/tokens";
-import { BracketLabel } from "@/app/components/ui/Bracket";
 
 // ── Section ───────────────────────────────────────────────────────────────────
 
@@ -46,7 +45,17 @@ export function PersonalSection({ onAboutOpen }: PersonalSectionProps) {
             transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             style={{ background: "none", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4, marginTop: 20, padding: 0 }}
           >
-            <BracketLabel open={hovAbout} color={colors.ink} size={isMobile ? 24 : 36}>about me</BracketLabel>
+            <p className="font-caslon" style={{ fontSize: 15, color: colors.ink, fontStyle: "italic", textDecoration: hovAbout ? "underline" : "none", textUnderlineOffset: 3, transition: "text-decoration 0.1s" }}>
+              about me
+            </p>
+            <motion.p
+              animate={{ x: hovAbout ? 4 : 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="font-caslon"
+              style={{ fontSize: 16, color: colors.ink, lineHeight: 1 }}
+            >
+              →
+            </motion.p>
           </motion.button>
         )}
       </motion.div>
