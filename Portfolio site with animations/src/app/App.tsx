@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
 import { ScrollContext } from "@/app/context/ScrollContext";
 import { SideNav, type NavSection } from "@/app/components/layout/SideNav";
 import { AboutMeDrawer } from "@/app/components/about/AboutMeDrawer";
 import { HeroSection } from "@/app/components/home/HeroSection";
+import { IntroLoader } from "@/app/components/layout/IntroLoader";
 import { ProjectsSection } from "@/app/components/home/ProjectsSection";
 import { AiProjectsSection } from "@/app/components/home/AiProjectsSection";
 import { BlogSection } from "@/app/components/home/BlogSection";
@@ -17,49 +17,14 @@ import { softTick } from "@/app/lib/feedback";
 import { STYLE_GUIDE_PATH, isStyleGuidePath } from "@/app/lib/routes";
 import { colors } from "@/app/theme/tokens";
  
-// ── 0→100% site loading bar ───────────────────────────────────────────────────
-// Fixed to the bottom of the viewport, fills left-to-right with a palette gradient,
-// then fades out. Signals "page ready" without blocking interaction.
-function SiteLoader() {
-  const [visible, setVisible] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(false), 2800);
-    return () => clearTimeout(t);
-  }, []);
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{
-            scaleX: { duration: 2.5, ease: [0.25, 0.46, 0.45, 0.94] },
-            opacity: { duration: 0.4 },
-          }}
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            height: 3,
-            zIndex: 99999,
-            transformOrigin: "left center",
-            // All four palette colours: olive → yellow-green → orange → pink
-            background: `linear-gradient(to right, ${colors.oliveDeep}, ${colors.olive}, ${colors.orange}, ${colors.pink})`,
-          }}
-        />
-      )}
-    </AnimatePresence>
-  );
-}
-
 // /portfolio/style-guide is a real URL: linkable, and back/forward move between it and the portfolio.
 type Page = "portfolio" | "ai-projects" | "style-guide";
 
 export default function App() {
   const isMobile = useIsMobile();
   const [page, setPage] = useState<Page>(() => (typeof window !== "undefined" && isStyleGuidePath() ? "style-guide" : "portfolio"));
+  // The orange loading screen plays once per page load, only when arriving on the portfolio itself.
+  const [introDone, setIntroDone] = useState(() => page !== "portfolio");
 
   const openStyleGuide = useCallback(() => {
     window.history.pushState({ page: "style-guide" }, "", STYLE_GUIDE_PATH);
@@ -193,7 +158,7 @@ export default function App() {
 
   return (
     <>
-    <SiteLoader />
+    {!introDone && <IntroLoader onDone={() => setIntroDone(true)} />}
     <div
       className="app-shell h-screen w-screen bg-white flex overflow-hidden"
       style={{ padding: 12 }}
@@ -222,7 +187,7 @@ export default function App() {
               {scrollEl && (
                 <>
                   <div ref={homeRef} id="home">
-                    <HeroSection />
+                    <HeroSection ready={introDone} />
                   </div>
 
                   <div ref={projectsRef} id="projects">

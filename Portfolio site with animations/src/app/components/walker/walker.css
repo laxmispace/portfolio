@@ -1,0 +1,24 @@
+/* The walking character's palette and strokes (from the walker prototype). */
+.walker {
+  --walker-ink: #212012;
+  --walker-body: #dacdbe;
+  --walker-head: #d1c0ae;
+  --walker-petal: #dda1ae;
+  --walker-center: #c67d39;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.walker .ink    { fill: var(--walker-ink); }
+.walker .body   { fill: var(--walker-body); }
+.walker .head   { fill: var(--walker-head); }
+.walker .petal  { fill: var(--walker-petal); }
+.walker .center { fill: var(--walker-center); }
+.walker .ground {
+  fill: none; stroke: var(--walker-ink); stroke-width: 10;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.walker .leg-ink   { fill: var(--walker-ink); stroke: var(--walker-ink); }
+.walker .leg-paper { fill: var(--walker-body); stroke: var(--walker-ink); }
+.walker .shadow-stop { stop-color: var(--walker-ink); }

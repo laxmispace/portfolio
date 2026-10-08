@@ -49,6 +49,7 @@ export const fonts = {
   devanagari: "'Martel', serif", // Hindi words (सुकून)
   mono: "'Spline Sans Mono', monospace", // code and token names (style guide)
   hand: "'Caveat', cursive", // handwriting: the diary and post-its
+  display: "'Chicle', cursive", // the loader's "hey!"
 } as const;
 
 // Type scale as used across the site and the case studies: [size, line-height] in px.
