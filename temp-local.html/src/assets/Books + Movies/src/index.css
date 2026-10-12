@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500&family=Inclusive+Sans&display=swap');
+
+@font-face {
+  font-family: 'Libre Caslon Condensed';
+  font-style: italic;
+  font-weight: 500;
+  src: url('./fonts/Libre_Caslon_Condensed-Medium_Italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Libre Caslon Condensed';
+  font-style: normal;
+  font-weight: 500;
+  src: url('./fonts/Libre_Caslon_Condensed-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Libre Caslon Condensed';
+  font-style: normal;
+  font-weight: 600;
+  src: url('./fonts/Libre_Caslon_Condensed-SemiBold.woff2') format('woff2');
+}

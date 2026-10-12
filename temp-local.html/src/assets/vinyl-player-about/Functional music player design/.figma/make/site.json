@@ -1,0 +1,10 @@
+{
+  "description": "Experience seamless music playback with a visually stunning interface that mirrors your favorite designs, enhancing your listening experience.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
