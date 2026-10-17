@@ -33,13 +33,13 @@ const LinkedinIcon = ({ size }: IconProps) => svg(size, (
 ));
 
 // Where each bubble settles, from the button's centre (px, up is negative), and its size.
-// Sizes stay close (46-54) and every bubble keeps 24px+ clear of its neighbours. The button
-// sits near the right edge, so the cluster leans up and to the left.
+// Big, easy thumb targets (60-64) packed into a snug zig-zag, about 8-12px apart. The
+// button sits near the right edge, so the cluster leans up and to the left.
 const BUBBLES = [
-  { label: "linkedin", href: "https://in.linkedin.com/in/laxmi-mahajan", Icon: LinkedinIcon, x: -6, y: -80, d: 46, tint: colors.pink },
-  { label: "gmail", href: "mailto:laxmimahajanwork@gmail.com", Icon: MailIcon, x: -88, y: -118, d: 50, tint: colors.orangeLight },
-  { label: "resume", href: RESUME_URL, Icon: ResumeIcon, x: -10, y: -160, d: 54, tint: colors.olive },
-  { label: "github", href: "https://github.com/laxmispace", Icon: GithubIcon, x: -94, y: -208, d: 50, tint: colors.sandLight },
+  { label: "linkedin", href: "https://in.linkedin.com/in/laxmi-mahajan", Icon: LinkedinIcon, x: -4, y: -62, d: 60, tint: colors.pink },
+  { label: "gmail", href: "mailto:laxmimahajanwork@gmail.com", Icon: MailIcon, x: -66, y: -98, d: 64, tint: colors.orangeLight },
+  { label: "resume", href: RESUME_URL, Icon: ResumeIcon, x: -4, y: -134, d: 64, tint: colors.olive },
+  { label: "github", href: "https://github.com/laxmispace", Icon: GithubIcon, x: -70, y: -170, d: 60, tint: colors.sandLight },
 ];
 
 const FAB = 44;
@@ -91,7 +91,7 @@ export function MobileFab() {
       t.timeScale(1).play().then(() => {
         // once settled, every bubble drifts on its own slow loop
         floats.current = inners.map((el, i) =>
-          gsap.to(el, { y: i % 2 ? 5 : -5, x: i % 3 ? 2 : -2, duration: 1.6 + i * 0.35, ease: "sine.inOut", yoyo: true, repeat: -1 }),
+          gsap.to(el, { y: i % 2 ? 3 : -3, x: i % 3 ? 1 : -1, duration: 1.6 + i * 0.35, ease: "sine.inOut", yoyo: true, repeat: -1 }),
         );
       });
     } else {

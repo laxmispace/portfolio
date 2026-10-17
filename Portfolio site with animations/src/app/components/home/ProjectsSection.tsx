@@ -15,7 +15,7 @@ const DESKTOP_TAB_LEFT = [34, 253, 472];
 
 // Mobile sticky-stack sizing (mirrors DARK_H but for the narrower phone layout).
 // Mobile card height isn't fixed: every card hugs its content and the stack uses the tallest.
-const MOBILE_HEADER_HEIGHT = 90;
+const MOBILE_HEADER_HEIGHT = 120;
 const MOBILE_CARD_PADDING = 16;
 // Each later card settles this far below the previous one, leaving its tab + a sliver visible.
 const STACK_STEP = 14;
@@ -504,7 +504,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
           <>
             <p
               className="font-caslon text-center"
-              style={{ position: "absolute", top: 24, left: 0, right: 0, color: colors.sand, fontSize: 26, lineHeight: "38px", fontWeight: 500, letterSpacing: "-0.03em" }}
+              style={{ position: "absolute", top: 32, left: 0, right: 0, color: colors.sand, fontSize: 26, lineHeight: "38px", fontWeight: 500, letterSpacing: "-0.03em" }}
             >
               select projects
             </p>

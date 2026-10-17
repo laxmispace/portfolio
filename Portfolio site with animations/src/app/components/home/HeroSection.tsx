@@ -72,9 +72,18 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
       <motion.div style={{ display: "flex", flexDirection: "column", height: "100%", opacity, y: contentY, position: "relative", zIndex: 2 }}>
         <motion.div initial="hidden" animate={state} variants={fadeIn}>
           {isMobile ? (
-            <div style={{ filter: night ? "invert(0.88) hue-rotate(180deg)" : undefined, transition: "filter 0.7s" }}>
-              <MobileHeader />
-            </div>
+            <>
+              <div style={{ filter: night ? "invert(0.88) hue-rotate(180deg)" : undefined, transition: "filter 0.7s" }}>
+                <MobileHeader />
+              </div>
+              {/* phones: where I am and the time there, stacked under the logo */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "20px 16px 0" }}>
+                <p style={{ ...textStyles.label, color: ink, transition: "color 0.7s" }}>
+                  📍 based in bangalore
+                </p>
+                <LiveClock color={ink} />
+              </div>
+            </>
           ) : (
             <div className="flex items-center justify-between" style={{ padding: "24px 38px 0" }}>
               <p style={{ ...textStyles.label, color: ink, transition: "color 0.7s" }}>
