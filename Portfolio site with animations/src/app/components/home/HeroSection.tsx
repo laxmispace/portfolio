@@ -8,7 +8,7 @@ import { colors, fonts, textStyles } from "@/app/theme/tokens";
 import { Clouds, Night, PullCord } from "@/app/components/home/HeroNight";
 
 /** "IST - 06:30:12 PM" on desktop; `short` (phones) drops the zone and seconds: "06:30 PM". */
-function LiveClock({ color, short = false }: { color: string; short?: boolean }) {
+function LiveClock({ color, short = false, weight }: { color: string; short?: boolean; weight?: number }) {
   const [time, setTime] = useState("");
   useEffect(() => {
     const update = () => {
@@ -23,7 +23,7 @@ function LiveClock({ color, short = false }: { color: string; short?: boolean })
     return () => clearInterval(id);
   }, [short]);
   return (
-    <p style={{ ...textStyles.label, color, transition: "color 0.7s" }}>
+    <p style={{ ...textStyles.label, ...(weight ? { fontWeight: weight } : {}), color, transition: "color 0.7s" }}>
       {time}
     </p>
   );
@@ -67,21 +67,14 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
     <div ref={sectionRef} data-no-reveal style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "calc(100vh / var(--page-zoom))", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
       <Night on={night} layer="below" isMobile={isMobile} />
       {/* the pull cord, hanging from the top edge */}
-      <div style={{ position: "absolute", top: 0, ...(isMobile ? { right: 128 } : { right: "24%" }), zIndex: 6 }}>
+      <div style={{ position: "absolute", top: 0, ...(isMobile ? { right: 76 } : { right: "24%" }), zIndex: 6 }}>
         <PullCord on={night} onToggle={() => setNight((n) => !n)} height={isMobile ? 92 : 128} />
       </div>
       <motion.div style={{ display: "flex", flexDirection: "column", height: "100%", opacity, y: contentY, position: "relative", zIndex: 2 }}>
         <motion.div initial="hidden" animate={state} variants={fadeIn}>
           {isMobile ? (
-            <div style={{ position: "relative" }}>
-                <div style={{ filter: night ? "invert(0.88) hue-rotate(180deg)" : undefined, transition: "filter 0.7s" }}>
-                  <MobileHeader />
-                </div>
-                {/* phones: place and time stacked in the top-right corner, beside the pull chain */}
-                <div style={{ position: "absolute", top: 20, right: 16, height: 44, display: "flex", flexDirection: "column", justifyContent: "center", gap: 4 }}>
-                  <p style={{ ...textStyles.label, color: ink, transition: "color 0.7s" }}>📍 bangalore</p>
-                  <LiveClock color={ink} short />
-                </div>
+            <div style={{ filter: night ? "invert(0.88) hue-rotate(180deg)" : undefined, transition: "filter 0.7s" }}>
+              <MobileHeader />
             </div>
           ) : (
             <div className="flex items-center justify-between" style={{ padding: "24px 38px 0" }}>
@@ -111,7 +104,7 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
           animate={ready ? { opacity: 1, x: 0, transition: { duration: 1.1, ease: EASE, delay: 0.25 } } : { opacity: 0, x: 60 }}
           style={
             isMobile
-              ? { width: "min(80%, 40dvh)", alignSelf: "flex-end", marginTop: "auto", marginBottom: 20, marginRight: 8 }
+              ? { width: "min(80%, 40dvh)", alignSelf: "flex-end", marginTop: "auto", marginBottom: 52, marginRight: 8 } // clears the place/time block
               : { position: "absolute", right: "5%", bottom: "4%", width: "clamp(300px, 36%, 600px)" }
           }
         >
@@ -121,6 +114,20 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
             <Walker style={{ position: "relative", zIndex: 1 }} />
           </div>
         </motion.div>
+        {/* phones: place and time in the bottom-left corner; the time lines up with the
+            word "bangalore", not the pin, so the pin hangs in its own column */}
+        {isMobile && (
+          <motion.div
+            initial="hidden"
+            animate={state}
+            variants={fadeIn}
+            style={{ position: "absolute", left: 16, bottom: 8, zIndex: 3, display: "grid", gridTemplateColumns: "auto auto", columnGap: 4, rowGap: 4, alignItems: "center" }}
+          >
+            <span aria-hidden="true" style={{ ...textStyles.label, fontWeight: 500 }}>📍</span>
+            <p style={{ ...textStyles.label, fontWeight: 500, color: ink, transition: "color 0.7s" }}>bangalore</p>
+            <span style={{ gridColumn: 2 }}><LiveClock color={ink} short weight={500} /></span>
+          </motion.div>
+        )}
       </motion.div>
       <Night on={night} layer="above" isMobile={isMobile} />
     </div>
