@@ -66,23 +66,25 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
     <div ref={sectionRef} data-no-reveal style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "calc(100vh / var(--page-zoom))", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
       <Night on={night} layer="below" isMobile={isMobile} />
       {/* the pull cord, hanging from the top edge */}
-      <div style={{ position: "absolute", top: 0, ...(isMobile ? { right: 76 } : { right: "24%" }), zIndex: 6 }}>
+      <div style={{ position: "absolute", top: 0, ...(isMobile ? { right: 168 } : { right: "24%" }), zIndex: 6 }}>
         <PullCord on={night} onToggle={() => setNight((n) => !n)} height={isMobile ? 92 : 128} />
       </div>
       <motion.div style={{ display: "flex", flexDirection: "column", height: "100%", opacity, y: contentY, position: "relative", zIndex: 2 }}>
         <motion.div initial="hidden" animate={state} variants={fadeIn}>
           {isMobile ? (
             <>
-              <div style={{ filter: night ? "invert(0.88) hue-rotate(180deg)" : undefined, transition: "filter 0.7s" }}>
-                <MobileHeader />
+              <div style={{ position: "relative" }}>
+                <div style={{ filter: night ? "invert(0.88) hue-rotate(180deg)" : undefined, transition: "filter 0.7s" }}>
+                  <MobileHeader />
+                </div>
+                {/* phones: the time sits in the top-right corner, level with the logo */}
+                <div style={{ position: "absolute", top: 20, right: 16, height: 44, display: "flex", alignItems: "center" }}>
+                  <LiveClock color={ink} />
+                </div>
               </div>
-              {/* phones: where I am and the time there, stacked under the logo */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "20px 16px 0" }}>
-                <p style={{ ...textStyles.label, color: ink, transition: "color 0.7s" }}>
-                  📍 based in bangalore
-                </p>
-                <LiveClock color={ink} />
-              </div>
+              <p style={{ ...textStyles.label, color: ink, transition: "color 0.7s", padding: "20px 16px 0" }}>
+                📍 based in bangalore
+              </p>
             </>
           ) : (
             <div className="flex items-center justify-between" style={{ padding: "24px 38px 0" }}>
