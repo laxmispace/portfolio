@@ -44,7 +44,7 @@ const PAD_SHADOW = "2px 2px 4px 4px rgba(0,0,0,0.15)";
 const EASE = [0.16, 1, 0.3, 1] as const;
 // The grid paper, drawn as crisp 1px lines (colours sampled from the design's grid image).
 const PAPER = "#F8EFE6";
-const GRID_LINE = "#B3AAA1";
+const GRID_LINE = withAlpha("#B3AAA1", 0.35); // kept faint so the notes, not the grid, carry the board
 
 // ── Board geometry ────────────────────────────────────────────────────────────
 // Everything lives in one coordinate space: px inside the board (the "frame"), rails
