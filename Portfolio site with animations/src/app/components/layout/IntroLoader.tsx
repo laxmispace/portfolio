@@ -1,5 +1,5 @@
 // Loading screen: the little walker strolls on a warm orange page (soft glow, paper
-// grain), waving, and says "hey!" in a speech bubble. After one walk cycle a big pink
+// grain), waving; a speech bubble pops up with "…" typing dots, then types "hey there!". After one walk cycle a big pink
 // flower (the outline of src/assets/loader/loading-flower.svg) blooms out of its
 // waving hand, spinning, until it covers
 // the whole screen, while a flock of birds flies out past the edges. Then a
@@ -19,8 +19,28 @@ const STAGE = 190; // walker width on the loader
 // Where the walker's waving palm sits inside its stage, as fractions of the SVG (≈150,146 in a -30 -45 700 635 box).
 const BLOOM_AT = { x: (150 + 30) / 700, y: (146 + 45) / 635 };
 
-// ── "hey!" speech bubble ──
+// ── the speech bubble: "…" typing dots, then "hey there!" types itself in ──
+const HELLO = "hey there!";
+const DOTS_MS = 900; // how long the dots bounce before the words start (after the pop-in)
+const TYPE_MS = 55; // per letter
+
 function Hey() {
+  const reduce = useReducedMotion();
+  const [typed, setTyped] = useState(reduce ? HELLO.length : 0);
+  useEffect(() => {
+    if (reduce) return;
+    let n = 0, id = 0;
+    const start = window.setTimeout(() => {
+      id = window.setInterval(() => {
+        n += 1;
+        setTyped(n);
+        if (n >= HELLO.length) window.clearInterval(id);
+      }, TYPE_MS);
+    }, 450 + DOTS_MS);
+    return () => { window.clearTimeout(start); window.clearInterval(id); };
+  }, [reduce]);
+  const typing = typed === 0;
+
   return (
     <motion.div
       aria-hidden="true"
@@ -28,42 +48,47 @@ function Hey() {
       animate={{ scale: 1, opacity: 1, rotate: 0 }}
       exit={{ scale: 0, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
       transition={{ type: "spring", stiffness: 520, damping: 17, delay: 0.45 }}
-      style={{ position: "absolute", left: "calc(50% + 26px)", top: -50, width: 74, height: 48, transformOrigin: "14% 96%" }}
+      style={{ position: "absolute", left: "calc(50% + 26px)", bottom: "calc(100% + 2px)", transformOrigin: "10% 100%" }}
     >
       <motion.div
         animate={{ y: [0, -3, 0], rotate: [0, -2, 0] }}
         transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        style={{ position: "relative", width: "100%", height: "100%" }}
+        style={{ position: "relative", paddingBottom: 10 }}
       >
-        <svg width="74" height="48" viewBox="0 0 74 48" style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-          <path
-            d="M18 2H56A16 16 0 0 1 72 18V20A16 16 0 0 1 56 36H31L13 46L20 36H18A16 16 0 0 1 2 20V18A16 16 0 0 1 18 2Z"
-            fill={colors.sandLight}
-            stroke={colors.ink}
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-        </svg>
-        <span
+        {/* the bubble grows sideways as the words arrive */}
+        <motion.div
+          layout
+          transition={{ layout: { duration: 0.18, ease: "easeOut" } }}
           style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            top: 2,
-            height: 34,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: fonts.hand,
-            fontWeight: 700,
-            fontSize: 25,
-            lineHeight: 1,
-            color: colors.ink,
-            letterSpacing: "0.01em",
+            display: "flex", alignItems: "center", justifyContent: "center", height: 36, padding: "0 14px",
+            minWidth: 56, borderRadius: 18, backgroundColor: colors.sandLight, border: `2px solid ${colors.ink}`, whiteSpace: "nowrap",
           }}
         >
-          hey!
-        </span>
+          {typing ? (
+            <motion.span layout="position" style={{ display: "flex", gap: 4 }}>
+              {[0, 1, 2].map((i) => (
+                <motion.span
+                  key={i}
+                  animate={{ y: [0, -4, 0], opacity: [0.45, 1, 0.45] }}
+                  transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.14 }}
+                  style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: colors.ink }}
+                />
+              ))}
+            </motion.span>
+          ) : (
+            <motion.span
+              layout="position"
+              style={{ fontFamily: fonts.hand, fontWeight: 700, fontSize: 25, lineHeight: 1, color: colors.ink, letterSpacing: "0.01em" }}
+            >
+              {HELLO.slice(0, typed)}
+            </motion.span>
+          )}
+        </motion.div>
+        {/* the tail, tucked under the bubble's bottom-left */}
+        <svg width="18" height="12" viewBox="0 0 18 12" style={{ position: "absolute", left: 12, bottom: 0, overflow: "visible" }}>
+          <path d="M0 -2H16L3 11Z" fill={colors.sandLight} />
+          <path d="M1 0L3 11L15 0" fill="none" stroke={colors.ink} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>
       </motion.div>
     </motion.div>
   );

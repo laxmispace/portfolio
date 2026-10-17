@@ -3,7 +3,7 @@ import { motion, useMotionValue } from "motion/react";
 import { useScrollProgress, useScrollContainer } from "@/app/context/ScrollContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { CaseStudyDrawer, CaseStudyCover, COVER_RATIO, CASE_STUDY_DATA, type CaseStudyInfo } from "@/app/components/case-study/CaseStudyDrawer";
-import imgIciciLogo from "@/assets/case-studies/icici-logo.png";
+import imgIciciLogo from "@/assets/logo/icici-bank.svg";
 import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
 import { TextLink } from "@/app/components/ui/Buttons";
 import { toCss } from "@/app/lib/zoom";

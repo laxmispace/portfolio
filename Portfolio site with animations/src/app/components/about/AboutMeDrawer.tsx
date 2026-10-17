@@ -510,6 +510,11 @@ function MusicPlayerCard({ isMobile }: { isMobile: boolean }) {
         </>
       ) : status === "connecting" ? (
         <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>Connecting…</p>
+      ) : isPublic ? (
+        // Public mode never asks visitors to log in - just a quiet retry note.
+        <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep }}>
+          {status === "error" ? "Couldn't reach Spotify - trying again" : "Loading…"}
+        </p>
       ) : (
         <>
           <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, marginBottom: 12 }}>

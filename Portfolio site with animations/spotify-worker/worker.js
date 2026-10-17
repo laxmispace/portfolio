@@ -12,6 +12,8 @@
 const ALLOWED_ORIGINS = [
   /^https:\/\/laxmispace\.github\.io$/,
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+  // dev server opened from a phone on the same Wi-Fi (vite --host)
+  /^http:\/\/(192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$/,
 ];
 
 let cachedToken = { value: "", expiresAt: 0 };
