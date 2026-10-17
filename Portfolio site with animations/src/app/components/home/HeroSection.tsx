@@ -8,7 +8,7 @@ import { colors, fonts, textStyles } from "@/app/theme/tokens";
 import { Clouds, Night, PullCord } from "@/app/components/home/HeroNight";
 
 /** "IST - 06:30:12 PM" on desktop; `short` (phones) drops the zone and seconds: "06:30 PM". */
-function LiveClock({ color, short = false, weight }: { color: string; short?: boolean; weight?: number }) {
+function LiveClock({ color, short = false, style }: { color: string; short?: boolean; style?: React.CSSProperties }) {
   const [time, setTime] = useState("");
   useEffect(() => {
     const update = () => {
@@ -23,11 +23,14 @@ function LiveClock({ color, short = false, weight }: { color: string; short?: bo
     return () => clearInterval(id);
   }, [short]);
   return (
-    <p style={{ ...textStyles.label, ...(weight ? { fontWeight: weight } : {}), color, transition: "color 0.7s" }}>
+    <p style={{ ...textStyles.label, ...style, color, transition: "color 0.7s" }}>
       {time}
     </p>
   );
 }
+
+// The phone's bottom-left place/time: a notch smaller and tighter than the usual label.
+const CORNER = { fontSize: 10, lineHeight: "12px", fontWeight: 500 } as const;
 
 // Entrances wait for the loading screen to finish (`ready`), so they play in view.
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -104,7 +107,7 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
           animate={ready ? { opacity: 1, x: 0, transition: { duration: 1.1, ease: EASE, delay: 0.25 } } : { opacity: 0, x: 60 }}
           style={
             isMobile
-              ? { width: "min(80%, 40dvh)", alignSelf: "flex-end", marginTop: "auto", marginBottom: 52, marginRight: 8 } // clears the place/time block
+              ? { width: "min(80%, 40dvh)", alignSelf: "flex-end", marginTop: "auto", marginBottom: 40, marginRight: 8 } // clears the place/time block
               : { position: "absolute", right: "5%", bottom: "4%", width: "clamp(300px, 36%, 600px)" }
           }
         >
@@ -121,11 +124,11 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
             initial="hidden"
             animate={state}
             variants={fadeIn}
-            style={{ position: "absolute", left: 16, bottom: 8, zIndex: 3, display: "grid", gridTemplateColumns: "auto auto", columnGap: 4, rowGap: 4, alignItems: "center" }}
+            style={{ position: "absolute", left: 16, bottom: 8, zIndex: 3, display: "grid", gridTemplateColumns: "auto auto", columnGap: 4, alignItems: "center" }}
           >
-            <span aria-hidden="true" style={{ ...textStyles.label, fontWeight: 500 }}>📍</span>
-            <p style={{ ...textStyles.label, fontWeight: 500, color: ink, transition: "color 0.7s" }}>bangalore</p>
-            <span style={{ gridColumn: 2 }}><LiveClock color={ink} short weight={500} /></span>
+            <span aria-hidden="true" style={{ ...textStyles.label, ...CORNER }}>📍</span>
+            <p style={{ ...textStyles.label, ...CORNER, color: ink, transition: "color 0.7s" }}>bangalore</p>
+            <span style={{ gridColumn: 2 }}><LiveClock color={ink} short style={CORNER} /></span>
           </motion.div>
         )}
       </motion.div>
