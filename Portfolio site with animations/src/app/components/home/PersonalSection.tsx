@@ -328,7 +328,7 @@ export function PersonalSection({ onAboutOpen }: PersonalSectionProps) {
         ref={textRef}
         data-no-reveal
         className="font-caslon"
-        style={{ maxWidth: 1000, fontSize: isMobile ? 26 : 52, lineHeight: isMobile ? "38px" : "70px", fontWeight: 500, letterSpacing: "calc(-0.03em - 1px)", color: colors.ink }}
+        style={{ maxWidth: 1000, fontSize: isMobile ? 26 : 52, lineHeight: isMobile ? "38px" : "70px", fontWeight: 500, letterSpacing: "calc(-0.03em - 0.25px)", color: colors.ink }}
       >
         {COPY.map((s, i) => {
           const next = COPY[i + 1];
@@ -355,7 +355,7 @@ export function PersonalSection({ onAboutOpen }: PersonalSectionProps) {
 
       {onAboutOpen && (
         <div style={{ marginTop: isMobile ? 32 : 40 }}>
-          <SquiggleLink onClick={onAboutOpen} hover="oval" style={{ fontSize: 16, lineHeight: "20px" }}>more about me</SquiggleLink>
+          <SquiggleLink onClick={onAboutOpen} hover="oval" style={{ fontSize: isMobile ? 20 : 24, lineHeight: isMobile ? "28px" : "32px" }}>more about me</SquiggleLink>
         </div>
       )}
 

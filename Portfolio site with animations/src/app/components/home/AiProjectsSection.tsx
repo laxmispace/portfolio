@@ -45,7 +45,7 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
           </p>
           {onViewAll && (
             <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
-              <SquiggleLink onClick={onViewAll} style={{ fontSize: 16, lineHeight: "20px" }}>view all ai projects</SquiggleLink>
+              <SquiggleLink onClick={onViewAll} style={{ fontSize: isMobile ? 20 : 24, lineHeight: isMobile ? "28px" : "32px" }}>view all ai projects</SquiggleLink>
             </div>
           )}
         </div>
