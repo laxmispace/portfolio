@@ -5,7 +5,7 @@ import { Logo } from "./Logo";
 export function MobileHeader() {
   return (
     <div style={{ display: "flex", alignItems: "center", padding: "20px 16px 0" }}>
-      <Logo height={44} />
+      <Logo height={44} cycle />
     </div>
   );
 }

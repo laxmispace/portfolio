@@ -14,10 +14,10 @@ import {
   type Avatar, type DraftErrors, type GuestbookDraft, type GuestbookNote, type NoteColor,
 } from "@/app/lib/guestbook";
 import { haptic, softTick } from "@/app/lib/feedback";
-import { colors, fonts, withAlpha } from "@/app/theme/tokens";
+import { colors, fonts, textStyles, withAlpha } from "@/app/theme/tokens";
+import { PrimaryButton, TextLink } from "@/app/components/ui/Buttons";
 import woodImg from "@/assets/guestbook/wood@2x.jpg";
 import woodMobileImg from "@/assets/guestbook/wood-mobile@2x.jpg";
-import arrowImg from "@/assets/guestbook/arrow.svg";
 import pandaImg from "@/assets/guestbook/panda.svg";
 import cowImg from "@/assets/guestbook/cow.svg";
 import frogImg from "@/assets/guestbook/frog.svg";
@@ -26,6 +26,7 @@ import catImg from "@/assets/guestbook/cat.svg";
 import flowerPinkImg from "@/assets/guestbook/flower-pink.svg";
 import flowerOrangeImg from "@/assets/guestbook/flower-orange.svg";
 import flowerGreenImg from "@/assets/guestbook/flower-green.svg";
+import { toCss } from "@/app/lib/zoom";
 
 const AVATAR_IMG: Record<Avatar, string> = { panda: pandaImg, cow: cowImg, frog: frogImg, koala: koalaImg, cat: catImg };
 const FLOWER_IMG: Record<NoteColor, string> = { pink: flowerPinkImg, orange: flowerOrangeImg, green: flowerGreenImg };
@@ -38,7 +39,7 @@ const PALETTE: Record<NoteColor, { pad: string; form: string; label: string; rin
   green: { pad: colors.olive, form: "#E1DEB7", label: "#8C8640", ring: "#B9B47A", button: "#ECEAD2", note: "#E1DEB7" },
 };
 const META = "#53502D";
-const HINT = "#B6B07C";
+const HINT = colors.oliveDeep; // the same deep olive as the site's labels, so it reads on the grid
 const PAD_SHADOW = "2px 2px 4px 4px rgba(0,0,0,0.15)";
 const EASE = [0.16, 1, 0.3, 1] as const;
 // The grid paper, drawn as crisp 1px lines (colours sampled from the design's grid image).
@@ -174,37 +175,40 @@ const STAGE: Record<"desktop" | "mobile", {
 }> = {
   desktop: {
     padScale: 1,
-    card: { x: 266, y: 20, w: 547, h: 222 },
+    // bottom-right corner stays where the pads hang from (813, 242)
+    card: { x: 313, y: 82, w: 500, h: 160 },
     pads: { orange: { x: 353, y: 241, r: 0.8 }, pink: { x: 415, y: 296, r: -8.74 }, green: { x: 513, y: 224, r: -10.06 } },
     tucked: [{ x: 377, y: 12, r: 0.8 }, { x: 537, y: 4, r: -10.06 }],
     form: { x: 359, y: 40, w: 420 },
-    hint: { x: 0, y: 340, r: -11.94, size: 28 },
+    hint: { x: 0, y: 300, r: -8, size: 24 },
     arrow: { x: 126, y: 367, w: 189, r: 0 },
   },
   mobile: {
     padScale: 0.62,
-    card: { x: 0, y: 0, w: 358, h: 214 },
+    card: { x: 0, y: 48, w: 358, h: 122 },
     pads: { orange: { x: 150, y: 236, r: 0.8 }, pink: { x: 182, y: 268, r: -8.74 }, green: { x: 212, y: 226, r: -10.06 } },
     tucked: [{ x: 168, y: 2, r: 0.8 }, { x: 206, y: -4, r: -10.06 }],
     form: { x: 0, y: 30, w: 358 },
-    hint: { x: 4, y: 288, r: -9, size: 24 },
-    arrow: { x: 14, y: 328, w: 122, r: -6 },
+    hint: { x: 4, y: 262, r: -6, size: 18 },
+    arrow: { x: 14, y: 318, w: 122, r: -6 },
   },
 };
 const PAD_W = 239.05;
 const PAD_H = 232.25;
 const ARROW_RATIO = 62.18 / 189;
+// the handwritten note by the pads, two short lines
+const HINT_LINES = ["leave a sticky note", "for me from here"];
+const hintBox = (size: number) => ({ w: size * 8, h: size * 1.3 * HINT_LINES.length });
 
 /** The headline, scribble and pad, as board-px boxes notes have to stay clear of. */
 function stageObstacles(g: Geometry): Rect[] {
   const L = STAGE[g.mobile ? "mobile" : "desktop"];
   const toBoard = (r: Rect): Rect => ({ l: g.stageX + r.l * g.s, t: g.stageY + r.t * g.s, r: g.stageX + r.r * g.s, b: g.stageY + r.b * g.s });
-  const hintW = L.hint.size * 6;
   const pw = PAD_W * L.padScale;
   const ph = PAD_H * L.padScale;
   return [
     { l: L.card.x, t: L.card.y, r: L.card.x + L.card.w, b: L.card.y + L.card.h },
-    turnedBox(L.hint.x, L.hint.y, hintW, L.hint.size * 1.4, L.hint.r),
+    turnedBox(L.hint.x, L.hint.y, hintBox(L.hint.size).w, hintBox(L.hint.size).h, L.hint.r),
     turnedBox(L.arrow.x, L.arrow.y, L.arrow.w, L.arrow.w * ARROW_RATIO, L.arrow.r),
     ...NOTE_COLORS.map((c) => turnedBox(L.pads[c].x, L.pads[c].y, pw, ph, L.pads[c].r)),
   ].map(toBoard);
@@ -310,7 +314,7 @@ function NoteCard({ note, k, expanded = false, lifted = false, wiggle = false, d
                 {meta.map((m, i) => (
                   <span key={i} style={{ display: "contents" }}>
                     {i > 0 && <span style={{ width: 2, height: 2, borderRadius: "50%", backgroundColor: colors.orange, flexShrink: 0 }} />}
-                    <span style={{ fontFamily: fonts.sans, fontWeight: 500, fontSize: 10, lineHeight: "12px", textTransform: "uppercase", color: META, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m}</span>
+                    <span style={{ fontFamily: fonts.sans, fontWeight: 400, fontSize: 10, lineHeight: "12px", textTransform: "uppercase", color: META, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m}</span>
                   </span>
                 ))}
               </div>
@@ -462,20 +466,9 @@ function Ghost({ note, g, x, y, busy, touch, onStick, onBack }: {
       <NoteCard note={note} k={g.k} lifted={!busy} />
       {touch && (
         <div onPointerDown={(e) => e.stopPropagation()} style={{ position: "absolute", left: 0, right: 0, top: "100%", marginTop: 14, display: "flex", justifyContent: "center", gap: 8 }}>
-          <motion.button
-            type="button"
-            className="gb-btn"
-            onClick={onStick}
-            disabled={busy}
-            whileTap={{ scale: 0.94 }}
-            style={{
-              border: `2px solid ${colors.ink}`, borderRadius: 32, padding: "6px 12px", whiteSpace: "nowrap",
-              backgroundColor: colors.ink, color: colors.sand, boxShadow: `3px 3px 0 ${withAlpha(colors.ink, 0.3)}`,
-              fontFamily: fonts.serif, fontWeight: 600, fontSize: 14, lineHeight: "18px", textTransform: "uppercase",
-            }}
-          >
-            {busy ? "sticking…" : "stick it here ✓"}
-          </motion.button>
+          <PrimaryButton className="gb-btn" onClick={onStick} disabled={busy} color={PALETTE[note.color].button} arrow={!busy}>
+            {busy ? "sticking…" : "stick it here"}
+          </PrimaryButton>
           <motion.button
             type="button"
             className="gb-btn"
@@ -484,7 +477,7 @@ function Ghost({ note, g, x, y, busy, touch, onStick, onBack }: {
             whileTap={{ scale: 0.94 }}
             aria-label="Keep editing"
             style={{
-              border: `2px solid ${colors.ink}`, borderRadius: 32, width: 34, height: 34, flexShrink: 0,
+              border: `2px solid ${colors.ink}`, borderRadius: 32, width: 40, height: 40, flexShrink: 0, // as tall as the pill beside it
               backgroundColor: colors.sand, color: colors.ink, fontSize: 14, lineHeight: 1,
             }}
           >
@@ -658,23 +651,9 @@ function Composer({ draft, errors, status, mobile, shakeKey, trap, onTrap, onCha
             })}
           </div>
         </div>
-        <motion.button
-          type="submit"
-          className="gb-btn"
-          disabled={!isGuestbookConfigured}
-          initial={{ x: 0, y: 0, boxShadow: `4px 4px 0 ${colors.ink}` }}
-          whileHover={isGuestbookConfigured ? { x: -1, y: -1, boxShadow: `5px 5px 0 ${colors.ink}` } : undefined}
-          whileTap={isGuestbookConfigured ? { x: 3, y: 3, boxShadow: `1px 1px 0 ${colors.ink}` } : undefined}
-          transition={{ duration: 0.12 }}
-          style={{
-            display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flexShrink: 0,
-            backgroundColor: p.button, border: `2px solid ${colors.ink}`, borderRadius: 32,
-            fontFamily: fonts.serif, fontWeight: 600, fontSize: 16, lineHeight: "21px", textTransform: "uppercase", color: colors.ink,
-            cursor: isGuestbookConfigured ? "pointer" : "not-allowed", opacity: isGuestbookConfigured ? 1 : 0.5,
-          }}
-        >
-          {isGuestbookConfigured ? "post it" : "soon"} <span aria-hidden="true">→</span>
-        </motion.button>
+        <PrimaryButton type="submit" className="gb-btn" disabled={!isGuestbookConfigured} color={p.button} style={{ flexShrink: 0 }}>
+          {isGuestbookConfigured ? "post it" : "soon"}
+        </PrimaryButton>
       </div>
 
       <AnimatePresence>
@@ -696,17 +675,17 @@ function Composer({ draft, errors, status, mobile, shakeKey, trap, onTrap, onCha
 
 // ── Stage pieces ──────────────────────────────────────────────────────────────
 function HeadlineCard({ card, mobile, minH, onBack }: { card: CardState; mobile: boolean; minH: number; onBack: () => void }) {
-  const title = { fontFamily: fonts.serif, fontWeight: 400, fontSize: mobile ? 24 : 28, lineHeight: mobile ? "32px" : "36px", color: colors.sand };
-  const body = { fontFamily: fonts.sans, fontWeight: 400, fontSize: mobile ? 16 : 20, lineHeight: mobile ? "24px" : "28px", color: colors.sand };
+  const title = { fontFamily: fonts.serif, fontWeight: 600, fontSize: mobile ? 20 : 24, lineHeight: mobile ? "28px" : "32px", letterSpacing: "-0.02em", color: colors.ink };
+  const body = { ...textStyles.byline, color: colors.oliveDeep };
   let content: React.ReactNode;
   if (card.kind === "placing") {
     content = (
       <>
         <p style={title}>Now find it a <i>spot</i>.</p>
         <p style={body}>{mobile ? "Drag it anywhere on the board, then tap “stick it here”." : "Move it around and click anywhere on the board to stick it."}</p>
-        <button type="button" className="gb-btn" onClick={onBack} style={{ alignSelf: "flex-start", background: "none", border: "none", padding: 0, fontFamily: fonts.hand, fontSize: 20, color: HINT, cursor: "pointer" }}>
-          ← keep editing
-        </button>
+        <div className="gb-btn" style={{ alignSelf: "flex-start" }}>
+          <TextLink onClick={onBack} back color={colors.oliveDeep}>keep editing</TextLink>
+        </div>
       </>
     );
   } else if (card.kind === "thanks") {
@@ -727,12 +706,12 @@ function HeadlineCard({ card, mobile, minH, onBack }: { card: CardState; mobile:
     content = (
       <>
         <p style={title}>You made it this far - thank you, <i>genuinely</i>!</p>
-        <p style={body}>If something stuck with you, if you have thoughts, feedback, or just want to say hi - leave a note. I read every one.</p>
+        <p style={body}>Thoughts, feedback, or just a hi - leave a note. I read every one.</p>
       </>
     );
   }
   return (
-    <div aria-live="polite" style={{ backgroundColor: colors.ink, padding: mobile ? 20 : 24, minHeight: minH }}>
+    <div aria-live="polite" style={{ backgroundColor: colors.oliveLight, padding: mobile ? 16 : 20, minHeight: minH }}>
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={card.kind}
@@ -752,31 +731,33 @@ function HeadlineCard({ card, mobile, minH, onBack }: { card: CardState; mobile:
 function Hint({ mobile }: { mobile: boolean }) {
   const L = STAGE[mobile ? "mobile" : "desktop"];
   const reduce = useReducedMotion();
-  const reveal = reduce ? {} : {
-    initial: { clipPath: "inset(0 100% 0 0)" },
-    whileInView: { clipPath: "inset(0 0% 0 0)" },
-    viewport: { once: true, amount: 0.6 },
-  };
+  // the wrapper watches the viewport (a fully clipped element never counts as "in view"),
+  // then the words write themselves in and the arrow follows
+  const wipe = (delay: number, duration: number) => ({
+    hidden: { clipPath: "inset(0 100% 0 0)" },
+    shown: { clipPath: "inset(0 0% 0 0)", transition: { duration, ease: EASE, delay } },
+  });
   return (
-    <div aria-hidden="true">
+    <motion.div aria-hidden="true" initial={reduce ? false : "hidden"} whileInView="shown" viewport={{ once: true, amount: 0.3 }} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
       <motion.p
-        {...reveal}
-        transition={{ duration: 0.7, ease: EASE }}
+        variants={wipe(0, 0.7)}
         style={{
-          position: "absolute", left: L.hint.x, top: L.hint.y, width: L.hint.size * 6, height: L.hint.size * 1.4, rotate: L.hint.r,
-          fontFamily: fonts.hand, fontWeight: 700, fontSize: L.hint.size, lineHeight: 1.4, color: HINT, whiteSpace: "nowrap",
+          position: "absolute", left: L.hint.x, top: L.hint.y, width: hintBox(L.hint.size).w, height: hintBox(L.hint.size).h, rotate: L.hint.r,
+          fontFamily: fonts.hand, fontWeight: 400, fontSize: L.hint.size, lineHeight: 1.3, color: HINT, whiteSpace: "pre",
         }}
       >
-        pick a post it
+        {HINT_LINES.join("\n")}
       </motion.p>
-      <motion.img
-        src={arrowImg}
-        alt=""
-        {...reveal}
-        transition={{ duration: 0.6, ease: EASE, delay: 0.45 }}
-        style={{ position: "absolute", left: L.arrow.x, top: L.arrow.y, width: L.arrow.w, rotate: L.arrow.r }}
-      />
-    </div>
+      {/* the arrow from src/assets/guestbook/arrow.svg, inline so it takes the hint colour */}
+      <motion.svg
+        viewBox="0 0 193 68"
+        fill="none"
+        variants={wipe(0.45, 0.6)}
+        style={{ position: "absolute", left: L.arrow.x, top: L.arrow.y, width: L.arrow.w, rotate: L.arrow.r, overflow: "visible" }}
+      >
+        <path d="M2.25991 62.3036C1.16471 62.16 0.160507 62.9315 0.0169606 64.0267C-0.126585 65.1219 0.644885 66.1261 1.74009 66.2697L2 64.2866L2.25991 62.3036ZM192.995 3.42956C193.074 2.32781 192.245 1.37068 191.143 1.29174L173.189 0.00531292C172.087 -0.0736282 171.13 0.755518 171.051 1.85726C170.972 2.95901 171.801 3.91614 172.903 3.99508L188.862 5.13857L187.719 21.0977C187.64 22.1994 188.469 23.1565 189.571 23.2355C190.672 23.3144 191.63 22.4853 191.708 21.3835L192.995 3.42956ZM2 64.2866L1.74009 66.2697C36.4772 70.8226 122.968 64.8678 192.31 4.79829L191 3.28662L189.69 1.77495C121.432 60.9054 36.1895 66.7507 2.25991 62.3036L2 64.2866Z" fill={HINT} />
+      </motion.svg>
+    </motion.div>
   );
 }
 
@@ -995,7 +976,7 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
   const ctl = useMemo(() => {
     const local = (cx: number, cy: number) => {
       const r = frameRef.current!.getBoundingClientRect();
-      return { x: cx - r.left, y: cy - r.top };
+      return { x: toCss(cx - r.left), y: toCss(cy - r.top) };
     };
     const blockersExcept = (id: NoteId | null) => {
       const { obstacles, layout } = live.current;
@@ -1424,7 +1405,7 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
 
         {width > 0 && (
           <>
-            {/* desktop: the "pick a post it" scribble sits under everything else */}
+            {/* desktop: the "leave a sticky note" scribble sits under everything else */}
             {!isMobile && <StageLayer g={g} h={DESK.stageH} z={1}><Hint mobile={false} /></StageLayer>}
             <StageLayer g={g} h={stageH} z={phase === "writing" ? 80 : 40} layerRef={stageRef}>{stage}</StageLayer>
 

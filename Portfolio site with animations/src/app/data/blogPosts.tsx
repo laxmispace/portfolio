@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { colors } from "@/app/theme/tokens";
 
-export type BlogCategory = "write about design" | "personal musings" | "life in a nutshell";
+export type BlogCategory = "about design" | "personal musings";
 
 export interface BlogPost {
   id: number;
@@ -17,12 +17,20 @@ export interface BlogPost {
   /** The picture on the stamp: import it from src/assets/Blogs, designed at 1200×1080
    *  (10:9). It's cropped to fill, so keep the subject inside the middle ~80%. */
   stampImage?: string;
+  /** Pictures for the blog section's cards and shapes, first one is the cover. They're
+   *  cropped to fill whatever shape they land in, so keep the subject central. */
+  images?: string[];
+  /** Background video for the post's card/shape (mp4/webm, muted and looping), shown
+   *  instead of the first image. Files live in public/blog-media/<slug>/. */
+  video?: string;
 }
 
 // Media for "The tactile charm of micro-interactions" lives in
 // public/blog-media/tactile-charm/ (mirrored from the original Canvs piece).
 // Base-aware so it resolves at "/" locally and "/portfolio/" on GitHub Pages.
 const MICRO_MEDIA = `${import.meta.env.BASE_URL}blog-media/tactile-charm/`;
+// Looping background videos for the blog section's cards and shapes (public/blog-media/loops).
+const LOOPS = `${import.meta.env.BASE_URL}blog-media/loops/`;
 
 // Body-level building blocks. These render *inside* the <p> wrapper that
 // BlogPostDrawer/PostBody wrap every body node in, so they must stay
@@ -100,8 +108,10 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "the-tactile-charm-of-micro-interactions",
     date: "Mar 2025",
     readTime: "9 min read",
-    category: "write about design" as BlogCategory,
+    category: "about design" as BlogCategory,
     topic: "Design and Interactions",
+    images: [`${MICRO_MEDIA}01-hero.png`, `${MICRO_MEDIA}13-conclusion.png`],
+    video: `${LOOPS}flower-fields.mp4`,
     title: "The tactile charm of micro-interactions",
     subtitle:
       "From the subtle bounce of a loading screen to the satisfying feedback of a tap - the small details that turn ordinary actions into intentional experiences.",
@@ -247,9 +257,10 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     id: 3,
     slug: "sukoon",
+    video: `${LOOPS}neon-fields.mp4`,
     date: "Nov 2025",
     readTime: "9 min read",
-    category: "life in a nutshell",
+    category: "personal musings",
     title: "सुकून",
     subtitle: "Or, How I Became a Person Who Assembles IKEA Sofas and Passes Out Mid-Pedicure.",
     body: [
@@ -275,9 +286,10 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     id: 4,
     slug: "5-things-living-alone-turned-me-into",
+    video: `${LOOPS}flower-fields.mp4`,
     date: "Dec 2025",
     readTime: "6 min read",
-    category: "life in a nutshell",
+    category: "personal musings",
     title: "5 Things Living Alone Turned Me Into",
     subtitle: "Voluntarily, mostly.",
     body: [

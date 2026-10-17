@@ -7,7 +7,7 @@ const CLIENT_ID = "e9c291e9a2ce4b40ab8d4f38b411d1f4";
 // http://127.0.0.1:5173/portfolio/ locally. Both must be listed as Redirect URIs in the
 // Spotify app (Spotify rejects "localhost", so open the local preview via 127.0.0.1).
 const REDIRECT_URI = new URL(import.meta.env.BASE_URL, window.location.origin).href;
-const SCOPES = ["user-read-currently-playing", "user-read-playback-state", "user-modify-playback-state"].join(" ");
+const SCOPES = ["user-read-currently-playing", "user-read-playback-state", "user-read-recently-played", "user-modify-playback-state"].join(" ");
 
 const STORAGE_KEYS = {
   verifier: "spotify_pkce_verifier",

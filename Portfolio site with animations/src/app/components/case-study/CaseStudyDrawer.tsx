@@ -38,6 +38,21 @@ export interface CaseStudyInfo {
   overview: string;
   /** Shown as "coming soon": its card and related links don't open anything. */
   comingSoon?: boolean;
+  /** Cover image (import it from src/assets/case-studies/covers). Designed in Figma at
+   *  1600×800 (2:1), exported @2x; every cover slot - the home card, the case study's
+   *  hero and the "read more" cards - is 2:1, so it shows uncropped everywhere. */
+  cover?: string;
+}
+
+// Every cover slot is this shape (see `cover` above).
+export const COVER_RATIO = "2 / 1";
+
+/** The case study's cover, filling its 2:1 slot - or the grid placeholder until there is one. */
+export function CaseStudyCover({ cs, iconSize = 40 }: { cs: CaseStudyInfo; iconSize?: number }) {
+  if (cs.cover) {
+    return <img src={cs.cover} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
+  }
+  return <ThumbnailPlaceholder bgColor={cs.imageBg} strokeColor={cs.textColor} height="100%" iconSize={iconSize} />;
 }
 
 // ─── Section index definitions per case study ─────────────────────────────────
@@ -241,14 +256,14 @@ function AudioPlayer({ color, slug }: { color: string; slug: string }) {
   const { playing, toggle, seekToFraction, available, progress, timeLabel } = useAudioPlayer(caseStudyAudioUrl(slug));
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 12 }}>
-      <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: withAlpha(colors.sand, 0.5), letterSpacing: "0.5px", textTransform: "uppercase" }}>
+      <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, color: withAlpha(colors.sand, 0.5), letterSpacing: "0.5px", textTransform: "uppercase" }}>
         Listen to this case study
       </p>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <button
           onClick={toggle}
           disabled={!available}
-          style={{ width: 34, height: 34, borderRadius: "50%", backgroundColor: color, border: "none", cursor: available ? "pointer" : "not-allowed", opacity: available ? 1 : 0.4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+          style={{ width: 32, height: 32, borderRadius: "50%", backgroundColor: color, border: "none", cursor: available ? "pointer" : "not-allowed", opacity: available ? 1 : 0.4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
         >
           {playing ? <Pause size={14} fill={colors.ink} color={colors.ink} /> : <Play size={14} fill={colors.ink} color={colors.ink} />}
         </button>
@@ -295,12 +310,12 @@ function RelatedCard({ cs, onClick }: { cs: CaseStudyInfo; onClick: () => void }
       aria-disabled={!clickable || undefined}
       style={{ flex: 1, backgroundColor: cs.color, borderRadius: 16, overflow: "hidden", cursor: clickable ? "pointer" : "default", display: "flex", flexDirection: "column" }}
     >
-      <div style={{ height: 110, overflow: "hidden", flexShrink: 0 }}>
-        <ThumbnailPlaceholder bgColor={cs.imageBg} strokeColor={cs.textColor} height={110} iconSize={24} />
+      <div style={{ aspectRatio: COVER_RATIO, overflow: "hidden", flexShrink: 0 }}>
+        <CaseStudyCover cs={cs} iconSize={24} />
       </div>
       <div style={{ padding: "14px 20px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "inline-flex", backgroundColor: withAlpha(colors.ink, 0.12), padding: "4px 12px", borderRadius: 100, alignSelf: "flex-start" }}>
-          <p className="font-inclusive-sans font-semibold" style={{ fontSize: 10, color: cs.textColor, letterSpacing: "0.5px", textTransform: "uppercase" }}>{cs.label}</p>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, color: cs.textColor, letterSpacing: "0.5px", textTransform: "uppercase" }}>{cs.label}</p>
         </div>
         <p className="font-caslon" style={{ fontSize: 17, lineHeight: "23px", color: colors.ink, fontWeight: 600 }}>{cs.title}</p>
         {cs.comingSoon && (
@@ -535,8 +550,8 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                     {caseStudy.index === 1 ? (
                       <CoverAnimation />
                     ) : (
-                      <div style={{ height: 264 }}>
-                        <ThumbnailPlaceholder bgColor={caseStudy.imageBg} strokeColor={caseStudy.textColor} height={264} iconSize={40} />
+                      <div style={{ aspectRatio: COVER_RATIO }}>
+                        <CaseStudyCover cs={caseStudy} iconSize={40} />
                       </div>
                     )}
                   </div>
@@ -578,7 +593,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
 
                     {/* Related case studies - vertical stack on mobile */}
                     <div>
-                      <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 12 }}>
+                      <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 12 }}>
                         Read more
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -675,8 +690,8 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         {caseStudy.index === 1 ? (
                           <CoverAnimation radius={8} />
                         ) : (
-                          <div style={{ height: 264 }}>
-                            <ThumbnailPlaceholder bgColor={caseStudy.imageBg} strokeColor={caseStudy.textColor} height={264} iconSize={48} />
+                          <div style={{ aspectRatio: COVER_RATIO }}>
+                            <CaseStudyCover cs={caseStudy} iconSize={48} />
                           </div>
                         )}
                       </motion.div>
@@ -720,7 +735,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         viewport={{ once: true }}
                         style={{ padding: "48px 0 60px" }}
                       >
-                        <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 16 }}>
+                        <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 16 }}>
                           Read more
                         </p>
                         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>

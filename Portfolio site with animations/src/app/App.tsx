@@ -12,6 +12,7 @@ import { AiProjectsPage } from "@/app/components/ai-projects/AiProjectsPage";
 import { PersonalSection } from "@/app/components/home/PersonalSection";
 import { MobileBottomNav } from "@/app/components/layout/MobileBottomNav";
 import { MadeWithLove } from "@/app/components/layout/MadeWithLove";
+import { FOOTER_GROUND, SiteFooter } from "@/app/components/layout/SiteFooter";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { useScrollReveal } from "@/app/hooks/useScrollReveal";
 import { softTick, windowsClick } from "@/app/lib/feedback";
@@ -161,7 +162,6 @@ export default function App() {
         <AboutMeDrawer
           open={aboutOpen}
           onClose={() => setAboutOpen(false)}
-          onViewAiProjects={() => { setAboutOpen(false); setPage("ai-projects"); }}
         />
         <div className="app-shell__side-nav">
           <SideNav activeSection={activeSection} onNavigate={navigateTo} />
@@ -203,16 +203,18 @@ export default function App() {
                   <div id="guestbook">
                     <GuestbookSection isMobile={isMobile} />
                   </div>
+
+                  <SiteFooter isMobile={isMobile} />
                 </>
               )}
-              {/* On phones the sign-off lives at the very end of the page, not in the sticky nav */}
-              {isMobile && scrollEl && (
-                <div style={{ display: "flex", justifyContent: "center", padding: "8px 16px 0" }}>
-                  <MadeWithLove fontSize={11} />
+              {/* the footer's dark ground runs on a little past the drawing */}
+              <div className={isMobile ? undefined : "rounded-b-2xl"} style={{ height: isMobile ? 24 : 33, marginTop: -1, position: "relative", backgroundColor: FOOTER_GROUND }} />
+              {/* On phones the sign-off sits on its own strip at the very end of the page, not in the sticky nav */}
+              {isMobile && (
+                <div className="rounded-b-2xl" style={{ display: "flex", justifyContent: "center", padding: "14px 16px 16px", backgroundColor: colors.oliveDeep }}>
+                  <MadeWithLove fontSize={11} color={colors.sand} />
                 </div>
               )}
-              {/* Breathing room above the card's rounded bottom edge */}
-              <div className="rounded-b-2xl" style={{ height: isMobile ? 20 : 33, backgroundColor: isMobile ? colors.sand : colors.oliveLight }} />
             </div>
           </ScrollContext.Provider>
         </div>

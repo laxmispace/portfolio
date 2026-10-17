@@ -3,6 +3,17 @@
 :root {
   /* Mobile bottom nav band (see MobileBottomNav.tsx). */
   --mobile-nav-height: 72px;
+  /* Desktop renders at 90%: the site at the browser's 100% looks as it did at 90%.
+     vh/vw shrink with the zoom too, so full-screen sizes divide by it
+     (calc(100vh / var(--page-zoom))). Pointer maths goes through lib/zoom.ts. */
+  --page-zoom: 1;
+}
+
+@media (min-width: 769px) {
+  :root { --page-zoom: 0.9; }
+  html { zoom: var(--page-zoom); }
+  .h-screen { height: calc(100vh / var(--page-zoom)); }
+  .w-screen { width: calc(100vw / var(--page-zoom)); }
 }
 
 @media (max-width: 768px) {
@@ -38,4 +49,13 @@
   height: 100%;
   width: auto;
   display: block;
+}
+
+/* The logo's flower swaps colours and turns a fifth of a turn (Logo.tsx, `cycle`). */
+.site-logo .logo-petal {
+  transform: rotate(var(--logo-turn, 0deg));
+  transition: fill 0.9s ease, transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-logo .logo-eye {
+  transition: fill 0.9s ease;
 }

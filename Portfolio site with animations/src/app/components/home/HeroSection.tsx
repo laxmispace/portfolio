@@ -4,9 +4,10 @@ import { useScrollProgress } from "@/app/context/ScrollContext";
 import { MobileHeader } from "@/app/components/layout/MobileHeader";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { Walker } from "@/app/components/walker/Walker";
-import { colors, fonts } from "@/app/theme/tokens";
+import { colors, fonts, textStyles } from "@/app/theme/tokens";
+import { Clouds, Night, PullCord } from "@/app/components/home/HeroNight";
 
-function LiveClock() {
+function LiveClock({ color }: { color: string }) {
   const [time, setTime] = useState("");
   useEffect(() => {
     const update = () => {
@@ -21,7 +22,7 @@ function LiveClock() {
     return () => clearInterval(id);
   }, []);
   return (
-    <p className="font-inclusive-sans font-semibold text-ink uppercase" style={{ fontSize: 12, letterSpacing: "0.48px" }}>
+    <p style={{ ...textStyles.label, color, transition: "color 0.7s" }}>
       {time}
     </p>
   );
@@ -47,42 +48,50 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
   const opacity  = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.6], [0, -38]);
   const state = ready ? "shown" : "hidden";
+  // the pull cord's night mode - the hero only, and only for this visit
+  const [night, setNight] = useState(false);
+  const ink = night ? colors.sand : colors.ink;
 
   const copy = {
     fontFamily: fonts.serif,
     fontSize: isMobile ? 20 : 27,
     lineHeight: isMobile ? "27px" : "35px",
     letterSpacing: "-0.01em",
-    color: colors.ink,
+    color: ink,
+    transition: "color 0.7s",
   } as const;
   const br = isMobile ? " " : <br />;
 
   return (
-    <div ref={sectionRef} data-no-reveal style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "100vh", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+    <div ref={sectionRef} data-no-reveal style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "calc(100vh / var(--page-zoom))", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
+      <Night on={night} layer="below" isMobile={isMobile} />
+      {/* the pull cord, hanging from the top edge */}
+      <div style={{ position: "absolute", top: 0, ...(isMobile ? { right: 76 } : { right: "24%" }), zIndex: 6 }}>
+        <PullCord on={night} onToggle={() => setNight((n) => !n)} height={isMobile ? 92 : 128} />
+      </div>
       <motion.div style={{ display: "flex", flexDirection: "column", height: "100%", opacity, y: contentY, position: "relative", zIndex: 2 }}>
         <motion.div initial="hidden" animate={state} variants={fadeIn}>
           {isMobile ? (
-            <MobileHeader />
+            <div style={{ filter: night ? "invert(0.88) hue-rotate(180deg)" : undefined, transition: "filter 0.7s" }}>
+              <MobileHeader />
+            </div>
           ) : (
             <div className="flex items-center justify-between" style={{ padding: "24px 38px 0" }}>
-              <p className="font-inclusive-sans font-semibold text-ink uppercase" style={{ fontSize: 12, letterSpacing: "0.48px" }}>
+              <p style={{ ...textStyles.label, color: ink, transition: "color 0.7s" }}>
                 📍 based in bangalore
               </p>
-              <LiveClock />
+              <LiveClock color={ink} />
             </div>
           )}
         </motion.div>
 
         {/* Intro copy */}
         <div style={{ padding: isMobile ? "28px 16px 0" : "40px 38px 0", position: "relative", zIndex: 1 }}>
-          <motion.p initial="hidden" animate={state} variants={rise(0)} style={{ ...copy, color: colors.oliveDeep, marginBottom: isMobile ? 16 : 30 }}>
-            Hello, this is Laxmi!
-          </motion.p>
-          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={{ ...copy, marginBottom: isMobile ? 16 : 30 }}>
+          <motion.p initial="hidden" animate={state} variants={rise(0)} style={{ ...copy, marginBottom: isMobile ? 16 : 30 }}>
             I’m a product designer with 3+ years of work experience.{br}
             Previously designed experiences for ICICI Bank and a few B2B startups.
           </motion.p>
-          <motion.p initial="hidden" animate={state} variants={rise(0.2)} style={copy}>
+          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={copy}>
             Currently building small ai projects, upskilling and trying to be a{br}
             <em>Design Engineer</em> who can design, code and ship!
           </motion.p>
@@ -98,9 +107,14 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
               : { position: "absolute", right: "5%", bottom: "4%", width: "clamp(300px, 36%, 600px)" }
           }
         >
-          <Walker />
+          <div style={{ position: "relative" }}>
+            {/* clouds drift behind the walker */}
+            <Clouds dim={night} />
+            <Walker style={{ position: "relative", zIndex: 1 }} />
+          </div>
         </motion.div>
       </motion.div>
+      <Night on={night} layer="above" isMobile={isMobile} />
     </div>
   );
 }

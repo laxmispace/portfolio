@@ -2,10 +2,11 @@ import { Fragment, useRef, useEffect, useState, useCallback } from "react";
 import { motion, useMotionValue } from "motion/react";
 import { useScrollProgress, useScrollContainer } from "@/app/context/ScrollContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
-import { CaseStudyDrawer, CASE_STUDY_DATA, type CaseStudyInfo } from "@/app/components/case-study/CaseStudyDrawer";
-import { ThumbnailPlaceholder } from "@/app/components/case-study/CaseStudyPrimitives";
+import { CaseStudyDrawer, CaseStudyCover, COVER_RATIO, CASE_STUDY_DATA, type CaseStudyInfo } from "@/app/components/case-study/CaseStudyDrawer";
 import imgIciciLogo from "@/assets/case-studies/icici-logo.png";
-import { colors, withAlpha } from "@/app/theme/tokens";
+import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
+import { TextLink } from "@/app/components/ui/Buttons";
+import { toCss } from "@/app/lib/zoom";
 
 const DESKTOP_HEADER_HEIGHT = 183;
 const DESKTOP_CARD_HEIGHT = 418;
@@ -174,7 +175,7 @@ function CardTags({ card }: { card: CardConfig }) {
               <circle cx="1.5" cy="1.5" r="1.5" fill={card.dotColor} />
             </svg>
           )}
-          <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.44px", color: card.textColor, opacity: 0.8 }}>
+          <p style={{ ...textStyles.label, color: card.textColor, opacity: 0.8 }}>
             {tag}
           </p>
         </Fragment>
@@ -189,58 +190,42 @@ function CardFooter({ card, hovered }: { card: CardConfig; hovered: boolean }) {
     <div>
       <div style={{ height: 1, backgroundColor: `${card.dotColor}30`, marginBottom: 12 }} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-        <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 10, letterSpacing: "0.4px", color: card.statusColor, opacity: 0.65 }}>
+        <p style={{ ...textStyles.label, color: card.statusColor, opacity: 0.65 }}>
           {card.statusText}
         </p>
         {card.comingSoon ? (
-          <p className="font-caslon" style={{ fontSize: 14, fontStyle: "italic", color: withAlpha(colors.ink, 0.6), flexShrink: 0 }}>
+          <p className="font-caslon" style={{ fontSize: 16, lineHeight: "20px", fontStyle: "italic", color: withAlpha(colors.ink, 0.6), flexShrink: 0 }}>
             coming soon
           </p>
         ) : (
-          <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
-            <p
-              className="font-caslon"
-              style={{
-                fontSize: 14,
-                color: colors.ink,
-                fontStyle: "italic",
-                textDecoration: hovered ? "underline" : "none",
-                transition: "text-decoration 0.1s",
-              }}
-            >
-              read case study
-            </p>
-            <motion.p
-              animate={{ x: hovered ? 4 : 0 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="font-caslon"
-              style={{ fontSize: 15, color: colors.ink, lineHeight: 1 }}
-            >
-              →
-            </motion.p>
-          </div>
+          <TextLink as="span" hovered={hovered}>read case study</TextLink>
         )}
       </div>
     </div>
   );
 }
 
+// The case study a card stands for (cards and case studies share their "CASE STUDY n" label).
+const caseStudyOf = (card: CardConfig) => CASE_STUDY_DATA.find((cs) => cs.label === card.label) ?? CASE_STUDY_DATA[0];
+
 function CardBody({ card, hovered, onClick }: { card: CardConfig; hovered: boolean; onClick?: () => void }) {
+  // The cover keeps its 2:1 shape at the card's full height (and narrows only when the
+  // card is too narrow to fit it); the text column takes whatever is left.
   const imgBox = (
-    <div style={{ flex: "676 0 0", borderRadius: 8, overflow: "hidden", alignSelf: "stretch" }}>
+    <div style={{ height: "100%", aspectRatio: COVER_RATIO, flex: "0 1 auto", minWidth: 0, borderRadius: 8, overflow: "hidden" }}>
       <motion.div
         animate={{ scale: hovered ? 1.05 : 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ height: "100%" }}
       >
-        <ThumbnailPlaceholder bgColor={card.imageBg} strokeColor={card.textColor} height="100%" iconSize={40} />
+        <CaseStudyCover cs={caseStudyOf(card)} iconSize={40} />
       </motion.div>
     </div>
   );
 
   // Editorial layout: badge+tags top → title fills middle → separator → status+CTA bottom
   const textBox = (
-    <div style={{ flex: "305 0 0", alignSelf: "stretch", display: "flex", flexDirection: "column" }}>
+    <div style={{ flex: "1 0 300px", alignSelf: "stretch", display: "flex", flexDirection: "column" }}>
       {/* Top: badge + tags */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <ClientBadge card={card} />
@@ -328,7 +313,7 @@ function MobileStackCard({
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => onMeasure(index, el.offsetHeight + MOBILE_CARD_PADDING * 2));
+    const ro = new ResizeObserver(() => onMeasure(index, el.offsetHeight + MOBILE_CARD_PADDING * 2 - (index === 2 ? 8 : 0)));
     ro.observe(el);
     return () => ro.disconnect();
   }, [index, onMeasure]);
@@ -346,13 +331,13 @@ function MobileStackCard({
           overflow: "hidden",
           cursor: onClick ? "pointer" : "default",
           height,
-          padding: MOBILE_CARD_PADDING,
+          padding: index === 2 ? `${MOBILE_CARD_PADDING}px ${MOBILE_CARD_PADDING}px ${MOBILE_CARD_PADDING - 8}px` : MOBILE_CARD_PADDING,
           boxSizing: "border-box",
         }}
       >
         <div ref={contentRef} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ height: 172, borderRadius: 8, overflow: "hidden" }}>
-            <ThumbnailPlaceholder bgColor={card.imageBg} strokeColor={card.textColor} height="100%" iconSize={28} />
+          <div style={{ aspectRatio: COVER_RATIO, borderRadius: 8, overflow: "hidden" }}>
+            <CaseStudyCover cs={caseStudyOf(card)} iconSize={28} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <ClientBadge card={card} />
@@ -474,7 +459,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
   const revealCard = (i: number) => {
     const outer = outerRef.current;
     if (!scrollEl || !outer) return;
-    const start = outer.getBoundingClientRect().top - scrollEl.getBoundingClientRect().top + scrollEl.scrollTop;
+    const start = toCss(outer.getBoundingClientRect().top - scrollEl.getBoundingClientRect().top) + scrollEl.scrollTop;
     const end = start + outer.offsetHeight - scrollEl.clientHeight;
     scrollEl.scrollTo({ top: start + (end - start) * REVEAL_PROGRESS[i], behavior: "smooth" });
   };
@@ -519,7 +504,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
           <>
             <p
               className="font-caslon text-center"
-              style={{ position: "absolute", top: 24, left: 0, right: 0, color: colors.sand, fontSize: 24, lineHeight: "30px" }}
+              style={{ position: "absolute", top: 24, left: 0, right: 0, color: colors.sand, fontSize: 26, lineHeight: "38px", fontWeight: 500, letterSpacing: "-0.03em" }}
             >
               select projects
             </p>
@@ -545,7 +530,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
         <>
           <p
             className="font-caslon text-center"
-            style={{ position: "absolute", top: 48, left: 0, right: 0, color: colors.sand, fontSize: 48, lineHeight: "56px" }}
+            style={{ position: "absolute", top: 56, left: 0, right: 0, color: colors.sand, fontSize: 52, lineHeight: "70px", fontWeight: 500, letterSpacing: "-0.03em" }}
           >
             select projects
           </p>

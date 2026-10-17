@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ExternalLink, Download, CirclePlay } from "lucide-react";
+import { X, Download, CirclePlay } from "lucide-react";
 import type { AiProject } from "@/app/data/aiProjects";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { colors, withAlpha } from "@/app/theme/tokens";
+import { ICON_BUTTON, PrimaryButton, TextLink } from "@/app/components/ui/Buttons";
 
 interface AiProjectDrawerProps {
   project: AiProject | null;
@@ -74,37 +75,14 @@ function ExtensionBody({ project }: { project: AiProject }) {
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         {project.downloadUrl && (
-          <a
-            href={project.downloadUrl}
-            download
-            style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "12px 20px", borderRadius: 10,
-              backgroundColor: project.accent, textDecoration: "none",
-            }}
-          >
-            <Download size={15} color={colors.ink} />
-            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: colors.ink }}>
-              download extension
-            </span>
-          </a>
+          <PrimaryButton href={project.downloadUrl} download color={project.accent} arrow={false} icon={<Download size={16} color={colors.ink} />}>
+            download extension
+          </PrimaryButton>
         )}
         {project.videoUrl && (
-          <button
-            onClick={() => setShowVideo((v) => !v)}
-            style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "12px 20px", borderRadius: 10,
-              backgroundColor: withAlpha(colors.sand, 0.08),
-              border: `1px solid ${withAlpha(colors.sand, 0.2)}`,
-              cursor: "pointer",
-            }}
-          >
-            <CirclePlay size={15} color={colors.sand} />
-            <span className="font-inclusive-sans font-medium" style={{ fontSize: 13, color: colors.sand }}>
-              {showVideo ? "hide walkthrough" : "how to use"}
-            </span>
-          </button>
+          <PrimaryButton onClick={() => setShowVideo((v) => !v)} color={colors.sand} arrow={false} icon={<CirclePlay size={16} color={colors.ink} />}>
+            {showVideo ? "hide walkthrough" : "how to use"}
+          </PrimaryButton>
         )}
       </div>
 
@@ -137,6 +115,7 @@ function ExtensionBody({ project }: { project: AiProject }) {
 // and an inline "how to use" video walkthrough.
 export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
   const isMobile = useIsMobile(768);
+  const [linkHover, setLinkHover] = useState(false);
 
   useEffect(() => {
     if (!project) return;
@@ -174,7 +153,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             style={{
               position: "fixed", right: 0, top: 0, bottom: 0, zIndex: 600,
-              width: isMobile ? "100%" : "min(1200px, 90vw)",
+              width: isMobile ? "100%" : "min(1200px, calc(90vw / var(--page-zoom)))",
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
               backgroundColor: colors.ink,
               display: "flex",
@@ -200,8 +179,8 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
                 <button
                   onClick={onClose}
                   style={{
-                    width: 34,
-                    height: 34,
+                    width: isMobile ? ICON_BUTTON.mobile : ICON_BUTTON.desktop,
+                    height: isMobile ? ICON_BUTTON.mobile : ICON_BUTTON.desktop,
                     borderRadius: "50%",
                     backgroundColor: withAlpha(colors.sand, 0.08),
                     border: "none",
@@ -235,25 +214,8 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
               </div>
 
               {!isExtension && project.url && (
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 14px",
-                    borderRadius: 8,
-                    border: `1px solid ${withAlpha(colors.sand, 0.15)}`,
-                    textDecoration: "none",
-                    flexShrink: 0,
-                  }}
-                >
-                  <span className="font-inclusive-sans" style={{ fontSize: 12, color: colors.sand }}>
-                    open in new tab
-                  </span>
-                  <ExternalLink size={13} color={colors.sand} />
+                <a href={project.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }} onMouseEnter={() => setLinkHover(true)} onMouseLeave={() => setLinkHover(false)}>
+                  <TextLink as="span" hovered={linkHover} color={colors.sand}>open in new tab</TextLink>
                 </a>
               )}
             </div>
