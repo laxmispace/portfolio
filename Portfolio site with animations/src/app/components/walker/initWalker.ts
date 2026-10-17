@@ -16,7 +16,42 @@ var CONFIG = {
 };
 /* ------------------------------------------------------------------ */
 
-export function initWalker(svg: SVGSVGElement, prefix: string): () => void {
+/* ---- Waving pose (the loader): the flower and fist are swapped for a raised open hand ---- */
+const WAVE = { shoulder: [300, 262], elbow: [172, 284], wrist: [150, 186], period: 0.75, foreDeg: 9, handDeg: 20 };
+// hand drawn upright around the wrist: four fingers and a thumb (from base to tip), on a palm
+const WAVE_FINGERS = [[[-16, -34], [-30, -74]], [[-4, -40], [-8, -86]], [[9, -39], [14, -82]], [[19, -30], [32, -64]], [[-20, -14], [-48, -34]]];
+
+// Builds the waving arm behind the head (so it reads as coming from the shoulder): an ink
+// layer under a paper layer, each line stroked fat in ink then thinner in paper, which gives
+// one merged outline like the rest of the artwork. Returns the pivots it animates.
+function buildWaveArm(svg) {
+  const NS = "http://www.w3.org/2000/svg";
+  const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+  const fores = [], hands = [];
+  const layer = (ink) => {
+    const colour = ink ? "var(--walker-ink)" : "var(--walker-body)";
+    const line = (pts, width) => mk("path", { d: "M" + pts.map(p => p.join(" ")).join(" L"),
+      style: `stroke:${colour};fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:${ink ? width + 16 : width}` });
+    const g = mk("g", {});
+    g.appendChild(line([WAVE.shoulder, WAVE.elbow], 28));
+    const fore = mk("g", {}); fore.appendChild(line([WAVE.elbow, WAVE.wrist], 28));
+    const at = mk("g", { transform: `translate(${WAVE.wrist[0]} ${WAVE.wrist[1]})` }), hand = mk("g", {});
+    WAVE_FINGERS.forEach(f => hand.appendChild(line(f, 15)));
+    hand.appendChild(mk("ellipse", { cx: 0, cy: -22, rx: 26, ry: 27, style: `fill:${colour}` + (ink ? `;stroke:${colour};stroke-width:16` : "") }));
+    at.appendChild(hand); fore.appendChild(at); g.appendChild(fore);
+    fores.push(fore); hands.push(hand);
+    return g;
+  };
+  const root = mk("g", { "data-wk": "wave-arm" });
+  root.appendChild(layer(true)); root.appendChild(layer(false));
+  const upper = svg.querySelector('[data-wk="upper"]');
+  upper.insertBefore(root, svg.querySelector('[data-wk="head"]'));
+  svg.querySelector('[data-wk="arm-left"]').style.display = "none";
+  svg.querySelector('[data-wk="flower"]').style.display = "none";
+  return { fores, hands };
+}
+
+export function initWalker(svg: SVGSVGElement, prefix: string, opts: { wave?: boolean } = {}): () => void {
   var $ = function (n) { return svg.querySelector('[data-wk="' + n + '"]'); };
   var RIG = {
     straight: { hipL: [302.5, 282.5], hipR: [328.7, 294.4], kneeF: [227.5, 383.4], ankleF: [143.5, 491.9],
@@ -36,6 +71,7 @@ export function initWalker(svg: SVGSVGElement, prefix: string): () => void {
   };
   [el.nearInk, el.nearPaper, el.farInk, el.farPaper].forEach(function (p) { p.setAttribute("stroke-width", CONFIG.legLineBoost); });
   el.groundPath.style.display = ""; el.groundStatic.style.display = "none"; el.legsStatic.style.display = "none";
+  const waveArm = opts.wave ? buildWaveArm(svg) : null;
 
   const DEG = Math.PI / 180, TAU = Math.PI * 2;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -243,6 +279,12 @@ export function initWalker(svg: SVGSVGElement, prefix: string): () => void {
     const pulse = 1 + CONFIG.flowerPulse * Math.sin(TAU * t / LOOP - 0.6);
     el.bloom.setAttribute("transform", rot(0.4 * sway, BLOOM[0], BLOOM[1]) + " " + scaleAbout(pulse, pulse, PETALS[0], PETALS[1]));
     el.tip.setAttribute("transform", rot(-0.35 * sway, TIP[0], TIP[1]));
+    // waving: the forearm rocks from the elbow and the hand flaps from the wrist, a beat behind
+    if (waveArm) {
+      const w = TAU * t / WAVE.period;
+      waveArm.fores.forEach(g => g.setAttribute("transform", rot(WAVE.foreDeg * Math.sin(w), WAVE.elbow[0], WAVE.elbow[1])));
+      waveArm.hands.forEach(g => g.setAttribute("transform", rot(WAVE.handDeg * Math.sin(w - 0.8), 0, 0)));
+    }
     // face
     const b = CONFIG.blink ? blinkAt(t) : 0, gr = grinAt(t);
     el.eyes.forEach(e => e.setAttribute("rx", f2(EYE_RX * (1 - 0.88 * b))));

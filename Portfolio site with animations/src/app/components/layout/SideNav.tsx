@@ -178,7 +178,7 @@ export function SideNav({ activeSection, onNavigate }: SideNavProps) {
 
       {/* ── Logo - left edge at PAD=28px ── */}
       <div style={{ position: "absolute", top: 40, left: PADDING }}>
-        <Logo height={64} />
+        <Logo height={48} cycle />
       </div>
 
       {/* ── Navigation block - left edge at NAV_BLOCK_L=12px ── */}

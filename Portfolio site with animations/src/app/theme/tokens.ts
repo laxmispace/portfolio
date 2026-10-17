@@ -14,6 +14,7 @@ export const colors = {
   oliveLight: "#D2CE93",
   oliveDeep: "#625E37",
   orange: "#C67D39",
+  orangeDeep: "#9A5A22", // the squiggle links' hover ink
   orangeLight: "#D19761",
   orangeDot: "#D29760", // the loading screen's dotted grid
   pink: "#DDA1AE",
@@ -65,6 +66,13 @@ export const typeScale = {
   tableCell: { font: "sans", size: 12, lineHeight: 20, weight: 400, usage: "Table cells, meta text" },
   label: { font: "label", size: 12, lineHeight: 16, weight: 600, usage: "Table headers, numbered badges" },
   caption: { font: "label", size: 10, lineHeight: 13, weight: 500, usage: "Image captions" },
+} as const;
+
+// The two small text styles every section shares, the same on phone and desktop: a label
+// sits above a headline (uppercase), a byline sits under one (sentence case, softer).
+export const textStyles = {
+  label: { fontFamily: fonts.sans, fontWeight: 400, fontSize: 12, lineHeight: "16px", letterSpacing: "0.48px", textTransform: "uppercase" },
+  byline: { fontFamily: fonts.sans, fontWeight: 400, fontSize: 14, lineHeight: "20px" },
 } as const;
 
 // Spacing scale (px). Case studies use 12 inside a section, 16 heading → content,

@@ -3,7 +3,8 @@ import { motion } from "motion/react";
 import { AI_PROJECTS, isOpenableAiProject, type AiProject } from "@/app/data/aiProjects";
 import { AiProjectDrawer } from "./AiProjectDrawer";
 import { ANIMATION_DEMOS } from "./AnimationDemos";
-import { colors, withAlpha } from "@/app/theme/tokens";
+import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
+import { toCss } from "@/app/lib/zoom";
 
 // Bubble colours (sand at low opacity over the ink page)
 const BUBBLE_FILL = withAlpha(colors.sand, 0.1);
@@ -63,8 +64,8 @@ function BubbleField() {
         ...list.slice(-30),
         {
           id,
-          x: e.clientX - rect.left + (Math.random() - 0.5) * 26,
-          y: e.clientY - rect.top + (Math.random() - 0.5) * 18,
+          x: toCss(e.clientX - rect.left) + (Math.random() - 0.5) * 26,
+          y: toCss(e.clientY - rect.top) + (Math.random() - 0.5) * 18,
           size: 5 + Math.random() * 14,
           rise: 70 + Math.random() * 70,
           dur: 1.4 + Math.random() * 0.7,
@@ -230,7 +231,7 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
       setRects(
         btnRefs.current.map((b) => {
           const r = b!.getBoundingClientRect();
-          return { left: r.left - base, width: r.width };
+          return { left: toCss(r.left - base), width: toCss(r.width) };
         }),
       );
     };
@@ -473,7 +474,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
   const projectView = tab === "project";
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", background: colors.ink, overflowX: "hidden" }}>
+    <div style={{ position: "relative", minHeight: "calc(100vh / var(--page-zoom))", background: colors.ink, overflowX: "hidden" }}>
 
       <GooDefs />
       <BubbleField />
@@ -498,7 +499,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
               >
                 This is my <span style={{ fontStyle: "italic" }}>personal lab</span>
               </p>
-              <p className="font-inclusive-sans" style={{ fontSize: 16, lineHeight: "20px", color: colors.sand }}>
+              <p style={{ ...textStyles.byline, color: withAlpha(colors.sand, 0.6) }}>
                 where risk is zero and satisfaction is total
               </p>
             </div>
@@ -519,7 +520,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
           borderRadius: "24px 24px 0 0",
           overflow: "hidden",
           padding: projectView ? 0 : 36,
-          minHeight: projectView ? undefined : "calc(100vh - 148px)",
+          minHeight: projectView ? undefined : "calc(100vh / var(--page-zoom) - 148px)",
         }}
       >
         <div

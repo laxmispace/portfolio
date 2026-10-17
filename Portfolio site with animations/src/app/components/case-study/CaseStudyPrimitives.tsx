@@ -48,7 +48,7 @@ export function StrokedImage({
     <div style={{ position: "relative", width: "100%", ...(aspectRatio ? { aspectRatio } : { height: height ?? "100%" }) }}>
       <div className="case-study-media__frame" style={{ width: "100%", height: "100%", borderRadius: radius, overflow: "hidden", backgroundColor: bgColor }}>
         {src ? (
-          <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <img src={src} alt={alt} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         ) : (
           <ThumbnailPlaceholder bgColor={bgColor} strokeColor={strokeColor} height="100%" iconSize={iconSize} />
         )}
@@ -159,6 +159,7 @@ function CarouselPhoneSet({ images, stroke = true }: { images: string[]; stroke?
           key={src}
           src={src}
           alt=""
+          decoding="async"
           onLoad={(e) => {
             const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
             setNatural((prev) => ({ ...prev, [i]: { w, h } }));
@@ -283,7 +284,7 @@ export function ImageCarousel({ slides, isMobile = false, bgColor = colors.sandP
                   <CarouselPhoneSet images={slide.images} stroke={false} />
                 </div>
               ) : slide.src ? (
-                <img src={slide.src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <img src={slide.src} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               ) : (
                 <ThumbnailPlaceholder bgColor={bgColor} strokeColor={strokeColor} height="100%" iconSize={12} />
               )}
@@ -458,6 +459,8 @@ export function PhoneScreen({ src, alt = "" }: { src: string; alt?: string }) {
       <img
         src={src}
         alt={alt}
+        loading="lazy"
+        decoding="async"
         style={{ display: "block", width: "100%", height: "auto", border: `1px solid ${colors.white}`, borderRadius: 5, boxSizing: "border-box" }}
       />
     </div>
@@ -529,7 +532,7 @@ export function LayerItem({ icon, title, children }: { icon: string; title: stri
 // ─── Data table: two columns, header row + numbered rows ──────────────────────
 export function DataTable({ headers, rows, isMobile = false }: { headers: [string, string]; rows: [string, string][]; isMobile?: boolean }) {
   const pad = isMobile ? 12 : 16;
-  const head = { fontWeight: 600, fontSize: 12, lineHeight: "20px", textTransform: "uppercase" as const, color: colors.body };
+  const head = { fontWeight: 400, fontSize: 12, lineHeight: "20px", textTransform: "uppercase" as const, color: colors.body };
   return (
     <div className="case-study-media" style={{ width: "100%", border: `1px solid ${colors.sandBorder}`, borderRadius: 12, overflow: "hidden" }}>
       <div style={{ display: "flex", flexDirection: "row", gap: 16, backgroundColor: colors.sand, padding: `8px ${pad}px` }}>

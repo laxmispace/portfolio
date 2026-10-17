@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect } from "react";
 import { useMotionValue, type MotionValue } from "motion/react";
+import { toCss } from "@/app/lib/zoom";
 
 export const ScrollContext = createContext<HTMLDivElement | null>(null);
 
@@ -35,11 +36,11 @@ export function useScrollProgress(
       const cRect = container.getBoundingClientRect();
       const tRect = target.getBoundingClientRect();
       const scrollTop = container.scrollTop;
-      const cH = cRect.height;
+      const cH = container.clientHeight;
 
-      // target position relative to container scroll origin
-      const tTop = tRect.top - cRect.top + scrollTop;
-      const tH = tRect.height;
+      // target position relative to container scroll origin (rects are screen px, scrollTop page px)
+      const tTop = toCss(tRect.top - cRect.top) + scrollTop;
+      const tH = toCss(tRect.height);
 
       // scroll position when progress = 0
       const startScroll = tTop + startOffset[0] * tH - startOffset[1] * cH;

@@ -1,128 +1,220 @@
-// Loading screen: the little walker strolls on an orange page with "laxmi mahajan"
-// underneath and says "hey!" once. After one 3-second walk cycle its flower blooms:
-// a big pink flower (src/assets/loader/loading-flower.svg) grows out of the one in its
-// hand and spins into place until its petals fill the screen, leaving the walker
-// framed in the hole at its heart, while a flock of birds flies out past the edges.
-// Then the hole opens up past the edges of the screen, revealing the hero.
+// Loading screen: the little walker strolls on a warm orange page (soft glow, paper
+// grain), waving; a speech bubble pops up with "…" typing dots, then types "hey there!". After one walk cycle a big pink
+// flower (the outline of src/assets/loader/loading-flower.svg) blooms out of its
+// waving hand, spinning, until it covers
+// the whole screen, while a flock of birds flies out past the edges. Then a
+// flower-shaped hole opens in the pink - with an olive layer trailing just behind
+// it as a rim - and grows past the corners, revealing the hero.
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, animate, motion, useReducedMotion } from "motion/react";
 import { Walker } from "@/app/components/walker/Walker";
-import { Logo } from "./Logo";
-import { colors, fonts } from "@/app/theme/tokens";
+import { colors, fonts, withAlpha } from "@/app/theme/tokens";
 import flowerSvg from "@/assets/loader/loading-flower.svg?raw";
 
-const WALK_MS = 3000; // one full loop of the walker
-const BLOOM_S = 1.8; // the flower growing until it fills the screen
-const OPEN_S = 0.9; // the hole opening up to reveal the hero
-const STAGE = 150; // walker width on the loader (0.75× the first version)
-// Where the walker's flower sits inside its stage, as fractions of the SVG (bloom at 159,147 in a -30 -45 700 635 box).
-const BLOOM_AT = { x: (159 + 30) / 700, y: (147 + 45) / 635 };
+const WALK_MS = 2800; // the walker's stroll before the bloom
+const BLOOM_S = 1.35; // the flower growing until it covers the screen
+const OPEN_S = 1.05; // the flower-shaped hole opening to reveal the hero
+const RIM_LAG_S = 0.14; // the olive layer's hole trails the pink one by this much
+const STAGE = 190; // walker width on the loader
+// Where the walker's waving palm sits inside its stage, as fractions of the SVG (≈150,146 in a -30 -45 700 635 box).
+const BLOOM_AT = { x: (150 + 30) / 700, y: (146 + 45) / 635 };
 
-// ── "hey!" ──
+// ── the speech bubble: "…" typing dots, then "hey there!" types itself in ──
+const HELLO = "hey there!";
+const DOTS_MS = 900; // how long the dots bounce before the words start (after the pop-in)
+const TYPE_MS = 55; // per letter
+
 function Hey() {
+  const reduce = useReducedMotion();
+  const [typed, setTyped] = useState(reduce ? HELLO.length : 0);
+  useEffect(() => {
+    if (reduce) return;
+    let n = 0, id = 0;
+    const start = window.setTimeout(() => {
+      id = window.setInterval(() => {
+        n += 1;
+        setTyped(n);
+        if (n >= HELLO.length) window.clearInterval(id);
+      }, TYPE_MS);
+    }, 450 + DOTS_MS);
+    return () => { window.clearTimeout(start); window.clearInterval(id); };
+  }, [reduce]);
+  const typing = typed === 0;
+
   return (
     <motion.div
       aria-hidden="true"
-      initial={{ scale: 0, opacity: 0, rotate: -14 }}
-      animate={{ scale: [0, 1.15, 1], opacity: [0, 1, 1], rotate: [-14, 6, 0] }}
-      exit={{ scale: 0, opacity: 0, rotate: 10, transition: { duration: 0.25, ease: "easeIn" } }}
-      transition={{ duration: 0.55, times: [0, 0.6, 1], ease: "easeOut", delay: 0.5 }}
-      style={{ position: "absolute", left: "calc(50% - 52px / 2 + 60px)", top: -42, width: 52, transformOrigin: "0% 100%" }}
+      initial={{ scale: 0, opacity: 0, rotate: -12 }}
+      animate={{ scale: 1, opacity: 1, rotate: 0 }}
+      exit={{ scale: 0, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
+      transition={{ type: "spring", stiffness: 520, damping: 17, delay: 0.45 }}
+      style={{ position: "absolute", left: "calc(50% + 26px)", bottom: "calc(100% + 2px)", transformOrigin: "10% 100%" }}
     >
-      <span
-        style={{
-          display: "block",
-          width: 52,
-          height: 44,
-          fontFamily: fonts.display,
-          fontStyle: "normal",
-          fontWeight: 400,
-          fontSize: 36,
-          lineHeight: "44px",
-          color: colors.sand,
-          WebkitTextStroke: `2px ${colors.ink}`,
-          paintOrder: "stroke fill",
-          whiteSpace: "nowrap",
-        }}
+      <motion.div
+        animate={{ y: [0, -3, 0], rotate: [0, -2, 0] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        style={{ position: "relative", paddingBottom: 10 }}
       >
-        hey!
-      </span>
-      {/* the speech tail, curling down towards the head */}
-      <svg width="16" height="16" viewBox="0 0 18 18" style={{ position: "absolute", left: -10, top: 42, overflow: "visible" }}>
-        <path d="M15 1 C 14 8, 9 13, 2 15" fill="none" stroke={colors.sand} strokeWidth="3" strokeLinecap="round" />
-      </svg>
+        {/* the bubble grows sideways as the words arrive */}
+        <motion.div
+          layout
+          transition={{ layout: { duration: 0.18, ease: "easeOut" } }}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", height: 36, padding: "0 14px",
+            minWidth: 56, borderRadius: 18, backgroundColor: colors.sandLight, border: `2px solid ${colors.ink}`, whiteSpace: "nowrap",
+          }}
+        >
+          {typing ? (
+            <motion.span layout="position" style={{ display: "flex", gap: 4 }}>
+              {[0, 1, 2].map((i) => (
+                <motion.span
+                  key={i}
+                  animate={{ y: [0, -4, 0], opacity: [0.45, 1, 0.45] }}
+                  transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.14 }}
+                  style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: colors.ink }}
+                />
+              ))}
+            </motion.span>
+          ) : (
+            <motion.span
+              layout="position"
+              style={{ fontFamily: fonts.hand, fontWeight: 700, fontSize: 25, lineHeight: 1, color: colors.ink, letterSpacing: "0.01em" }}
+            >
+              {HELLO.slice(0, typed)}
+            </motion.span>
+          )}
+        </motion.div>
+        {/* the tail, tucked under the bubble's bottom-left */}
+        <svg width="18" height="12" viewBox="0 0 18 12" style={{ position: "absolute", left: 12, bottom: 0, overflow: "visible" }}>
+          <path d="M0 -2H16L3 11Z" fill={colors.sandLight} />
+          <path d="M1 0L3 11L15 0" fill="none" stroke={colors.ink} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>
+      </motion.div>
     </motion.div>
   );
 }
 
-function Name() {
+// ── the backdrop: a warm glow and paper grain (replaces the dotted grid) ──
+const GRAIN = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`,
+)}")`;
+
+function Backdrop() {
   return (
-    <div style={{ marginTop: -6, display: "flex", justifyContent: "center" }}>
-      <Logo height={40} />
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundColor: colors.orange, overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(60% 55% at 50% 46%, ${withAlpha(colors.orangeLight, 0.95)} 0%, ${withAlpha(colors.orangeLight, 0)} 100%)` }} />
+      <div style={{ position: "absolute", inset: 0, background: `radial-gradient(120% 90% at 50% 50%, transparent 55%, ${withAlpha(colors.brown, 0.28)} 100%)` }} />
+      <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN, backgroundSize: "180px 180px", opacity: 0.22, mixBlendMode: "multiply" }} />
     </div>
   );
 }
 
-// ── the bloom: the loading flower, which grows to cover everything but the hole at its heart ──
-// The flower is drawn for a 1587×1153 screen; its petals reach well past that frame.
+// ── the bloom ──
+// Only the flower's outline is used (the first subpath - the second is the hole at its
+// heart), so the pink covers the screen solidly. Units are the SVG's own (1587×1153 frame).
 const FLOWER_D = flowerSvg.match(/ d="([^"]+)"/)?.[1] ?? "";
+const OUTLINE_D = FLOWER_D.slice(0, FLOWER_D.indexOf("M", 1) > 0 ? FLOWER_D.indexOf("M", 1) : undefined);
 const FLOWER_FILL = flowerSvg.match(/fill="(#[0-9A-Fa-f]{3,8})"/)?.[1] ?? colors.pink;
-const HOLE = { x: 750, y: 620 }; // centre of the hole, in the flower's own units
-const HOLE_R = 290; // the hole's smallest half-width
-// How far the flower's frame reaches from the hole's centre: left, right, up, down.
-const REACH = { l: HOLE.x, r: 1587 - HOLE.x, u: HOLE.y, d: 1153 - HOLE.y };
+const HEART = { x: 750, y: 620 }; // the flower's centre, which everything turns and grows around
+
+// Nearest the outline comes to the heart: the flower covers a circle this big, times its scale.
+let innerReach = 0;
+function flowerInnerReach() {
+  if (innerReach) return innerReach;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("style", "position:absolute;width:0;height:0;visibility:hidden");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", OUTLINE_D);
+  svg.appendChild(path);
+  document.body.appendChild(svg);
+  const len = path.getTotalLength();
+  let min = Infinity;
+  for (let i = 0; i < 720; i++) {
+    const p = path.getPointAtLength((len * i) / 720);
+    min = Math.min(min, Math.hypot(p.x - HEART.x, p.y - HEART.y));
+  }
+  svg.remove();
+  innerReach = Number.isFinite(min) && min > 0 ? min : 330;
+  return innerReach;
+}
 
 interface BloomPlan {
   from: { x: number; y: number }; // the flower in the walker's hand
-  to: { x: number; y: number }; // where the hole ends up: around the walker and name
-  scale: number; // just big enough for the petals to cover the screen
-  turn: number; // portrait screens get the flower turned on its side
-  openScale: number; // big enough for the hole to clear every corner
+  to: { x: number; y: number }; // where the flower's heart ends up: the screen's centre
+  cover: number; // scale at which the flower covers every corner
   spread: number; // how far the birds fly
 }
 
-function planBloom(from: { x: number; y: number }, to: { x: number; y: number }): BloomPlan {
+function planBloom(from: { x: number; y: number }): BloomPlan {
   const w = innerWidth;
   const h = innerHeight;
-  const portrait = h > w;
-  // turned 90° clockwise, the frame's left reach comes from its bottom, and so on
-  const [l, r, u, d] = portrait ? [REACH.d, REACH.u, REACH.l, REACH.r] : [REACH.l, REACH.r, REACH.u, REACH.d];
-  const scale = Math.max(to.x / l, (w - to.x) / r, to.y / u, (h - to.y) / d);
-  const corner = Math.max(Math.hypot(to.x, to.y), Math.hypot(w - to.x, to.y), Math.hypot(to.x, h - to.y), Math.hypot(w - to.x, h - to.y));
-  return { from, to, scale, turn: portrait ? 90 : 0, openScale: (corner / HOLE_R) * 1.1, spread: Math.min(1.3, Math.max(0.4, w / 1440)) };
+  const to = { x: w / 2, y: h / 2 };
+  const corner = Math.hypot(w / 2, h / 2);
+  return { from, to, cover: (corner / flowerInnerReach()) * 1.06, spread: Math.min(1.3, Math.max(0.4, w / 1440)) };
 }
 
-function Bloom({ plan, open, still }: { plan: BloomPlan; open: boolean; still: boolean }) {
+function Bloom({ plan, still }: { plan: BloomPlan; still: boolean }) {
   return (
     <motion.svg
       aria-hidden="true"
       viewBox="0 0 1587 1153"
       width="1587"
       height="1153"
-      initial={{ x: plan.from.x - plan.to.x, y: plan.from.y - plan.to.y, scale: 0.01, rotate: plan.turn - 60, opacity: 0 }}
-      animate={{ x: 0, y: 0, scale: open ? plan.openScale : plan.scale, rotate: plan.turn, opacity: 1 }}
-      transition={
-        open
-          ? { scale: { duration: still ? 0.3 : OPEN_S, ease: [0.55, 0, 0.8, 0.2] } }
-          : {
-              scale: { duration: still ? 0.3 : BLOOM_S, ease: [0.55, 0, 0.25, 1] },
-              x: { duration: still ? 0.3 : BLOOM_S * 0.8, ease: [0.4, 0, 0.2, 1] },
-              y: { duration: still ? 0.3 : BLOOM_S * 0.8, ease: [0.4, 0, 0.2, 1] },
-              rotate: { duration: still ? 0.3 : BLOOM_S, ease: "easeInOut" },
-              opacity: { duration: 0.2 },
-            }
-      }
+      initial={{ x: plan.from.x - plan.to.x, y: plan.from.y - plan.to.y, scale: 0.012, rotate: -110 }}
+      animate={{ x: 0, y: 0, scale: plan.cover * 1.15, rotate: 0 }}
+      transition={{
+        scale: { duration: still ? 0.3 : BLOOM_S, ease: [0.7, 0, 0.3, 1] },
+        x: { duration: still ? 0.3 : BLOOM_S * 0.75, ease: [0.45, 0, 0.2, 1] },
+        y: { duration: still ? 0.3 : BLOOM_S * 0.75, ease: [0.45, 0, 0.2, 1] },
+        rotate: { duration: still ? 0.3 : BLOOM_S, ease: [0.3, 0, 0.2, 1] },
+      }}
       style={{
         position: "absolute",
-        left: plan.to.x - HOLE.x,
-        top: plan.to.y - HOLE.y,
+        left: plan.to.x - HEART.x,
+        top: plan.to.y - HEART.y,
         overflow: "visible",
-        transformOrigin: `${HOLE.x}px ${HOLE.y}px`,
+        transformOrigin: `${HEART.x}px ${HEART.y}px`,
         zIndex: 2,
+        willChange: "transform",
       }}
     >
-      <path d={FLOWER_D} fill={FLOWER_FILL} fillRule="evenodd" clipRule="evenodd" />
+      <path d={OUTLINE_D} fill={FLOWER_FILL} />
     </motion.svg>
+  );
+}
+
+// ── the reveal: a flower-shaped hole opens in the pink, an olive rim trailing it ──
+function Iris({ plan, still }: { plan: BloomPlan; still: boolean }) {
+  const pinkHole = useRef<SVGPathElement>(null);
+  const oliveHole = useRef<SVGPathElement>(null);
+
+  // grows from nothing at the heart to past every corner, turning a little as it goes
+  const at = (t: number) =>
+    `translate(${plan.to.x} ${plan.to.y}) rotate(${-30 + 75 * t}) scale(${Math.max(0.0001, t * plan.cover * 1.04)}) translate(${-HEART.x} ${-HEART.y})`;
+
+  useEffect(() => {
+    const place = (el: SVGPathElement | null, t: number) => el?.setAttribute("transform", at(t));
+    const opts = { duration: still ? 0.3 : OPEN_S, ease: [0.65, 0, 0.35, 1] as [number, number, number, number] };
+    const a = animate(0, 1, { ...opts, onUpdate: (t) => place(pinkHole.current, t) });
+    const b = animate(0, 1, { ...opts, delay: still ? 0 : RIM_LAG_S, onUpdate: (t) => place(oliveHole.current, t) });
+    return () => { a.stop(); b.stop(); };
+  }, [plan, still]);
+
+  return (
+    <svg aria-hidden="true" width="100%" height="100%" style={{ position: "absolute", inset: 0, zIndex: 4 }}>
+      <defs>
+        <mask id="intro-iris-olive" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+          <rect width="100%" height="100%" fill="white" />
+          <path ref={oliveHole} d={OUTLINE_D} fill="black" transform={at(0)} />
+        </mask>
+        <mask id="intro-iris-pink" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+          <rect width="100%" height="100%" fill="white" />
+          <path ref={pinkHole} d={OUTLINE_D} fill="black" transform={at(0)} />
+        </mask>
+      </defs>
+      <rect width="100%" height="100%" fill={colors.olive} mask="url(#intro-iris-olive)" />
+      <rect width="100%" height="100%" fill={FLOWER_FILL} mask="url(#intro-iris-pink)" />
+    </svg>
   );
 }
 
@@ -157,7 +249,7 @@ function Flock({ at, spread }: { at: { x: number; y: number }; spread: number })
             initial={{ x: 0, y: 0, scale: 0.2, opacity: 0 }}
             animate={{ x: f.dx * spread, y: f.dy * spread, scale: 1, opacity: [0, 1, 1, 0.9] }}
             transition={{ duration: 2.2, delay: f.delay, ease: [0.3, 0.1, 0.4, 1] }}
-            style={{ position: "absolute", left: at.x - (b.w * f.size) / 2, top: at.y - (b.h * f.size) / 2, zIndex: 3 }}
+            style={{ position: "absolute", left: at.x - (b.w * f.size) / 2, top: at.y - (b.h * f.size) / 2, zIndex: 5 }}
           >
             <motion.svg
               width={b.w * f.size}
@@ -167,7 +259,7 @@ function Flock({ at, spread }: { at: { x: number; y: number }; spread: number })
               transition={{ duration: 0.42, repeat: Infinity, ease: "easeInOut", delay: f.delay }}
               style={{ display: "block", overflow: "visible", scaleX: goesLeft ? -1 : 1 }}
             >
-              <path d={b.d} stroke={colors.sand} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              <path d={b.d} stroke={colors.sandLight} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </motion.svg>
           </motion.div>
         );
@@ -181,40 +273,36 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
   const stageRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<"walk" | "bloom" | "open" | "gone">("walk");
-  const [heyGone, setHeyGone] = useState(false);
   const [plan, setPlan] = useState<BloomPlan | null>(null);
 
   // walk → bloom
   useEffect(() => {
     const t = setTimeout(() => {
       const r = stageRef.current?.getBoundingClientRect();
-      const centre = { x: innerWidth / 2, y: innerHeight / 2 };
-      const hand = r ? { x: r.left + r.width * BLOOM_AT.x, y: r.top + r.width * (635 / 700) * BLOOM_AT.y } : centre;
-      const c = contentRef.current?.getBoundingClientRect();
-      setPlan(planBloom(hand, c ? { x: c.left + c.width / 2, y: c.top + c.height / 2 } : centre));
+      const hand = r
+        ? { x: r.left + r.width * BLOOM_AT.x, y: r.top + r.width * (635 / 700) * BLOOM_AT.y }
+        : { x: innerWidth / 2, y: innerHeight / 2 };
+      setPlan(planBloom(hand));
       setPhase("bloom");
     }, reduceMotion ? 1200 : WALK_MS);
     return () => clearTimeout(t);
   }, [reduceMotion]);
 
-  // bloom: "hey!" leaves a quarter of the way in; once the petals cover the screen the
-  // hole opens up, and the hero starts animating in underneath it
+  // bloom → open: as soon as the pink covers the screen (the flower is still turning), the hole starts opening and the hero
+  // animates in underneath it
   useEffect(() => {
     if (phase !== "bloom") return;
-    const dur = reduceMotion ? 300 : BLOOM_S * 1000;
-    const hey = setTimeout(() => setHeyGone(true), dur * 0.25);
-    const open = setTimeout(() => {
+    const t = setTimeout(() => {
       setPhase("open");
       onDoneRef.current();
-    }, dur + 250);
-    return () => { clearTimeout(hey); clearTimeout(open); };
+    }, (reduceMotion ? 0.3 : BLOOM_S * 0.8) * 1000);
+    return () => clearTimeout(t);
   }, [phase, reduceMotion]);
 
   useEffect(() => {
     if (phase !== "open") return;
-    const t = setTimeout(() => setPhase("gone"), (reduceMotion ? 0.3 : OPEN_S) * 1000);
+    const t = setTimeout(() => setPhase("gone"), (reduceMotion ? 0.3 : OPEN_S + RIM_LAG_S) * 1000 + 60);
     return () => clearTimeout(t);
   }, [phase, reduceMotion]);
 
@@ -228,7 +316,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
           role="status"
           aria-label="Loading Laxmi Mahajan's portfolio"
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.15 }}
           style={{
             position: "fixed",
             inset: 0,
@@ -238,41 +326,25 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
             justifyContent: "center",
             overflow: "hidden",
             pointerEvents: opening ? "none" : undefined,
+            // undo the desktop page zoom: the loader works in screen px throughout
+            zoom: "calc(1 / var(--page-zoom))",
           }}
         >
-          {/* the orange page - it clears away as the hole opens, so the hero shows through */}
-          <motion.div
-            aria-hidden="true"
-            animate={{ opacity: opening ? 0 : 1 }}
-            transition={{ duration: (reduceMotion ? 0.3 : OPEN_S) * 0.5, ease: "easeIn" }}
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundColor: colors.orange,
-              backgroundImage: `radial-gradient(${colors.orangeDot} 1.6px, transparent 2px)`,
-              backgroundSize: "24px 24px",
-              backgroundPosition: "center",
-            }}
-          />
-          <motion.div
-            ref={contentRef}
-            animate={{ opacity: opening ? 0 : 1, scale: opening ? 1.08 : 1 }}
-            transition={{ duration: (reduceMotion ? 0.3 : OPEN_S) * 0.4, ease: "easeIn" }}
-            style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}
-          >
-            <div ref={stageRef} style={{ position: "relative", width: STAGE }}>
-              <AnimatePresence>{!heyGone && <Hey key="hey" />}</AnimatePresence>
-              <Walker />
-            </div>
-            <Name />
-          </motion.div>
-
-          {plan && (phase === "bloom" || opening) && (
+          {/* the orange page and the walker - hidden under the pink by the time the hole opens */}
+          {!opening && (
             <>
-              <Bloom plan={plan} open={opening} still={reduceMotion} />
-              {!reduceMotion && <Flock at={plan.from} spread={plan.spread} />}
+              <Backdrop />
+              <div ref={stageRef} style={{ position: "relative", width: STAGE }}>
+                <AnimatePresence>{phase === "walk" && <Hey key="hey" />}</AnimatePresence>
+                <Walker wave />
+              </div>
             </>
           )}
+
+          {plan && phase === "bloom" && <Bloom plan={plan} still={reduceMotion} />}
+          {plan && opening && <Iris plan={plan} still={reduceMotion} />}
+          {/* the birds keep flying out over the reveal */}
+          {plan && !reduceMotion && <Flock at={plan.from} spread={plan.spread} />}
         </motion.div>
       )}
     </AnimatePresence>

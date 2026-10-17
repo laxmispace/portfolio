@@ -240,7 +240,7 @@ function ItravelEntryPanel() {
 function ItravelCroppedShot() {
   return (
     <div className="case-study-media" style={{ width: "100%", height: 123, backgroundColor: colors.sandPanel, borderRadius: 8, overflow: "hidden", display: "flex", justifyContent: "center", paddingTop: 16, boxSizing: "border-box" }}>
-      <img src={imgAutoExpiry} alt="Additional preferences - auto-disable after trip" style={{ width: 150, height: "auto", alignSelf: "flex-start", display: "block" }} />
+      <img src={imgAutoExpiry} alt="Additional preferences - auto-disable after trip" loading="lazy" decoding="async" style={{ width: 150, height: "auto", alignSelf: "flex-start", display: "block" }} />
     </div>
   );
 }

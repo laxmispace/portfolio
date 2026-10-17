@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { BLOG_POSTS, type BlogPost } from "@/app/data/blogPosts";
-import { BlogStamps } from "@/app/components/blog/BlogStamps";
+import { BlogColumns } from "@/app/components/blog/BlogColumns";
 
 import { BlogPostDrawer } from "@/app/components/blog/BlogPostDrawer";
-import { colors } from "@/app/theme/tokens";
+import { colors, textStyles } from "@/app/theme/tokens";
 
 
 // Blog post slug in the URL, e.g. /portfolio/blog/sukoon
@@ -17,7 +17,7 @@ const slugFromPath = (pathname: string) =>
 
 export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolean) => void }) {
   const isMobile = useIsMobile();
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+    const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   // Let the host (App) hide the mobile bottom nav while a blog post is open.
   useEffect(() => { onDrawerChange?.(!!selectedPost); }, [selectedPost, onDrawerChange]);
@@ -69,10 +69,10 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
 
   const intro = (
     <div>
-      <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 12, letterSpacing: "0.48px", color: colors.oliveDeep, marginBottom: 8 }}>
-        i write, sometimes
+      <p style={{ ...textStyles.label, color: colors.oliveDeep, marginBottom: 12 }}>
+        i write. sometimes.
       </p>
-      <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 28, lineHeight: isMobile ? "30px" : "34px", color: colors.ink, fontWeight: 600 }}>
+      <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 32, lineHeight: isMobile ? "32px" : "40px", letterSpacing: "-0.02em", color: colors.ink, fontWeight: 500 }}>
         ideas that probably<br />should stay in my notes app
       </p>
     </div>
@@ -86,7 +86,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
         onNavigate={openPost}
       />
 
-      <div style={{ padding: isMobile ? "28px 0 32px" : "40px 0 48px" }}>
+      <div style={{ position: "relative", padding: isMobile ? "16px 0" : "24px 0 0" }}>
         {BLOG_POSTS.length === 0 ? (
           <>
             <div style={{ padding: `0 ${inset}px` }}>{intro}</div>
@@ -100,7 +100,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
               <p className="font-caslon not-italic" style={{ fontSize: 28, color: colors.ink, fontWeight: 600, marginBottom: 8, lineHeight: "36px" }}>
                 <em>working on something worth reading</em>
               </p>
-              <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep, opacity: 0.6, lineHeight: "20px" }}>
+              <p style={{ ...textStyles.byline, color: colors.oliveDeep, opacity: 0.6 }}>
                 check back soon - the drafts are living their best life in my notes app
               </p>
               <motion.div
@@ -113,7 +113,9 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
             </motion.div>
           </>
         ) : (
-          <BlogStamps posts={BLOG_POSTS} isMobile={isMobile} intro={intro} onOpen={openPost} />
+          <>
+            <BlogColumns posts={BLOG_POSTS} isMobile={isMobile} onOpen={openPost} />
+          </>
         )}
       </div>
     </section>

@@ -98,7 +98,7 @@ function RelatedBlogLink({ post, isLast, onClick }: { post: BlogPost; isLast: bo
     >
       <div>
         <span style={{ backgroundColor: withAlpha(colors.oliveDeep, 0.1), borderRadius: 20, padding: "2px 10px", display: "inline-block", marginBottom: 6 }}>
-          <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: colors.oliveDeep, letterSpacing: "0.3px", textTransform: "uppercase" }}>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, color: colors.oliveDeep, letterSpacing: "0.3px", textTransform: "uppercase" }}>
             {post.category}
           </p>
         </span>
@@ -166,7 +166,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
             exit={{ x: "100%" }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "fixed", right: 0, top: 0, bottom: 0, width: isMobile ? "100%" : "min(1120px, 94vw)", zIndex: 500,
+              position: "fixed", right: 0, top: 0, bottom: 0, width: isMobile ? "100%" : "min(1120px, calc(94vw / var(--page-zoom)))", zIndex: 500,
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
               backgroundColor: colors.sand,
               overflow: "hidden",
@@ -203,7 +203,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
               >
                 <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8 }}>
                   <span style={{ backgroundColor: withAlpha(colors.pink, 0.28), borderRadius: 20, padding: "3px 10px" }}>
-                    <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, color: "#a06070", letterSpacing: "0.3px", textTransform: "uppercase" }}>
+                    <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, color: "#a06070", letterSpacing: "0.3px", textTransform: "uppercase" }}>
                       {post.category}
                     </p>
                   </span>
@@ -260,7 +260,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
 
               {/* Related */}
               <div style={{ padding: isMobile ? "24px 16px 48px" : "32px 52px 56px 36px", borderTop: `1px solid ${withAlpha(colors.ink, 0.1)}` }}>
-                <p className="font-inclusive-sans font-medium uppercase" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.35), marginBottom: 8 }}>
+                <p className="font-inclusive-sans font-normal uppercase" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.35), marginBottom: 8 }}>
                   read more
                 </p>
                 {related.map((p, i) => (
