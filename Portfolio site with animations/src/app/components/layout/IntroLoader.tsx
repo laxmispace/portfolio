@@ -1,23 +1,24 @@
-// Loading screen: the little walker strolls on a warm orange page (soft glow, paper
-// grain), waving; a speech bubble pops up with "…" typing dots, then types "hey there!". After one walk cycle a big pink
-// flower (the outline of src/assets/loader/loading-flower.svg) blooms out of its
-// waving hand, spinning, until it covers
-// the whole screen, while a flock of birds flies out past the edges. Then a
-// flower-shaped hole opens in the pink - with an olive layer trailing just behind
-// it as a rim - and grows past the corners, revealing the hero.
+// Loading screen: the little character waves hello with his flowers on a warm orange page
+// (soft glow, paper grain), and a speech bubble pops up with "…" typing dots, then types
+// "hey there!". After that a big pink flower (the outline of
+// src/assets/loader/loading-flower.svg) blooms out of his waving hand, spinning, until it
+// covers the whole screen, while a flock of birds flies out past the edges. Then a
+// flower-shaped hole opens in the pink - with an olive layer trailing just behind it as a
+// rim - and grows past the corners, revealing the hero.
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, animate, motion, useReducedMotion } from "motion/react";
-import { Walker } from "@/app/components/walker/Walker";
+import { HELLO_HEAD, HELLO_PALM, HELLO_VIEWBOX as VB, HelloFlowers } from "@/app/components/walker/HelloFlowers";
 import { colors, fonts, withAlpha } from "@/app/theme/tokens";
 import flowerSvg from "@/assets/loader/loading-flower.svg?raw";
 
-const WALK_MS = 2800; // the walker's stroll before the bloom
+const WALK_MS = 2800; // the hello before the bloom
 const BLOOM_S = 1.35; // the flower growing until it covers the screen
 const OPEN_S = 1.05; // the flower-shaped hole opening to reveal the hero
 const RIM_LAG_S = 0.14; // the olive layer's hole trails the pink one by this much
-const STAGE = 190; // walker width on the loader
-// Where the walker's waving palm sits inside its stage, as fractions of the SVG (≈150,146 in a -30 -45 700 635 box).
-const BLOOM_AT = { x: (150 + 30) / 700, y: (146 + 45) / 635 };
+const STAGE = 280; // the character's width on the loader
+// Where his waving palm and the top of his head sit inside the stage, as fractions of the drawing.
+const BLOOM_AT = { x: (HELLO_PALM.x - VB.x) / VB.w, y: (HELLO_PALM.y - VB.y) / VB.h };
+const HEAD_AT = { x: (HELLO_HEAD.x - VB.x) / VB.w, y: (HELLO_HEAD.y - VB.y) / VB.h };
 
 // ── the speech bubble: "…" typing dots, then "hey there!" types itself in ──
 const HELLO = "hey there!";
@@ -48,7 +49,7 @@ function Hey() {
       animate={{ scale: 1, opacity: 1, rotate: 0 }}
       exit={{ scale: 0, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
       transition={{ type: "spring", stiffness: 520, damping: 17, delay: 0.45 }}
-      style={{ position: "absolute", left: "calc(50% + 26px)", bottom: "calc(100% + 2px)", transformOrigin: "10% 100%" }}
+      style={{ position: "absolute", left: `${HEAD_AT.x * 100 + 4}%`, bottom: `${(1 - HEAD_AT.y) * 100 + 2}%`, transformOrigin: "10% 100%" }}
     >
       <motion.div
         animate={{ y: [0, -3, 0], rotate: [0, -2, 0] }}
@@ -139,7 +140,7 @@ function flowerInnerReach() {
 }
 
 interface BloomPlan {
-  from: { x: number; y: number }; // the flower in the walker's hand
+  from: { x: number; y: number }; // the flower in his waving hand
   to: { x: number; y: number }; // where the flower's heart ends up: the screen's centre
   cover: number; // scale at which the flower covers every corner
   spread: number; // how far the birds fly
@@ -281,7 +282,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
     const t = setTimeout(() => {
       const r = stageRef.current?.getBoundingClientRect();
       const hand = r
-        ? { x: r.left + r.width * BLOOM_AT.x, y: r.top + r.width * (635 / 700) * BLOOM_AT.y }
+        ? { x: r.left + r.width * BLOOM_AT.x, y: r.top + r.height * BLOOM_AT.y }
         : { x: innerWidth / 2, y: innerHeight / 2 };
       setPlan(planBloom(hand));
       setPhase("bloom");
@@ -330,13 +331,13 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
             zoom: "calc(1 / var(--page-zoom))",
           }}
         >
-          {/* the orange page and the walker - hidden under the pink by the time the hole opens */}
+          {/* the orange page and the character - hidden under the pink by the time the hole opens */}
           {!opening && (
             <>
               <Backdrop />
               <div ref={stageRef} style={{ position: "relative", width: STAGE }}>
                 <AnimatePresence>{phase === "walk" && <Hey key="hey" />}</AnimatePresence>
-                <Walker wave />
+                <HelloFlowers />
               </div>
             </>
           )}
