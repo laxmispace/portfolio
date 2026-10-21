@@ -1,6 +1,6 @@
 // Loading screen: the little character waves hello with his flowers on a warm orange page
-// (soft glow, paper grain), and a speech bubble pops up with "…" typing dots, then types
-// "hey there!". After that a big pink flower (the outline of
+// (soft glow, paper grain), and three typing ellipses pulse above his head, then
+// "hey" types itself in. After that a big pink flower (the outline of
 // src/assets/loader/loading-flower.svg) blooms out of his waving hand, spinning, until it
 // covers the whole screen, while a flock of birds flies out past the edges. Then a
 // flower-shaped hole opens in the pink - with an olive layer trailing just behind it as a
@@ -20,10 +20,10 @@ const STAGE = 280; // the character's width on the loader
 const BLOOM_AT = { x: (HELLO_PALM.x - VB.x) / VB.w, y: (HELLO_PALM.y - VB.y) / VB.h };
 const HEAD_AT = { x: (HELLO_HEAD.x - VB.x) / VB.w, y: (HELLO_HEAD.y - VB.y) / VB.h };
 
-// ── the speech bubble: "…" typing dots, then "hey there!" types itself in ──
-const HELLO = "hey there!";
-const DOTS_MS = 900; // how long the dots bounce before the words start (after the pop-in)
-const TYPE_MS = 55; // per letter
+// ── the greeting: three typing ellipses pulse above his head, then "hey" types itself in ──
+const HELLO = "hey";
+const DOTS_MS = 1100; // how long the ellipses pulse before the word starts (after they appear)
+const TYPE_MS = 110; // per letter - slow enough to read as typing
 
 function Hey() {
   const reduce = useReducedMotion();
@@ -37,7 +37,7 @@ function Hey() {
         setTyped(n);
         if (n >= HELLO.length) window.clearInterval(id);
       }, TYPE_MS);
-    }, 450 + DOTS_MS);
+    }, 400 + DOTS_MS);
     return () => { window.clearTimeout(start); window.clearInterval(id); };
   }, [reduce]);
   const typing = typed === 0;
@@ -45,60 +45,98 @@ function Hey() {
   return (
     <motion.div
       aria-hidden="true"
-      initial={{ scale: 0, opacity: 0, rotate: -12 }}
-      animate={{ scale: 1, opacity: 1, rotate: 0 }}
-      exit={{ scale: 0, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
-      transition={{ type: "spring", stiffness: 520, damping: 17, delay: 0.45 }}
-      style={{ position: "absolute", left: `${HEAD_AT.x * 100 + 4}%`, bottom: `${(1 - HEAD_AT.y) * 100 + 2}%`, transformOrigin: "10% 100%" }}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6, transition: { duration: 0.2, ease: "easeIn" } }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+      style={{
+        position: "absolute", left: `${HEAD_AT.x * 100}%`, bottom: `${(1 - HEAD_AT.y) * 100 + 4}%`, x: "-50%", // centred over his head
+        height: 40, display: "flex", alignItems: "flex-end", justifyContent: "center", whiteSpace: "nowrap",
+      }}
     >
-      <motion.div
-        animate={{ y: [0, -3, 0], rotate: [0, -2, 0] }}
-        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        style={{ position: "relative", paddingBottom: 10 }}
-      >
-        {/* the bubble grows sideways as the words arrive */}
-        <motion.div
-          layout
-          transition={{ layout: { duration: 0.18, ease: "easeOut" } }}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center", height: 36, padding: "0 14px",
-            minWidth: 56, borderRadius: 18, backgroundColor: colors.sandLight, border: `2px solid ${colors.ink}`, whiteSpace: "nowrap",
-          }}
-        >
-          {typing ? (
-            <motion.span layout="position" style={{ display: "flex", gap: 4 }}>
-              {[0, 1, 2].map((i) => (
-                <motion.span
-                  key={i}
-                  animate={{ y: [0, -4, 0], opacity: [0.45, 1, 0.45] }}
-                  transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: i * 0.14 }}
-                  style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: colors.ink }}
-                />
-              ))}
-            </motion.span>
-          ) : (
-            <motion.span
-              layout="position"
-              style={{ fontFamily: fonts.hand, fontWeight: 700, fontSize: 25, lineHeight: 1, color: colors.ink, letterSpacing: "0.01em" }}
-            >
-              {HELLO.slice(0, typed)}
-            </motion.span>
-          )}
-        </motion.div>
-        {/* the tail, tucked under the bubble's bottom-left */}
-        <svg width="18" height="12" viewBox="0 0 18 12" style={{ position: "absolute", left: 12, bottom: 0, overflow: "visible" }}>
-          <path d="M0 -2H16L3 11Z" fill={colors.sandLight} />
-          <path d="M1 0L3 11L15 0" fill="none" stroke={colors.ink} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </svg>
-      </motion.div>
+      <AnimatePresence mode="wait" initial={false}>
+        {typing ? (
+          <motion.span key="dots" exit={{ opacity: 0, transition: { duration: 0.12 } }} style={{ display: "flex", gap: 6, paddingBottom: 8 }}>
+            {[0, 1, 2].map((i) => (
+              <motion.span
+                key={i}
+                animate={reduce ? undefined : { y: [0, -5, 0], opacity: [0.35, 1, 0.35] }}
+                transition={{ duration: 0.75, repeat: Infinity, ease: "easeInOut", delay: i * 0.16 }}
+                style={{ width: 9, height: 7, borderRadius: "50%", backgroundColor: colors.ink }}
+              />
+            ))}
+          </motion.span>
+        ) : (
+          <motion.span
+            key="word"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.12 }}
+            style={{ fontFamily: fonts.serif, fontStyle: "italic", fontWeight: 400, fontSize: 40, lineHeight: "40px", color: colors.ink, letterSpacing: "-0.01em" }}
+          >
+            {HELLO.slice(0, typed)}
+          </motion.span>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
 
-// ── the backdrop: a warm glow and paper grain (replaces the dotted grid) ──
+// ── the backdrop: a warm glow, paper grain and a dithered bottom edge ──
 const GRAIN = `url("data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`,
 )}")`;
+
+// A soft ordered dither along the bottom of the page: chunky 3px dots in a darker orange,
+// densest at the bottom edge and thinning out upward, its top edge rolling in a slow wave.
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+const DOT = 3; // css px per dither dot
+const INK = [0x73, 0x59, 0x33, 0.3]; // colors.brown, faint
+
+function Dither() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const cols = Math.ceil(canvas.clientWidth / DOT), rows = Math.ceil(canvas.clientHeight / DOT);
+    canvas.width = cols;
+    canvas.height = rows;
+    const img = ctx.createImageData(cols, rows);
+    const draw = (t: number) => {
+      const d = img.data;
+      for (let y = 0; y < rows; y++) {
+        const v = y / (rows - 1); // 0 at the top of the band, 1 at the bottom edge
+        for (let x = 0; x < cols; x++) {
+          const wave = 0.06 * Math.sin(x * 0.04 + t * 0.8) + 0.03 * Math.sin(x * 0.11 - t * 1.2 + y * 0.05);
+          const density = Math.pow(Math.max(0, v + wave * (1 - v)), 1.8) * 0.5;
+          const on = BAYER[(y & 3) * 4 + (x & 3)] < density;
+          const i = (y * cols + x) * 4;
+          d[i] = INK[0]; d[i + 1] = INK[1]; d[i + 2] = INK[2];
+          d[i + 3] = on ? INK[3] * 255 : 0;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+    draw(0);
+    if (reduce) return;
+    let raf = 0, last = 0;
+    const start = performance.now();
+    const loop = (now: number) => {
+      if (now - last > 50) { last = now; draw((now - start) / 1000); } // ~20fps is plenty for a slow roll
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [reduce]);
+  return (
+    <canvas
+      ref={ref}
+      style={{ position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "34%", imageRendering: "pixelated", mixBlendMode: "multiply" }}
+    />
+  );
+}
 
 function Backdrop() {
   return (
@@ -106,6 +144,7 @@ function Backdrop() {
       <div style={{ position: "absolute", inset: 0, background: `radial-gradient(60% 55% at 50% 46%, ${withAlpha(colors.orangeLight, 0.95)} 0%, ${withAlpha(colors.orangeLight, 0)} 100%)` }} />
       <div style={{ position: "absolute", inset: 0, background: `radial-gradient(120% 90% at 50% 50%, transparent 55%, ${withAlpha(colors.brown, 0.28)} 100%)` }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: GRAIN, backgroundSize: "180px 180px", opacity: 0.22, mixBlendMode: "multiply" }} />
+      <Dither />
     </div>
   );
 }
