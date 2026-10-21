@@ -258,6 +258,10 @@ export function Night({ on, layer, isMobile }: { on: boolean; layer: "below" | "
 }
 
 // ── Clouds over the walker ───────────────────────────────────────────────────
+const CLOUD_CROSS = 30; // seconds for one cloud to drift across
+const CLOUD_GAP = 11; // seconds between one cloud setting off and the next
+const CLOUD_ORDER = [0, 2, 1, 3]; // the order they set off in
+
 /** Clouds drifting right-to-left a little above the walker's head, behind it, each fading
  *  in and melting away before it's gone; staggered so there's always one somewhere.
  *  At night the clouds drift up and fade away. */
@@ -272,7 +276,11 @@ export function Clouds({ dim }: { dim: boolean }) {
         style={{ position: "absolute", inset: 0 }}
       >
         {CLOUDS.map((src, i) => {
-          const duration = 18 + i * 3.5;
+          // every cloud crosses at the same speed and they set off at even intervals, in a
+          // shuffled order, with a rest after each round - so the sky never bunches up
+          const slot = CLOUD_ORDER[i % CLOUD_ORDER.length];
+          const delay = slot * CLOUD_GAP;
+          const repeatDelay = CLOUDS.length * CLOUD_GAP - CLOUD_CROSS;
           return (
             <motion.img
               key={i}
@@ -281,10 +289,10 @@ export function Clouds({ dim }: { dim: boolean }) {
               initial={{ left: "100%", opacity: 0 }}
               animate={{ left: ["100%", "-45%"], opacity: [0, 0.95, 0.95, 0] }}
               transition={{
-                left: { duration, repeat: Infinity, ease: "linear", delay: i * (duration / CLOUDS.length) },
-                opacity: { duration, repeat: Infinity, times: [0, 0.18, 0.7, 1], ease: "easeInOut", delay: i * (duration / CLOUDS.length) },
+                left: { duration: CLOUD_CROSS, repeat: Infinity, repeatDelay, ease: "linear", delay },
+                opacity: { duration: CLOUD_CROSS, repeat: Infinity, repeatDelay, times: [0, 0.15, 0.75, 1], ease: "easeInOut", delay },
               }}
-              style={{ position: "absolute", top: `${[-24, -14, -20, -10][i % 4]}%`, width: `${[34, 42, 30, 36][i % 4]}%`, height: "auto" }}
+              style={{ position: "absolute", top: `${[-22, -12, -18, -8][slot % 4]}%`, width: `${[30, 36, 26, 32][slot % 4]}%`, height: "auto" }}
             />
           );
         })}

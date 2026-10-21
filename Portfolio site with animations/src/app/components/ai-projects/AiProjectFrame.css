@@ -22,6 +22,11 @@
   transform-origin: center bottom;
 }
 
+.ai-project-card__photo--vinyl {
+  transform: translateX(-50%);
+  transform-origin: center center;
+}
+
 @media (hover: hover) {
   .ai-project-card:hover .ai-project-card__photo--piano {
     transform: translateY(-50%) scale(1.05);
@@ -30,6 +35,9 @@
     transform: scale(1.05);
   }
   .ai-project-card:hover .ai-project-card__photo--breathing {
+    transform: translateX(-50%) scale(1.05);
+  }
+  .ai-project-card:hover .ai-project-card__photo--vinyl {
     transform: translateX(-50%) scale(1.05);
   }
 }

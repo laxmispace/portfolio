@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { AiProjectFrameKey } from "@/app/data/aiProjects";
 import "./AiProjectFrame.css";
 
@@ -11,6 +11,9 @@ import logoJobTracker from "@/assets/ai-projects/logo-job-tracker.svg";
 import pianoImg from "@/assets/ai-projects/piano.png";
 import jobTrackerImg from "@/assets/ai-projects/job-tracker.png";
 import breathingImg from "@/assets/ai-projects/breathing.png";
+import vinylDisc from "@/assets/vinyl-player/vinyl-disc.png";
+import { Vinyl } from "@/app/components/about/Vinyl";
+import { useSpotifyPlayer } from "@/app/hooks/useSpotifyPlayer";
 import { colors } from "@/app/theme/tokens";
 
 // The decorative grid is authored at 240×240 with 30px cells. On web it's pinned
@@ -38,6 +41,7 @@ const FRAME_BACKGROUND: Record<AiProjectFrameKey, string> = {
   piano: colors.orange,
   "job-tracker": colors.olive,
   breathing: colors.pink,
+  vinyl: colors.orangeLight,
 };
 
 // Foreground photo placement, shared by web and mobile. Each photo keeps its natural
@@ -48,7 +52,35 @@ const PHOTO_STYLE: Record<AiProjectFrameKey, CSSProperties> = {
   piano: { right: "-6%", top: "50%", height: "72%", width: "auto" },
   "job-tracker": { right: "-4%", bottom: 0, width: "72%", height: "auto", borderRadius: "8px 0 0 0" },
   breathing: { left: "50%", bottom: 0, height: "84%", width: "auto" },
+  vinyl: {},
 };
+
+// The live record: same disc as the About Me player, wearing whatever I'm listening
+// to right now. It only turns while a song is actually playing.
+function VinylFrame() {
+  const { track } = useSpotifyPlayer();
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState(0);
+
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    // offsetHeight stays in page px under the desktop html zoom
+    const ro = new ResizeObserver(() => setSize(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={boxRef}
+      className="ai-project-card__photo ai-project-card__photo--vinyl"
+      style={{ position: "absolute", left: "50%", top: "12%", bottom: "12%", aspectRatio: "1 / 1" }}
+    >
+      {size > 0 && <Vinyl size={size} art={track?.albumArt || vinylDisc} spinning={!!track?.isPlaying} />}
+    </div>
+  );
+}
 
 function FrameImg({ src, style, className }: { src: string; style: CSSProperties; className?: string }) {
   return (
@@ -116,6 +148,14 @@ export function AiProjectFrame({
           <FrameImg src={gridBreathingLeft} style={{ ...grid, left: 0 }} />
           <FrameImg src={gridBreathingRight} style={{ ...grid, right: 0 }} />
           <FrameImg src={breathingImg} className="ai-project-card__photo ai-project-card__photo--breathing" style={photo} />
+        </>
+      )}
+
+      {frameKey === "vinyl" && (
+        <>
+          <FrameImg src={gridBreathingLeft} style={{ ...grid, left: 0, opacity: 0.6 }} />
+          <FrameImg src={gridBreathingRight} style={{ ...grid, right: 0, opacity: 0.6 }} />
+          <VinylFrame />
         </>
       )}
     </div>

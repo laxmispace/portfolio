@@ -12,6 +12,11 @@ import "./CaseStudy.css";
 import coverAnimationUrl from "@/assets/case-studies/fastag/videos/cover-nw.json?url";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
+// ─── CS1 cover (iTravel) - a 2:1 looping video; whatever .mp4 sits in its "video cover" folder ───
+const itravelCoverVideo = Object.values(
+  import.meta.glob<string>("@/assets/case-studies/itravel/video cover/*.mp4", { eager: true, query: "?url", import: "default" }),
+)[0];
+
 // Pre-generated ElevenLabs narration lives in public/audio/ (see scripts/generate-voiceovers.mjs)
 // - base-aware so it resolves correctly whether served at "/" locally or "/portfolio/" on GitHub Pages.
 const caseStudyAudioUrl = (slug: string) => `${import.meta.env.BASE_URL}audio/case-study/${slug}.mp3`;
@@ -42,13 +47,43 @@ export interface CaseStudyInfo {
    *  1600×800 (2:1), exported @2x; every cover slot - the home card, the case study's
    *  hero and the "read more" cards - is 2:1, so it shows uncropped everywhere. */
   cover?: string;
+  /** A 2:1 video cover; plays muted on a loop in place of `cover`. */
+  video?: string;
 }
 
 // Every cover slot is this shape (see `cover` above).
 export const COVER_RATIO = "2 / 1";
 
+/** A muted, looping cover video. `muted` is set on the element itself (React only sets the
+ *  property), since iOS won't autoplay without the attribute; reduced motion holds the first frame. */
+function CoverVideo({ src, poster }: { src: string; poster?: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = true;
+    v.setAttribute("muted", "");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    v.play().catch(() => {});
+  }, []);
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      muted
+      loop
+      playsInline
+      preload="auto"
+      aria-hidden="true"
+      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+    />
+  );
+}
+
 /** The case study's cover, filling its 2:1 slot - or the grid placeholder until there is one. */
 export function CaseStudyCover({ cs, iconSize = 40 }: { cs: CaseStudyInfo; iconSize?: number }) {
+  if (cs.video) return <CoverVideo src={cs.video} poster={cs.cover} />;
   if (cs.cover) {
     return <img src={cs.cover} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
   }
@@ -88,6 +123,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
   {
     index: 0,
     slug: "icici-bank-onboarding",
+    video: itravelCoverVideo,
     label: "CASE STUDY 1",
     color: colors.olive,
     textColor: colors.oliveDeep,

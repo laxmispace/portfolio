@@ -1,7 +1,7 @@
 // The site's buttons, so every one looks like it belongs:
 //   SquiggleLink  - orange serif words over a hand-drawn wavy underline, like the footer's
 //                   "Book a call"; on hover the line refills darker, or a scribbled oval
-//                   loops around the words ("view all ai projects", "more about me").
+//                   loops around the words ("view all ai projects", "work experience").
 //   PrimaryButton - the chunky pill with a hard ink shadow ("post it").
 //   TextLink      - italic serif with an arrow that nudges on hover ("read case study").
 //   ICON_BUTTON   - the size for round icon-only buttons (close, play), 36 desktop / 32 phone.

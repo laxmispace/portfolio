@@ -1,8 +1,15 @@
 
-import { colors, withAlpha } from "@/app/theme/tokens";export type AiProjectKind = "webapp" | "extension";
+import { colors, withAlpha } from "@/app/theme/tokens";
+
+export type AiProjectKind = "webapp" | "extension" | "player";
 
 /** Projects with hand-designed card artwork - see AiProjectFrame. */
-export type AiProjectFrameKey = "piano" | "job-tracker" | "breathing";
+export type AiProjectFrameKey = "piano" | "job-tracker" | "breathing" | "vinyl";
+
+export interface AiProjectStep {
+  title: string;
+  body: string;
+}
 
 export interface AiProject {
   id: number;
@@ -24,12 +31,17 @@ export interface AiProject {
   videoUrl?: string;
   /** When set, the card's image area renders the matching hand-designed frame. */
   frameKey?: AiProjectFrameKey;
+  /** player: how it was built, shown as numbered steps in the drawer. */
+  steps?: AiProjectStep[];
+  /** player: the small behaviours worth knowing about. */
+  interactions?: string[];
 }
 
 // A project is clickable/openable when it has something to actually show -
 // a live url for webapps, or a download/video for extensions.
 export function isOpenableAiProject(project: AiProject): boolean {
   if (project.kind === "extension") return Boolean(project.downloadUrl || project.videoUrl);
+  if (project.kind === "player") return Boolean(project.steps?.length);
   return Boolean(project.url);
 }
 
@@ -79,6 +91,52 @@ export const AI_PROJECTS: AiProject[] = [
     accent: colors.olive,
     url: "https://laxmispace.github.io/breathing-app/",
     frameKey: "breathing",
+  },
+  {
+    id: 10,
+    kind: "player",
+    title: "Spotify vinyl player",
+    description: "A record player that shows what I'm actually listening to on Spotify, right now - the disc only spins while a song is playing.",
+    longDescription:
+      "The vinyl in my About Me page isn't a mock - it's wired to my real Spotify account. Visitors see whatever I'm playing (or the last thing I played), and the record turns only while music is actually on. Here's how it came together.",
+    tags: ["Spotify API", "Cloudflare Worker", "Interactive"],
+    status: "Live",
+    statusColor: colors.pink,
+    accent: colors.pink,
+    frameKey: "vinyl",
+    steps: [
+      {
+        title: "Create a Spotify app",
+        body: "In the Spotify Developer Dashboard, create an app and copy its Client ID. Add the live site URL and http://127.0.0.1:5173/portfolio/ as Redirect URIs - Spotify rejects \"localhost\", so the local preview has to be opened through 127.0.0.1.",
+      },
+      {
+        title: "Sign in from the browser with PKCE",
+        body: "The site uses the Authorization Code + PKCE flow, so no client secret ever ships to the browser. It asks for read scopes (currently playing, playback state, recently played) and one control scope (modify playback).",
+      },
+      {
+        title: "Poll what's playing",
+        body: "Once signed in, the player asks /me/player every few seconds for the current track, its album art and progress. If nothing is on, it falls back to the most recently played song so the record is never empty.",
+      },
+      {
+        title: "Get a refresh token",
+        body: "Visitors can't log in as me, so a small script (scripts/spotify-refresh-token.mjs) runs the sign-in once and prints a long-lived refresh token.",
+      },
+      {
+        title: "Put it behind a Cloudflare Worker",
+        body: "A tiny Worker stores the Client ID, secret and refresh token as secrets (wrangler secret put …), swaps them for access tokens, and serves only what I'm listening to. It's read-only - nobody can control my Spotify through it - and it only answers this site's origin.",
+      },
+      {
+        title: "Point the site at the Worker",
+        body: "The Worker's URL goes into src/app/lib/links.ts. The site checks it every 15 seconds, so every visitor sees the same song I'm hearing, no sign-in needed.",
+      },
+    ],
+    interactions: [
+      "The record only spins while I'm actually listening. When the song pauses, it eases to a stop instead of freezing mid-turn.",
+      "The album art of the current song becomes the record's label, so the disc changes with every track.",
+      "When nothing is playing, it shows the last song I played rather than an empty player.",
+      "Play, pause and seeking control real playback, which Spotify only allows on a Premium account with an active device. On a free account these controls won't work.",
+      "Visitors get a read-only view with a \"listen on Spotify\" link instead of playback controls.",
+    ],
   },
   {
     id: 1,
