@@ -1,6 +1,6 @@
 // Loading screen: the little character waves hello with his flowers on a warm orange page
-// (soft glow, paper grain), and three typing ellipses pulse above his head, then
-// "hey" types itself in. After that a big pink flower (the outline of
+// (soft glow, paper grain), and three small cream dots pulse above his head, then
+// "hey" rises in letter by letter. After that a big pink flower (the outline of
 // src/assets/loader/loading-flower.svg) blooms out of his waving hand, spinning, until it
 // covers the whole screen, while a flock of birds flies out past the edges. Then a
 // flower-shaped hole opens in the pink - with an olive layer trailing just behind it as a
@@ -20,61 +20,58 @@ const STAGE = 280; // the character's width on the loader
 const BLOOM_AT = { x: (HELLO_PALM.x - VB.x) / VB.w, y: (HELLO_PALM.y - VB.y) / VB.h };
 const HEAD_AT = { x: (HELLO_HEAD.x - VB.x) / VB.w, y: (HELLO_HEAD.y - VB.y) / VB.h };
 
-// ── the greeting: three typing ellipses pulse above his head, then "hey" types itself in ──
+// ── the greeting: three small cream dots pulse above his head, then "hey" rises in,
+// one soft letter at a time, in light italic Caslon ──
 const HELLO = "hey";
-const DOTS_MS = 1100; // how long the ellipses pulse before the word starts (after they appear)
-const TYPE_MS = 110; // per letter - slow enough to read as typing
+const DOTS_MS = 1100; // how long the dots pulse before the word starts (after they appear)
+const LETTER_S = 0.12; // stagger between letters
+const CREAM = colors.sandLight;
 
 function Hey() {
   const reduce = useReducedMotion();
-  const [typed, setTyped] = useState(reduce ? HELLO.length : 0);
+  const [word, setWord] = useState(!!reduce);
   useEffect(() => {
     if (reduce) return;
-    let n = 0, id = 0;
-    const start = window.setTimeout(() => {
-      id = window.setInterval(() => {
-        n += 1;
-        setTyped(n);
-        if (n >= HELLO.length) window.clearInterval(id);
-      }, TYPE_MS);
-    }, 400 + DOTS_MS);
-    return () => { window.clearTimeout(start); window.clearInterval(id); };
+    const t = window.setTimeout(() => setWord(true), 400 + DOTS_MS);
+    return () => window.clearTimeout(t);
   }, [reduce]);
-  const typing = typed === 0;
 
   return (
     <motion.div
       aria-hidden="true"
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0, y: -6, transition: { duration: 0.2, ease: "easeIn" } }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+      transition={{ duration: 0.4, delay: 0.4 }}
       style={{
         position: "absolute", left: `${HEAD_AT.x * 100}%`, bottom: `${(1 - HEAD_AT.y) * 100 + 4}%`, x: "-50%", // centred over his head
-        height: 40, display: "flex", alignItems: "flex-end", justifyContent: "center", whiteSpace: "nowrap",
+        height: 32, display: "flex", alignItems: "flex-end", justifyContent: "center", whiteSpace: "nowrap",
       }}
     >
       <AnimatePresence mode="wait" initial={false}>
-        {typing ? (
-          <motion.span key="dots" exit={{ opacity: 0, transition: { duration: 0.12 } }} style={{ display: "flex", gap: 6, paddingBottom: 8 }}>
+        {!word ? (
+          <motion.span key="dots" exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }} style={{ display: "flex", gap: 5, paddingBottom: 6 }}>
             {[0, 1, 2].map((i) => (
               <motion.span
                 key={i}
-                animate={reduce ? undefined : { y: [0, -5, 0], opacity: [0.35, 1, 0.35] }}
-                transition={{ duration: 0.75, repeat: Infinity, ease: "easeInOut", delay: i * 0.16 }}
-                style={{ width: 9, height: 7, borderRadius: "50%", backgroundColor: colors.ink }}
+                animate={{ scale: [0.7, 1, 0.7], opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: i * 0.18 }}
+                style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: CREAM }}
               />
             ))}
           </motion.span>
         ) : (
-          <motion.span
-            key="word"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.12 }}
-            style={{ fontFamily: fonts.serif, fontStyle: "italic", fontWeight: 400, fontSize: 40, lineHeight: "40px", color: colors.ink, letterSpacing: "-0.01em" }}
-          >
-            {HELLO.slice(0, typed)}
+          <motion.span key="word" style={{ display: "flex", fontFamily: fonts.serif, fontStyle: "italic", fontWeight: 400, fontSize: 26, lineHeight: "32px", color: CREAM }}>
+            {HELLO.split("").map((ch, i) => (
+              <motion.span
+                key={i}
+                initial={reduce ? false : { opacity: 0, y: 8, filter: "blur(3px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1], delay: i * LETTER_S }}
+              >
+                {ch}
+              </motion.span>
+            ))}
           </motion.span>
         )}
       </AnimatePresence>
@@ -87,11 +84,11 @@ const GRAIN = `url("data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>`,
 )}")`;
 
-// A soft ordered dither along the bottom of the page: chunky 3px dots in a darker orange,
+// A soft ordered dither along the bottom of the page: chunky 3px dots in a deeper orange,
 // densest at the bottom edge and thinning out upward, its top edge rolling in a slow wave.
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
 const DOT = 3; // css px per dither dot
-const INK = [0x73, 0x59, 0x33, 0.3]; // colors.brown, faint
+const INK = [0xB0, 0x69, 0x29, 0.55]; // a deeper shade of the page's own orange, so it reads tone-on-tone
 
 function Dither() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -133,7 +130,7 @@ function Dither() {
   return (
     <canvas
       ref={ref}
-      style={{ position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "34%", imageRendering: "pixelated", mixBlendMode: "multiply" }}
+      style={{ position: "absolute", left: 0, right: 0, bottom: 0, width: "100%", height: "34%", imageRendering: "pixelated" }}
     />
   );
 }

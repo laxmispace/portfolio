@@ -42,6 +42,9 @@ const Figure = () => (
   <g transform={SHIFT}>
     <path d={INK} fill={FOOTER_GROUND} />
     <path d={GROUND} fill={FOOTER_GROUND} />
+    {/* square off the ground line's rounded ends so the dark ground meets both edges flat */}
+    <rect x={-60} y={899.74} width={70} height={520} fill={FOOTER_GROUND} />
+    <rect x={4125} y={819.44} width={75} height={600} fill={FOOTER_GROUND} />
     {FILLS.map((f, i) => <path key={i} d={f.d} fill={f.color} />)}
   </g>
 );
