@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { ArrowLeft } from "lucide-react";
 import { AI_PROJECTS, isOpenableAiProject, type AiProject } from "@/app/data/aiProjects";
 import { AiProjectDrawer } from "./AiProjectDrawer";
-import { ANIMATION_DEMOS } from "./AnimationDemos";
+import { AiProjectFrame } from "./AiProjectFrame";
 import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
+import { ICON_BUTTON } from "@/app/components/ui/Buttons";
 import { toCss } from "@/app/lib/zoom";
 
 // Bubble colours (sand at low opacity over the ink page)
@@ -290,11 +292,12 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
               btnRefs.current[i] = el;
             }}
             onClick={() => onSelect(t.key)}
-            className="font-inclusive-sans font-semibold"
+            className="font-inclusive-sans"
             style={{
               position: "relative",
               zIndex: 1,
               fontSize: 16,
+              fontWeight: 400,
               lineHeight: "20px",
               textTransform: "uppercase",
               color: colors.sand,
@@ -316,28 +319,22 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
 }
 
 // ── Cards ──────────────────────────────────────────────────────────────────────
+// Same card as the homepage AI section - the hand-designed cover on top, title and
+// one line below - laid out three across, each cover inset so it has room to breathe.
 
-// Three across, 16px gutters - the inner rows are flex, not a grid.
-const CARD_BASIS = "calc((100% - 32px) / 3)";
+// The lab's line-up, in order: the three homepage projects, then the music player.
+const LAB_PROJECT_IDS = [9, 2, 0, 10];
+const LAB_PROJECTS = LAB_PROJECT_IDS.map((id) => AI_PROJECTS.find((p) => p.id === id)).filter(
+  (p): p is AiProject => Boolean(p),
+);
 
-const demoShell: React.CSSProperties = {
-  background: colors.sand,
-  borderRadius: 12,
-  minHeight: 480,
-  padding: 24,
-  display: "flex",
-  flexDirection: "column",
-  flex: `1 1 ${CARD_BASIS}`,
-  maxWidth: CARD_BASIS,
+const KIND_LABEL: Record<NonNullable<AiProject["kind"]>, string> = {
+  webapp: "web app",
+  extension: "chrome extension",
+  player: "spotify player",
 };
 
-const cardEnter = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-};
-
-// Project row - full-width, no artwork: title, byline, tag pills. Nothing else.
-function AiProjectCard({
+function LabProjectCard({
   project,
   index,
   onClick,
@@ -349,112 +346,126 @@ function AiProjectCard({
   const clickable = Boolean(onClick);
   return (
     <motion.div
-      {...cardEnter}
-      transition={{ duration: 0.4, delay: Math.min(index, 10) * 0.04, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={clickable ? { backgroundColor: "#ece3d8" } : undefined}
+      className="ai-project-card"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={clickable ? { y: -4 } : undefined}
       onClick={onClick}
       style={{
-        background: colors.sand,
-        borderRadius: 12,
-        padding: "20px 24px",
-        width: "100%",
+        background: withAlpha(colors.ink, 0.22),
+        borderRadius: 16,
+        padding: 20,
         display: "flex",
         flexDirection: "column",
-        gap: 10,
+        gap: 20,
         cursor: clickable ? "pointer" : "default",
-        opacity: clickable ? 1 : 0.7,
       }}
     >
-      <p
-        className="font-caslon"
-        style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.ink }}
+      <div
+        style={{
+          aspectRatio: "353 / 240",
+          borderRadius: 10,
+          position: "relative",
+          overflow: "hidden",
+          backgroundColor: withAlpha(colors.sand, 0.07),
+        }}
       >
-        {project.title}
-      </p>
-      <p className="font-inclusive-sans" style={{ fontSize: 14, lineHeight: "20px", color: withAlpha(colors.ink, 0.6) }}>
-        {project.description}
-      </p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {project.tags.map((tag) => (
-          <span
-            key={tag}
-            className="font-inclusive-sans"
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.3px",
-              padding: "3px 10px",
-              borderRadius: 999,
-              color: withAlpha(colors.ink, 0.55),
-              background: withAlpha(colors.ink, 0.06),
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tag}
-          </span>
-        ))}
+        {project.frameKey && <AiProjectFrame frameKey={project.frameKey} />}
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "0 4px 4px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16 }}>
+          <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 20, lineHeight: "26px", fontWeight: 600 }}>
+            {project.title}
+          </p>
+          <p className="font-caslon" style={{ color: withAlpha(colors.sand, 0.6), fontSize: 14, lineHeight: "20px", fontStyle: "italic", flexShrink: 0 }}>
+            {KIND_LABEL[project.kind ?? "webapp"]}
+            {clickable && <span style={{ fontStyle: "normal", marginLeft: 8 }}>→</span>}
+          </p>
+        </div>
+        <p className="font-inclusive-sans" style={{ color: withAlpha(colors.sand, 0.6), fontSize: 14, lineHeight: "21px", maxWidth: 520 }}>
+          {project.description}
+        </p>
       </div>
     </motion.div>
   );
 }
 
-function AnimationDemoCard({
-  demo,
-  index,
-}: {
-  demo: (typeof ANIMATION_DEMOS)[number];
-  index: number;
-}) {
-  const { number, title, tagline, Component } = demo;
+// Nothing in the animation lab yet - it fills up as new pieces get made.
+function AnimationLabEmpty() {
   return (
-    <motion.div
-      {...cardEnter}
-      transition={{ duration: 0.45, delay: Math.min(index, 8) * 0.05, ease: [0.16, 1, 0.3, 1] }}
-      style={demoShell}
+    <div
+      style={{
+        minHeight: 360,
+        borderRadius: 16,
+        border: `1px dashed ${withAlpha(colors.sand, 0.22)}`,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        textAlign: "center",
+        padding: 32,
+      }}
     >
-      <div
+      <p className="font-caslon" style={{ fontSize: 22, lineHeight: "28px", color: colors.sand, fontStyle: "italic" }}>
+        still brewing
+      </p>
+      <p style={{ ...textStyles.byline, color: withAlpha(colors.sand, 0.55) }}>
+        new animations will show up here soon
+      </p>
+    </div>
+  );
+}
+
+function BackHome({ onClick }: { onClick: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="font-inclusive-sans"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 10,
+        background: "none",
+        border: "none",
+        padding: 0,
+        cursor: "pointer",
+        color: colors.sand,
+        fontSize: 14,
+        fontWeight: 400,
+        lineHeight: "20px",
+      }}
+    >
+      <span
         style={{
-          position: "relative",
-          borderRadius: 8,
-          overflow: "hidden",
-          marginBottom: 20,
-          background: withAlpha(colors.ink, 0.05),
-          border: `1px solid ${withAlpha(colors.ink, 0.06)}`,
+          width: ICON_BUTTON.desktop,
+          height: ICON_BUTTON.desktop,
+          borderRadius: "50%",
+          backgroundColor: withAlpha(colors.sand, hover ? 0.16 : 0.08),
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "background-color 0.2s ease",
         }}
       >
-        <Component />
-        <span
-          className="font-inclusive-sans font-medium"
-          style={{
-            position: "absolute",
-            top: 12,
-            left: 12,
-            fontSize: 10,
-            letterSpacing: "1.4px",
-            textTransform: "uppercase",
-            color: withAlpha(colors.ink, 0.4),
-          }}
-        >
-          {number} · animation
-        </span>
-      </div>
-
-      <p
-        className="font-caslon"
-        style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.ink, marginBottom: 8 }}
-      >
-        {title}
-      </p>
-      <p className="font-inclusive-sans" style={{ fontSize: 14, lineHeight: "20px", color: withAlpha(colors.ink, 0.6) }}>
-        {tagline}
-      </p>
-    </motion.div>
+        <motion.span animate={{ x: hover ? -2 : 0 }} transition={{ duration: 0.2 }} style={{ display: "flex" }}>
+          <ArrowLeft size={16} color={colors.sand} />
+        </motion.span>
+      </span>
+      back to home
+    </button>
   );
 }
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 interface AiProjectsPageProps {
-  /** Kept for the host route - no visible control; Esc returns to the portfolio. */
+  /** Back to the portfolio - the header button, or Esc. */
   onBack?: () => void;
 }
 
@@ -486,9 +497,14 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
         style={{
           position: "relative",
           zIndex: 2,
-          padding: "40px 36px 0",
+          padding: "28px 36px 0",
         }}
       >
+        {onBack && (
+          <div style={{ marginBottom: 28 }}>
+            <BackHome onClick={onBack} />
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 20, flex: 1, minWidth: 0 }}>
             <LabMark />
@@ -509,8 +525,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
         </div>
       </header>
 
-      {/* The raised olive container - full-bleed, painted on top of the bubble layer.
-          Projects fill it edge to edge; the animation grid keeps a 36px inset. */}
+      {/* The raised olive container - full-bleed, painted on top of the bubble layer. */}
       <main
         style={{
           position: "relative",
@@ -519,31 +534,24 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
           background: colors.oliveDeep,
           borderRadius: "24px 24px 0 0",
           overflow: "hidden",
-          padding: projectView ? 0 : 36,
-          minHeight: projectView ? undefined : "calc(100vh / var(--page-zoom) - 148px)",
+          padding: 36,
+          minHeight: "calc(100vh / var(--page-zoom) - 210px)",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 16,
-            flexDirection: projectView ? "column" : "row",
-          }}
-        >
-          {projectView
-            ? AI_PROJECTS.map((project, i) => (
-                <AiProjectCard
-                  key={project.id}
-                  project={project}
-                  index={i}
-                  onClick={isOpenableAiProject(project) ? () => setSelected(project) : undefined}
-                />
-              ))
-            : ANIMATION_DEMOS.map((demo, i) => (
-                <AnimationDemoCard key={`demo-${demo.number}`} demo={demo} index={i} />
-              ))}
-        </div>
+        {projectView ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 24, maxWidth: 1440, margin: "0 auto" }}>
+            {LAB_PROJECTS.map((project, i) => (
+              <LabProjectCard
+                key={project.id}
+                project={project}
+                index={i}
+                onClick={isOpenableAiProject(project) ? () => setSelected(project) : undefined}
+              />
+            ))}
+          </div>
+        ) : (
+          <AnimationLabEmpty />
+        )}
       </main>
     </div>
   );
