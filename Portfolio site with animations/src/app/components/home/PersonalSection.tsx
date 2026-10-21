@@ -355,7 +355,7 @@ export function PersonalSection({ onAboutOpen }: PersonalSectionProps) {
 
       {onAboutOpen && (
         <div style={{ marginTop: isMobile ? 32 : 40 }}>
-          <SquiggleLink onClick={onAboutOpen} hover="oval" style={{ fontSize: isMobile ? 20 : 24, lineHeight: isMobile ? "28px" : "32px" }}>work experience</SquiggleLink>
+          <SquiggleLink onClick={onAboutOpen} style={{ fontSize: isMobile ? 20 : 24, lineHeight: isMobile ? "28px" : "32px" }}>work experience</SquiggleLink>
         </div>
       )}
 
