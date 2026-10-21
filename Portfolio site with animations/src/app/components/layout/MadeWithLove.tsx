@@ -45,7 +45,8 @@ function burstHearts(from: DOMRect) {
   }, 320);
 }
 
-export function MadeWithLove({ fontSize = 12, color = colors.oliveDeep }: { fontSize?: number; color?: string }) {
+/** `heart` colours the heart and its ripples; it defaults to the site orange. */
+export function MadeWithLove({ fontSize = 12, color = colors.oliveDeep, heart = colors.orange }: { fontSize?: number; color?: string; heart?: string }) {
   const heartRef = useRef<HTMLButtonElement>(null);
   const pulse = useAnimationControls();
   const reduceMotion = useReducedMotion();
@@ -84,12 +85,12 @@ export function MadeWithLove({ fontSize = 12, color = colors.oliveDeep }: { font
               style={{
                 position: "absolute", left: "50%", top: "50%", width: ringSize, height: ringSize,
                 marginLeft: -ringSize / 2, marginTop: -ringSize / 2, borderRadius: "50%",
-                border: `1.5px solid ${colors.orange}`, pointerEvents: "none",
+                border: `1.5px solid ${heart}`, pointerEvents: "none",
               }}
             />
           ))}
         <svg width={fontSize + 2} height={fontSize + 2} viewBox="0 0 24 24" aria-hidden="true" style={{ position: "relative" }}>
-          <path d={HEART_PATH} fill={colors.orange} />
+          <path d={HEART_PATH} fill={heart} />
         </svg>
       </motion.button>
     </p>

@@ -207,13 +207,14 @@ export default function App() {
                   <SiteFooter isMobile={isMobile} />
                 </>
               )}
-              {/* the footer's dark ground runs on a little past the drawing */}
-              <div className={isMobile ? undefined : "rounded-b-2xl"} style={{ height: isMobile ? 24 : 33, marginTop: -1, position: "relative", backgroundColor: FOOTER_GROUND }} />
-              {/* On phones the sign-off sits on its own strip at the very end of the page, not in the sticky nav */}
-              {isMobile && (
-                <div className="rounded-b-2xl" style={{ display: "flex", justifyContent: "center", padding: "14px 16px 16px", backgroundColor: colors.oliveDeep }}>
-                  <MadeWithLove fontSize={11} color={colors.sand} />
+              {/* the footer's dark ground runs on a little past the drawing; on phones it also
+                  carries the sign-off at the very end of the page (not in the sticky nav) */}
+              {isMobile ? (
+                <div className="rounded-b-2xl" style={{ display: "flex", justifyContent: "center", padding: "16px 16px 24px", marginTop: -1, position: "relative", backgroundColor: FOOTER_GROUND }}>
+                  <MadeWithLove fontSize={14} color={colors.sand} heart={colors.sand} />
                 </div>
+              ) : (
+                <div className="rounded-b-2xl" style={{ height: 33, marginTop: -1, position: "relative", backgroundColor: FOOTER_GROUND }} />
               )}
             </div>
           </ScrollContext.Provider>
