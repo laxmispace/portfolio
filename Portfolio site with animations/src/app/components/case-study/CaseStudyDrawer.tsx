@@ -12,10 +12,8 @@ import "./CaseStudy.css";
 import coverAnimationUrl from "@/assets/case-studies/fastag/videos/cover-nw.json?url";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
-// ─── CS1 cover (iTravel) - a 2:1 looping video; whatever .mp4 sits in its "video cover" folder ───
-const itravelCoverVideo = Object.values(
-  import.meta.glob<string>("@/assets/case-studies/itravel/video cover/*.mp4", { eager: true, query: "?url", import: "default" }),
-)[0];
+// ─── CS1 cover (iTravel) - "Story 4.0", exported at 2400×1200 (2:1) ───
+import itravelCover from "@/assets/case-studies/itravel/cover.jpg";
 
 // Pre-generated ElevenLabs narration lives in public/audio/ (see scripts/generate-voiceovers.mjs)
 // - base-aware so it resolves correctly whether served at "/" locally or "/portfolio/" on GitHub Pages.
@@ -123,7 +121,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
   {
     index: 0,
     slug: "icici-bank-onboarding",
-    video: itravelCoverVideo,
+    cover: itravelCover,
     label: "CASE STUDY 1",
     color: colors.olive,
     textColor: colors.oliveDeep,
