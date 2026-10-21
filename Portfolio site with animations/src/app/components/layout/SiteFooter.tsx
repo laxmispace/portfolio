@@ -153,7 +153,7 @@ function Daydream({ viewBox }: { viewBox: string }) {
 export function SiteFooter({ isMobile }: { isMobile: boolean }) {
   const line = (
     <p className="font-caslon" style={{ fontSize: isMobile ? 22 : 32, lineHeight: isMobile ? "30px" : "40px", fontWeight: 500, letterSpacing: "-0.01em", color: colors.ink }}>
-      Open to good work and good people.
+      I’m open to full-time and freelancing opportunities.
       <br />
       <SquiggleLink href={CALENDLY_URL}>Book a call</SquiggleLink>
     </p>

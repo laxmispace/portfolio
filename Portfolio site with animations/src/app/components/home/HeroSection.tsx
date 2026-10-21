@@ -107,7 +107,7 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
           animate={ready ? { opacity: 1, x: 0, transition: { duration: 1.1, ease: EASE, delay: 0.25 } } : { opacity: 0, x: 60 }}
           style={
             isMobile
-              ? { width: "min(80%, 40dvh)", alignSelf: "flex-end", marginTop: "auto", marginBottom: 40, marginRight: 8 } // clears the place/time block
+              ? { width: "min(56%, 28dvh)", alignSelf: "flex-end", marginTop: "auto", marginBottom: 40, marginRight: 8 } // tucked bottom-right, clear of the place/time block
               : { position: "absolute", right: "5%", bottom: "4%", width: "clamp(300px, 36%, 600px)" }
           }
         >
