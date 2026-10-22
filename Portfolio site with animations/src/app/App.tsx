@@ -20,11 +20,40 @@ import { colors } from "@/app/theme/tokens";
  
 type Page = "portfolio" | "ai-projects";
 
+const LAB_HASH = "#lab";
+
 export default function App() {
   const isMobile = useIsMobile();
-  const [page, setPage] = useState<Page>("portfolio");
+  // The lab lives at #lab with its own history entry, so the browser's back button
+  // (and the lab's own) return to the portfolio exactly where it was left.
+  const [page, setPage] = useState<Page>(() =>
+    typeof window !== "undefined" && window.location.hash === LAB_HASH ? "ai-projects" : "portfolio",
+  );
+
+  useEffect(() => {
+    const onPop = () => setPage(window.location.hash === LAB_HASH ? "ai-projects" : "portfolio");
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const openLab = useCallback(() => {
+    window.history.pushState({ lab: true }, "", LAB_HASH);
+    setPage("ai-projects");
+  }, []);
+
+  const closeLab = useCallback(() => {
+    // Opened from the site: step back through history. Landed straight on #lab: just drop the hash.
+    if (window.history.state?.lab) {
+      window.history.back();
+      return;
+    }
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    setPage("portfolio");
+  }, []);
   // The orange loading screen plays once per page load.
-  const [introDone, setIntroDone] = useState(false);
+  // Landing straight on the lab skips it - it would only play over the lab.
+  const [skipIntro] = useState(() => page === "ai-projects");
+  const [introDone, setIntroDone] = useState(skipIntro);
 
   // Every button and link on the site answers with the old-Windows click.
   useEffect(() => {
@@ -139,21 +168,20 @@ export default function App() {
     // on first render those refs are still null and nothing gets observed.
   }, [scrollEl]);
 
-  if (page === "ai-projects") {
-    return (
-      <div
-        className="h-screen w-screen"
-        style={{ minWidth: 1280, backgroundColor: colors.ink, overflowY: "auto" }}
-      >
-        <AiProjectsPage onBack={() => setPage("portfolio")} />
-      </div>
-    );
-  }
-
   return (
     <>
+    {/* The lab sits over the portfolio instead of replacing it, so coming back
+        doesn't remount the site (and replay the intro) or lose the scroll spot. */}
+    {page === "ai-projects" && (
+      <div
+        className="h-screen w-screen"
+        style={{ position: "fixed", inset: 0, zIndex: 1000, backgroundColor: colors.ink, overflowY: "auto", overflowX: "hidden" }}
+      >
+        <AiProjectsPage onBack={closeLab} />
+      </div>
+    )}
     {/* stays mounted so it can fade itself out over the hero */}
-    <IntroLoader onDone={() => setIntroDone(true)} />
+    {!skipIntro && <IntroLoader onDone={() => setIntroDone(true)} />}
     <div
       className="app-shell h-screen w-screen bg-white flex overflow-hidden"
       style={{ padding: 12 }}
@@ -189,7 +217,7 @@ export default function App() {
                   </div>
 
                   <div ref={aiProjectsRef} id="ai-projects">
-                    <AiProjectsSection onViewAll={() => setPage("ai-projects")} />
+                    <AiProjectsSection onViewAll={openLab} />
                   </div>
 
                   <div ref={aboutRef} id="about">
@@ -220,7 +248,7 @@ export default function App() {
         </div>
 
         {/* Bottom nav band - fixed to the lower 20%, homepage only, no drawer open */}
-        {isMobile && !aboutOpen && !csDrawerOpen && !blogOpen && (
+        {isMobile && page === "portfolio" && !aboutOpen && !csDrawerOpen && !blogOpen && (
           <MobileBottomNav activeSection={activeSection} onNavigate={navigateTo} />
         )}
       </div>
