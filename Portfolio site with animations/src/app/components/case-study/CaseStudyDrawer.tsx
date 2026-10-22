@@ -1,15 +1,14 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Play, Pause, Volume2 } from "lucide-react";
-import { Lottie } from "lottie-react";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { useAudioPlayer } from "@/app/hooks/useAudioPlayer";
 import { Spacer, ThumbnailPlaceholder, StrokedImage, SectionBlock, SectionHeading, BodyText } from "./CaseStudyPrimitives";
 import { ItravelCaseStudy, FastagCaseStudy } from "./CaseStudyContent";
 import "./CaseStudy.css";
 
-// ─── CS2 cover (ICICI FASTag) - animated cover, native size 1800×1200 (3:2) ───
-import coverAnimationUrl from "@/assets/case-studies/fastag/videos/cover-nw.json?url";
+// ─── CS2 cover (ICICI FASTag) - "FASTag cover", exported at 2400×1200 (2:1) ───
+import fastagCover from "@/assets/case-studies/fastag/cover.jpg";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
 // ─── CS1 cover (iTravel) - "Story 4.0", exported at 2400×1200 (2:1) ───
@@ -142,6 +141,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
   {
     index: 1,
     slug: "icici-fastag-platform",
+    cover: fastagCover,
     label: "CASE STUDY 2",
     color: colors.orange,
     textColor: colors.ink,
@@ -181,17 +181,6 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     comingSoon: true,
   },
 ];
-
-// ─── FASTag cover: Lottie animation, native 1800×1200 (3:2) ──────────────────
-// Width fills its container; height hugs the animation's own aspect ratio,
-// so it scales down proportionally instead of stretching to a fixed box.
-function CoverAnimation({ radius = 0 }: { radius?: number }) {
-  return (
-    <div style={{ width: "100%", aspectRatio: "1800 / 1200", borderRadius: radius, overflow: "hidden" }}>
-      <Lottie src={coverAnimationUrl} loop autoplay style={{ width: "100%", height: "100%" }} />
-    </div>
-  );
-}
 
 // ─── Content helpers ──────────────────────────────────────────────────────────
 // ─── Desktop meta-chip strip (replaces the old left-sidebar meta list) ────────
@@ -579,15 +568,11 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                     <Spacer size={8} />
                   </div>
 
-                  {/* Hero: FASTag gets its animated cover, others keep the 264px placeholder */}
+                  {/* Hero: the case study's 2:1 cover (or the grid placeholder until it has one) */}
                   <div style={{ backgroundColor: colors.white, overflow: "hidden", flexShrink: 0 }}>
-                    {caseStudy.index === 1 ? (
-                      <CoverAnimation />
-                    ) : (
-                      <div style={{ aspectRatio: COVER_RATIO }}>
-                        <CaseStudyCover cs={caseStudy} iconSize={40} />
-                      </div>
-                    )}
+                    <div style={{ aspectRatio: COVER_RATIO }}>
+                      <CaseStudyCover cs={caseStudy} iconSize={40} />
+                    </div>
                   </div>
 
                   {/* Meta table + content */}
@@ -721,13 +706,9 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         transition={{ duration: 0.6, delay: 0.1 }}
                         style={{ backgroundColor: colors.white, borderRadius: 8, marginBottom: caseStudy.index === 0 ? 24 : 32, overflow: "hidden" }}
                       >
-                        {caseStudy.index === 1 ? (
-                          <CoverAnimation radius={8} />
-                        ) : (
-                          <div style={{ aspectRatio: COVER_RATIO }}>
-                            <CaseStudyCover cs={caseStudy} iconSize={48} />
-                          </div>
-                        )}
+                        <div style={{ aspectRatio: COVER_RATIO }}>
+                          <CaseStudyCover cs={caseStudy} iconSize={48} />
+                        </div>
                       </motion.div>
 
                       {/* keyed on the case study so the chips re-run their left→right
