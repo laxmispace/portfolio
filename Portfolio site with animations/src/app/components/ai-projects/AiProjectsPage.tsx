@@ -1,14 +1,22 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { AI_PROJECTS, isOpenableAiProject, type AiProject } from "@/app/data/aiProjects";
 import { AiProjectDrawer } from "./AiProjectDrawer";
 import { AiProjectFrame } from "./AiProjectFrame";
 import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
-import { ICON_BUTTON } from "@/app/components/ui/Buttons";
 import { toCss } from "@/app/lib/zoom";
+import { useIsMobile } from "@/app/hooks/useIsMobile";
+
+// The animation lab pulls in p5 and three.js - only fetch them once the tab is opened.
+const AnimationLab = lazy(() => import("./AnimationLab").then((m) => ({ default: m.AnimationLab })));
 
 // Bubble colours (sand at low opacity over the ink page)
+// The lab page: dark green, with a sand container running edge to edge below the header.
+const PAGE_BG = colors.ink;
+const SHEET_BG = colors.sand;
+
+// Bubbles (sand at low opacity over the dark page)
 const BUBBLE_FILL = withAlpha(colors.sand, 0.1);
 const BUBBLE_STROKE = withAlpha(colors.sand, 0.16);
 
@@ -137,16 +145,16 @@ function BubbleField() {
 function LabMark() {
   const reduced = useMemo(prefersReducedMotion, []);
   const bubbles = [
-    { left: 14, size: 8, dur: 2.4, delay: 0 },
-    { left: 32, size: 6, dur: 2.9, delay: 0.7 },
-    { left: 44, size: 10, dur: 2.2, delay: 1.2 },
-    { left: 24, size: 5, dur: 3.1, delay: 1.9 },
+    { left: 9, size: 6, dur: 2.4, delay: 0 },
+    { left: 22, size: 4, dur: 2.9, delay: 0.7 },
+    { left: 30, size: 7, dur: 2.2, delay: 1.2 },
+    { left: 16, size: 4, dur: 3.1, delay: 1.9 },
   ];
   return (
     <div
       style={{
-        width: 64,
-        height: 64,
+        width: 44,
+        height: 44,
         borderRadius: 8,
         background: colors.orange,
         position: "relative",
@@ -160,7 +168,7 @@ function LabMark() {
           left: 0,
           right: 0,
           bottom: 0,
-          height: 22,
+          height: 15,
           background: "rgba(255,246,235,0.14)",
         }}
       />
@@ -178,7 +186,7 @@ function LabMark() {
               background: "rgba(255,246,235,0.55)",
               border: "1px solid rgba(255,246,235,0.7)",
             }}
-            animate={{ y: [0, -72], opacity: [0, 1, 0], scale: [0.6, 1, 0.9] }}
+            animate={{ y: [0, -50], opacity: [0, 1, 0], scale: [0.6, 1, 0.9] }}
             transition={{ duration: b.dur, delay: b.delay, repeat: Infinity, ease: "easeOut" }}
           />
         ))}
@@ -190,8 +198,8 @@ function LabMark() {
 
 type TabKey = "animation" | "project";
 const TABS: { key: TabKey; label: string }[] = [
-  { key: "animation", label: "Animation Lab" },
-  { key: "project", label: "Project Lab" },
+  { key: "animation", label: "Animation lab" },
+  { key: "project", label: "Project lab" },
 ];
 
 const GOO_ID = "ai-projects-tab-goo";
@@ -217,6 +225,7 @@ function GooDefs() {
 
 // Opaque equivalent of rgba(227,217,206,0.18) over the #212012 header - needed
 // because the gooey alpha trick only works on near-opaque sources.
+// Opaque equivalent of sand at ~18% over the dark page - the gooey trick needs an opaque fill.
 const PILL = "#444134";
 
 function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => void }) {
@@ -251,7 +260,7 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
   return (
     <div
       ref={wrapRef}
-      style={{ position: "relative", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}
+      style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}
     >
       {/* Gooey highlight - two blobs chase the same target at different spring
           rates, so during a click they stretch apart then fuse under the filter.
@@ -296,17 +305,16 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
             style={{
               position: "relative",
               zIndex: 1,
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: 400,
               lineHeight: "20px",
-              textTransform: "uppercase",
               color: colors.sand,
               background: on ? "transparent" : withAlpha(colors.sand, 0.1),
               border: "none",
               borderRadius: 999,
-              padding: "8px 12px",
+              padding: "6px 14px",
               cursor: "pointer",
-              transition: "background 0.2s ease",
+              transition: "background 0.2s ease, color 0.25s ease",
               whiteSpace: "nowrap",
             }}
           >
@@ -334,6 +342,9 @@ const KIND_LABEL: Record<NonNullable<AiProject["kind"]>, string> = {
   player: "spotify player",
 };
 
+const SAND_SOFT = "rgba(227, 224, 208, 0.1)";
+
+// Cover on top (700×400 in the design), details on an ink band underneath.
 function LabProjectCard({
   project,
   index,
@@ -350,72 +361,64 @@ function LabProjectCard({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={clickable ? { y: -4 } : undefined}
       onClick={onClick}
       style={{
-        background: withAlpha(colors.ink, 0.22),
-        borderRadius: 16,
-        padding: 20,
         display: "flex",
         flexDirection: "column",
-        gap: 20,
+        borderRadius: 16,
+        overflow: "hidden",
         cursor: clickable ? "pointer" : "default",
       }}
     >
-      <div
-        style={{
-          aspectRatio: "353 / 240",
-          borderRadius: 10,
-          position: "relative",
-          overflow: "hidden",
-          backgroundColor: withAlpha(colors.sand, 0.07),
-        }}
-      >
+      <div style={{ position: "relative", aspectRatio: "700 / 400", background: colors.oliveDeep }}>
         {project.frameKey && <AiProjectFrame frameKey={project.frameKey} />}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "0 4px 4px" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16 }}>
-          <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 20, lineHeight: "26px", fontWeight: 600 }}>
-            {project.title}
-          </p>
-          <p className="font-caslon" style={{ color: withAlpha(colors.sand, 0.6), fontSize: 14, lineHeight: "20px", fontStyle: "italic", flexShrink: 0 }}>
-            {KIND_LABEL[project.kind ?? "webapp"]}
-            {clickable && <span style={{ fontStyle: "normal", marginLeft: 8 }}>→</span>}
+      <div style={{ display: "flex", alignItems: "center", gap: 16, padding: 16, background: colors.ink, flex: 1 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 16, lineHeight: "20px", fontWeight: 600 }}>
+              {project.title}
+            </p>
+            <span
+              className="font-inclusive-sans"
+              style={{
+                padding: 6,
+                borderRadius: 4,
+                background: withAlpha(colors.oliveDeep, 0.2),
+                color: colors.sand,
+                fontSize: 11,
+                lineHeight: "12px",
+                textTransform: "uppercase",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {KIND_LABEL[project.kind ?? "webapp"]}
+            </span>
+          </div>
+          <p className="font-inclusive-sans" style={{ color: colors.sand, opacity: 0.8, fontSize: 14, lineHeight: "20px" }}>
+            {project.description}
           </p>
         </div>
-        <p className="font-inclusive-sans" style={{ color: withAlpha(colors.sand, 0.6), fontSize: 14, lineHeight: "21px", maxWidth: 520 }}>
-          {project.description}
-        </p>
+        {clickable && (
+          <span
+            aria-hidden
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 32,
+              background: SAND_SOFT,
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ArrowRight size={14} color={colors.sand} />
+          </span>
+        )}
       </div>
     </motion.div>
-  );
-}
-
-// Nothing in the animation lab yet - it fills up as new pieces get made.
-function AnimationLabEmpty() {
-  return (
-    <div
-      style={{
-        minHeight: 360,
-        borderRadius: 16,
-        border: `1px dashed ${withAlpha(colors.sand, 0.22)}`,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        textAlign: "center",
-        padding: 32,
-      }}
-    >
-      <p className="font-caslon" style={{ fontSize: 22, lineHeight: "28px", color: colors.sand, fontStyle: "italic" }}>
-        still brewing
-      </p>
-      <p style={{ ...textStyles.byline, color: withAlpha(colors.sand, 0.55) }}>
-        new animations will show up here soon
-      </p>
-    </div>
   );
 }
 
@@ -430,34 +433,23 @@ function BackHome({ onClick }: { onClick: () => void }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 10,
+        gap: 6,
         background: "none",
         border: "none",
         padding: 0,
         cursor: "pointer",
-        color: colors.sand,
+        color: withAlpha(colors.sand, hover ? 1 : 0.6),
         fontSize: 14,
         fontWeight: 400,
         lineHeight: "20px",
+        transition: "color 0.2s ease",
+        flexShrink: 0,
       }}
     >
-      <span
-        style={{
-          width: ICON_BUTTON.desktop,
-          height: ICON_BUTTON.desktop,
-          borderRadius: "50%",
-          backgroundColor: withAlpha(colors.sand, hover ? 0.16 : 0.08),
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          transition: "background-color 0.2s ease",
-        }}
-      >
-        <motion.span animate={{ x: hover ? -2 : 0 }} transition={{ duration: 0.2 }} style={{ display: "flex" }}>
-          <ArrowLeft size={16} color={colors.sand} />
-        </motion.span>
-      </span>
-      back to home
+      <motion.span animate={{ x: hover ? -2 : 0 }} transition={{ duration: 0.2 }} style={{ display: "flex" }}>
+        <ArrowLeft size={14} color="currentColor" />
+      </motion.span>
+      home
     </button>
   );
 }
@@ -483,75 +475,93 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
   }, [onBack, selected]);
 
   const projectView = tab === "project";
+  const isMobile = useIsMobile();
+
+  const title = (
+    <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
+      <LabMark />
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+        <p className="font-caslon" style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.sand }}>
+          This is my <span style={{ fontStyle: "italic" }}>personal lab</span>
+        </p>
+        <p style={{ ...textStyles.byline, color: withAlpha(colors.sand, 0.6) }}>where risk is zero and satisfaction is total</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div style={{ position: "relative", minHeight: "calc(100vh / var(--page-zoom))", background: colors.ink, overflowX: "hidden" }}>
+    <div
+      style={{
+        position: "relative",
+        minHeight: "calc(100vh / var(--page-zoom))",
+        backgroundColor: PAGE_BG,
+        overflowX: "hidden",
+      }}
+    >
 
       <GooDefs />
       <BubbleField />
 
       <AiProjectDrawer project={selected} onClose={() => setSelected(null)} />
 
-      {/* Header - orange lab mark + title, filter tabs on the right */}
-      <header
-        style={{
-          position: "relative",
-          zIndex: 2,
-          padding: "28px 36px 0",
-        }}
-      >
-        {onBack && (
-          <div style={{ marginBottom: 28 }}>
-            <BackHome onClick={onBack} />
+      {/* Header - back link, lab mark + title, tabs. On phones the back link and tabs
+          share the top row and the title drops beneath them. */}
+      <header style={{ position: "relative", zIndex: 2, padding: isMobile ? "20px 16px 0" : "28px 32px 0" }}>
+        {isMobile ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              {onBack ? <BackHome onClick={onBack} /> : <span />}
+              <Tabs active={tab} onSelect={setTab} />
+            </div>
+            {title}
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1, minWidth: 0 }}>
+              {onBack && (
+                <>
+                  <BackHome onClick={onBack} />
+                  <span aria-hidden style={{ width: 1, height: 28, background: withAlpha(colors.sand, 0.15), margin: "0 4px" }} />
+                </>
+              )}
+              {title}
+            </div>
+            <Tabs active={tab} onSelect={setTab} />
           </div>
         )}
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 20, flex: 1, minWidth: 0 }}>
-            <LabMark />
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 0 }}>
-              <p
-                className="font-caslon"
-                style={{ fontStyle: "normal", fontSize: 24, lineHeight: "28px", fontWeight: 600, color: colors.sand }}
-              >
-                This is my <span style={{ fontStyle: "italic" }}>personal lab</span>
-              </p>
-              <p style={{ ...textStyles.byline, color: withAlpha(colors.sand, 0.6) }}>
-                where risk is zero and satisfaction is total
-              </p>
-            </div>
-          </div>
-
-          <Tabs active={tab} onSelect={setTab} />
-        </div>
       </header>
 
-      {/* The raised olive container - full-bleed, painted on top of the bubble layer. */}
+      {/* The container: sand, edge to edge, rounded at the top, painted over the bubble
+          layer. The work fills it, 40px in from every side (16px on a phone). */}
       <main
         style={{
           position: "relative",
           zIndex: 1,
-          marginTop: 40,
-          background: colors.oliveDeep,
-          borderRadius: "24px 24px 0 0",
-          overflow: "hidden",
-          padding: 36,
-          minHeight: "calc(100vh / var(--page-zoom) - 210px)",
+          marginTop: isMobile ? 20 : 28,
+          background: SHEET_BG,
+          borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0",
+          padding: isMobile ? 16 : 40,
+          minHeight: "calc(100vh / var(--page-zoom) - 120px)",
         }}
       >
-        {projectView ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 24, maxWidth: 1440, margin: "0 auto" }}>
-            {LAB_PROJECTS.map((project, i) => (
-              <LabProjectCard
-                key={project.id}
-                project={project}
-                index={i}
-                onClick={isOpenableAiProject(project) ? () => setSelected(project) : undefined}
-              />
-            ))}
-          </div>
-        ) : (
-          <AnimationLabEmpty />
-        )}
+        <div>
+          {projectView ? (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 360px), 1fr))", gap: isMobile ? 20 : 32 }}>
+              {LAB_PROJECTS.map((project, i) => (
+                <LabProjectCard
+                  key={project.id}
+                  project={project}
+                  index={i}
+                  onClick={isOpenableAiProject(project) ? () => setSelected(project) : undefined}
+                />
+              ))}
+            </div>
+          ) : (
+            <Suspense fallback={null}>
+              <AnimationLab />
+            </Suspense>
+          )}
+        </div>
       </main>
     </div>
   );

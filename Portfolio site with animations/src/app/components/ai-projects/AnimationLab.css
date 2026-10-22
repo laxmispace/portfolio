@@ -1,0 +1,9 @@
+/* Text drawn inside the lab's own experiments (the book spines and covers) is set in
+   Hanken Grotesk. Everything around them - titles, chips, hints, buttons - stays in the
+   portfolio's type. */
+
+.lab-own,
+.lab-own * {
+  font-family: "Hanken Grotesk", sans-serif;
+}
+

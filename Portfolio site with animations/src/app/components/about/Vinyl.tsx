@@ -23,11 +23,13 @@ const VINYL_LABEL = [
   // [diameter in Figma px, styles]
   [150, { background: "#9799A5" }],
   [118, { background: "#CAC4C8", border: "1px solid #ABA7AB" }],
-  [88, { background: colors.white }],
+  [88, { background: "spindle" }],
   [110, { borderStyle: "dashed", borderColor: "#B2A9AF", borderWidthPx: 7 }],
 ] as const;
 
-export function Vinyl({ size, art, spinning }: { size: number; art: string; spinning: boolean }) {
+export function Vinyl({
+  size, art, spinning, spindle = colors.white, artFilter,
+}: { size: number; art: string; spinning: boolean; spindle?: string; artFilter?: string }) {
   const k = size / 428;
   const round: React.CSSProperties = { position: "absolute", borderRadius: "50%", boxSizing: "border-box" };
   return (
@@ -37,7 +39,7 @@ export function Vinyl({ size, art, spinning }: { size: number; art: string; spin
         transition={spinning ? { duration: 12, repeat: Infinity, ease: "linear" } : { duration: 0.6, ease: "easeOut" }}
         style={{ position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden" }}
       >
-        <img src={art} alt="" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+        <img src={art} alt="" style={{ display: "block", width: "100%", height: "100%", objectFit: "cover", filter: artFilter }} />
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, backgroundImage: NOISE_URL, backgroundSize: "128px 128px" }} />
         {VINYL_LABEL.map(([d, st], i) => {
           const { borderWidthPx, ...rest } = st as Record<string, string | number> & { borderWidthPx?: number };
@@ -48,6 +50,7 @@ export function Vinyl({ size, art, spinning }: { size: number; art: string; spin
               style={{
                 ...round,
                 ...rest,
+                ...(rest.background === "spindle" ? { background: spindle } : {}),
                 ...(borderWidthPx ? { borderWidth: Math.max(1, borderWidthPx * k) } : {}),
                 width: `${(d / 428) * 100}%`, height: `${(d / 428) * 100}%`,
                 left: `${((428 - d) / 2 / 428) * 100}%`, top: `${((428 - d) / 2 / 428) * 100}%`,
