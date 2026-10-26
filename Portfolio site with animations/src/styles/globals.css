@@ -1,0 +1,6 @@
+
+/* Text selection in the site's own palette (orangeLight under ink), not the browser blue. */
+::selection {
+  background-color: #D19761;
+  color: #212012;
+}

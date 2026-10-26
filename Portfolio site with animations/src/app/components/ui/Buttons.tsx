@@ -3,7 +3,8 @@
 //                   "Book a call"; on hover the line refills darker, or a scribbled oval
 //                   loops around the words ("view all ai projects", "work experience").
 //   PrimaryButton - the chunky pill with a hard ink shadow ("post it").
-//   TextLink      - italic serif with an arrow that nudges on hover ("read case study").
+//   TextLink      - a SquiggleLink at body size ("read case study") - same type, colour and
+//                   underline as the footer's "Book a call"; only the size changes. No italics.
 //   ICON_BUTTON   - the size for round icon-only buttons (close, play), 36 desktop / 32 phone.
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
 import { motion } from "motion/react";
@@ -21,12 +22,22 @@ const OVAL = "M14 30 C 4 18, 22 5, 52 4 S 99 9, 97 22 S 72 39, 46 38 S 1 33, 4 2
  *  the font size is inherited unless `style` sets it. `hover="refill"` redraws the line in
  *  `deep`; `hover="oval"` keeps the line and scribbles an oval around the words instead. */
 export function SquiggleLink({
-  children, onClick, href, color = colors.orange, deep = colors.orangeDeep, hover: mode = "refill", style,
+  children, onClick, href, color = colors.orange, deep = colors.orangeDeep, hover: mode = "refill", hovered, as = "button", style,
 }: {
   children: ReactNode; onClick?: () => void; href?: string; color?: string; deep?: string;
-  hover?: "refill" | "oval"; style?: CSSProperties;
+  hover?: "refill" | "oval";
+  /** Lets a parent (a whole card) drive the hover. */
+  hovered?: boolean;
+  /** "span" when it sits inside something that's already clickable. */
+  as?: "button" | "span";
+  style?: CSSProperties;
 }) {
-  const [on, setOn] = useState(false);
+  const [own, setOn] = useState(false);
+  const on = hovered ?? own;
+  // The line keeps the footer's weight relative to its words: 3px at the footer's 32px,
+  // thinning in step with smaller sizes (never under 1px). Inherited size = footer weight.
+  const size = typeof style?.fontSize === "number" ? style.fontSize : 32;
+  const stroke = Math.min(3, Math.max(1, (size * 3) / 32));
   const id = useId().replace(/:/g, "");
   // The visible strokes keep a fixed screen width (non-scaling), which throws off a dash-based
   // draw-on; so each one is revealed through a mask: a fat copy of the same path drawn in
@@ -46,18 +57,18 @@ export function SquiggleLink({
     <>
       {children}
       <svg aria-hidden="true" viewBox="0 0 100 12" preserveAspectRatio="none" style={{ position: "absolute", left: "-2%", width: "104%", top: "88%", height: "0.34em", overflow: "visible", pointerEvents: "none" }}>
-        <path d={WAVE} fill="none" stroke={color} strokeWidth={3} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={WAVE} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         {mode === "refill" && (
           <>
             <defs>{reveal(WAVE, `${id}-line`)}</defs>
-            <path d={WAVE} fill="none" stroke={deep} strokeWidth={3} strokeLinecap="round" vectorEffect="non-scaling-stroke" mask={`url(#${id}-line)`} />
+            <path d={WAVE} fill="none" stroke={deep} strokeWidth={stroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" mask={`url(#${id}-line)`} />
           </>
         )}
       </svg>
       {mode === "oval" && (
         <svg aria-hidden="true" viewBox="0 0 100 42" preserveAspectRatio="none" style={{ position: "absolute", left: "-14%", width: "128%", top: "-45%", height: "190%", overflow: "visible", pointerEvents: "none" }}>
           <defs>{reveal(OVAL, `${id}-oval`)}</defs>
-          <path d={OVAL} fill="none" stroke={deep} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" mask={`url(#${id}-oval)`} />
+          <path d={OVAL} fill="none" stroke={deep} strokeWidth={(stroke * 2) / 3} strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" mask={`url(#${id}-oval)`} />
         </svg>
       )}
     </>
@@ -69,6 +80,7 @@ export function SquiggleLink({
   };
   const events = { onMouseEnter: () => setOn(true), onMouseLeave: () => setOn(false), onFocus: () => setOn(true), onBlur: () => setOn(false) };
   if (href) return <a href={href} target="_blank" rel="noopener noreferrer" style={look} {...events}>{body}</a>;
+  if (as === "span") return <span style={look} {...events}>{body}</span>;
   return (
     <button type="button" onClick={onClick} style={{ fontSize: "inherit", lineHeight: "inherit", background: "none", border: "none", padding: 0, cursor: "pointer", ...look }} {...events}>
       {body}
@@ -110,41 +122,15 @@ export function PrimaryButton({
   );
 }
 
-/** Italic serif link with an arrow. `hovered` lets a parent (a whole card) drive the hover. */
+/** The footer's text button at body size. `hovered` lets a parent (a whole card) drive the hover. */
 export function TextLink({
-  children, onClick, color = colors.ink, back = false, hovered, as = "button", style,
+  children, onClick, hovered, as = "button", style,
 }: {
-  children: ReactNode; onClick?: () => void; color?: string; back?: boolean; hovered?: boolean;
-  as?: "button" | "span"; style?: CSSProperties;
+  children: ReactNode; onClick?: () => void; hovered?: boolean; as?: "button" | "span"; style?: CSSProperties;
 }) {
-  const [own, setOwn] = useState(false);
-  const on = hovered ?? own;
-  const arrow = (
-    <motion.span aria-hidden="true" animate={{ x: on ? (back ? -4 : 4) : 0 }} transition={{ duration: 0.2, ease: EASE }} style={{ display: "inline-block", fontStyle: "normal" }}>
-      {back ? "←" : "→"}
-    </motion.span>
-  );
-  const body = (
-    <>
-      {back && arrow}
-      <span style={{ textDecoration: on ? "underline" : "none", textUnderlineOffset: 3 }}>{children}</span>
-      {!back && arrow}
-    </>
-  );
-  const look: CSSProperties = {
-    display: "inline-flex", alignItems: "center", gap: 4, flexShrink: 0,
-    fontFamily: fonts.serif, fontStyle: "italic", fontWeight: 400, fontSize: 16, lineHeight: "20px", color, ...style,
-  };
-  if (as === "span") return <span style={look}>{body}</span>;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => setOwn(true)}
-      onMouseLeave={() => setOwn(false)}
-      style={{ ...look, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-    >
-      {body}
-    </button>
+    <SquiggleLink onClick={onClick} hovered={hovered} as={as} style={{ fontSize: 16, lineHeight: "20px", flexShrink: 0, ...style }}>
+      {children}
+    </SquiggleLink>
   );
 }

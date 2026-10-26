@@ -283,7 +283,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
 
               {!isExtension && !isPlayer && project.url && (
                 <a href={project.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }} onMouseEnter={() => setLinkHover(true)} onMouseLeave={() => setLinkHover(false)}>
-                  <TextLink as="span" hovered={linkHover} color={colors.sand}>open in new tab</TextLink>
+                  <TextLink as="span" hovered={linkHover}>open in new tab</TextLink>
                 </a>
               )}
             </div>

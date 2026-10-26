@@ -17,21 +17,31 @@ import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { useScrollReveal } from "@/app/hooks/useScrollReveal";
 import { softTick, windowsClick } from "@/app/lib/feedback";
 import { colors } from "@/app/theme/tokens";
+import { BASE_URL } from "@/app/lib/routedSelection";
  
 type Page = "portfolio" | "ai-projects";
 
 const LAB_HASH = "#lab";
+// #lab, or a lab project at #lab/<slug>
+const isLabHash = (hash: string) => hash === LAB_HASH || hash.startsWith(`${LAB_HASH}/`);
+// The About Me drawer's own URL, e.g. /portfolio/about-me
+const ABOUT_URL = `${BASE_URL}about-me`;
+const isAboutPath = (pathname: string) => pathname.replace(/\/$/, "") === ABOUT_URL;
+const NAV_SECTIONS: NavSection[] = ["home", "projects", "ai-projects", "about", "blog"];
 
 export default function App() {
   const isMobile = useIsMobile();
   // The lab lives at #lab with its own history entry, so the browser's back button
   // (and the lab's own) return to the portfolio exactly where it was left.
   const [page, setPage] = useState<Page>(() =>
-    typeof window !== "undefined" && window.location.hash === LAB_HASH ? "ai-projects" : "portfolio",
+    typeof window !== "undefined" && isLabHash(window.location.hash) ? "ai-projects" : "portfolio",
   );
 
   useEffect(() => {
-    const onPop = () => setPage(window.location.hash === LAB_HASH ? "ai-projects" : "portfolio");
+    const onPop = () => {
+      setPage(isLabHash(window.location.hash) ? "ai-projects" : "portfolio");
+      setAboutOpen(isAboutPath(window.location.pathname));
+    };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
@@ -74,8 +84,28 @@ export default function App() {
       window.location.search.includes("code=") ||
       sessionStorage.getItem("spotify_reopen_about") === "1";
     if (returningFromSpotify) sessionStorage.removeItem("spotify_reopen_about");
-    return returningFromSpotify;
+    return returningFromSpotify || isAboutPath(window.location.pathname);
   });
+
+  // The About Me drawer gets its own URL too, so back closes it.
+  const openAbout = useCallback(() => {
+    window.history.pushState({ about: true }, "", ABOUT_URL);
+    setAboutOpen(true);
+  }, []);
+  const closeAbout = useCallback(() => {
+    if (window.history.state?.about) {
+      window.history.back();
+      return;
+    }
+    if (isAboutPath(window.location.pathname)) window.history.replaceState(null, "", BASE_URL);
+    setAboutOpen(false);
+  }, []);
+  // Landed straight on /about-me: put the portfolio underneath so back stays on the site.
+  useEffect(() => {
+    if (!isAboutPath(window.location.pathname)) return;
+    window.history.replaceState(null, "", BASE_URL);
+    window.history.pushState({ about: true }, "", ABOUT_URL);
+  }, []);
   const [csDrawerOpen, setCsDrawerOpen] = useState(false);
   const [blogOpen, setBlogOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -110,7 +140,21 @@ export default function App() {
     programmaticUntil.current = Date.now() + 800;
     container.scrollTo({ top: target.offsetTop, behavior: "smooth" });
     setActiveSection(section);
+    // Each nav click gets its own URL: /portfolio/#projects (home is the bare URL).
+    if (window.location.pathname.replace(/\/$/, "") === BASE_URL.replace(/\/$/, "") && !isLabHash(window.location.hash)) {
+      window.history.replaceState(window.history.state, "", section === "home" ? BASE_URL : `${BASE_URL}#${section}`);
+    }
   }, []);
+
+  // Landed on /portfolio/#blog etc.: jump there once the page has rendered.
+  useEffect(() => {
+    if (!scrollEl || !introDone) return;
+    const hash = window.location.hash.slice(1) as NavSection;
+    if (!NAV_SECTIONS.includes(hash)) return;
+    const t = setTimeout(() => navigateTo(hash), 100);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrollEl, introDone]);
 
   // One soft blip at the start of each manual scroll gesture (not nav clicks).
   const handleCardScroll = useCallback(() => {
@@ -189,7 +233,7 @@ export default function App() {
       <div className="app-shell__panel flex flex-1 rounded-2xl overflow-hidden" style={{ backgroundColor: colors.sandLight }}>
         <AboutMeDrawer
           open={aboutOpen}
-          onClose={() => setAboutOpen(false)}
+          onClose={closeAbout}
         />
         <div className="app-shell__side-nav">
           <SideNav activeSection={activeSection} onNavigate={navigateTo} />
@@ -221,7 +265,7 @@ export default function App() {
                   </div>
 
                   <div ref={aboutRef} id="about">
-                    <PersonalSection onAboutOpen={() => setAboutOpen(true)} />
+                    <PersonalSection onAboutOpen={openAbout} />
                   </div>
 
                   <div ref={blogRef} id="blog">

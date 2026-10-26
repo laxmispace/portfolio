@@ -1,9 +1,12 @@
 // "Leave a note" - a grid-paper board between two wooden rails at the end of the page.
 // Visitors peel a post-it off the pad, write on it, then carry it across the board and
-// stick it wherever they click. Anyone can drag the notes around afterwards. Notes never
-// overlap each other or the headline, scribble and pad - a dashed outline shows where a
-// note will land - and every spot is saved, so the next visitor sees the board as it was
-// left. On phones the pad sits on top and the board runs down below it.
+// stick it wherever they click. Anyone can drag the notes around afterwards. Notes can land
+// anywhere on the board and pile up over each other (the last one dropped sits on top); only
+// the headline, scribble and pads stay clear - a dashed outline shows where a note will land
+// if it has to shift off them. Every spot is saved, so the next visitor sees
+// the board as it was left. On phones the pads sit at the top and the board runs down below.
+// Only the newest notes stay out on the board; older ones gather in a pile at the bottom
+// that visitors tap to flip through.
 import { Component, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import {
   AnimatePresence, animate, motion, useAnimate, useMotionValue, useReducedMotion, useSpring, useTransform, useVelocity,
@@ -33,10 +36,12 @@ const FLOWER_IMG: Record<NoteColor, string> = { pink: flowerPinkImg, orange: flo
 
 // Per colour: the sheet on the pad, the form it opens into (its labels, avatar rings and
 // button) and the note it becomes on the board.
-const PALETTE: Record<NoteColor, { pad: string; form: string; label: string; ring: string; button: string; note: string }> = {
-  orange: { pad: colors.orange, form: "#E8CBB0", label: "#B4692B", ring: "#D9A779", button: "#F0DBC6", note: "#E8CBB0" },
-  pink: { pad: "#E4B4BE", form: "#E4B4BE", label: "#D07C8D", ring: "#D68F9E", button: "#EBC7CE", note: "#E4B4BE" },
-  green: { pad: colors.olive, form: "#E1DEB7", label: "#8C8640", ring: "#B9B47A", button: "#ECEAD2", note: "#E1DEB7" },
+// The stored keys are the original colours; on screen they're pastels:
+// orange → violet, pink → peach, green → yellow.
+const PALETTE: Record<NoteColor, { name: string; pad: string; form: string; label: string; ring: string; button: string; note: string }> = {
+  orange: { name: "violet", pad: "#C8B6E2", form: "#DDD1EF", label: "#7A62A6", ring: "#B4A0D6", button: "#E9E1F5", note: "#DDD1EF" },
+  pink: { name: "peach", pad: "#F3BE9E", form: "#F7D3BD", label: "#C0703F", ring: "#E8A982", button: "#FAE1D2", note: "#F7D3BD" },
+  green: { name: "yellow", pad: "#F0DC86", form: "#F6EBB4", label: "#957D1F", ring: "#DCC468", button: "#FAF2CF", note: "#F6EBB4" },
 };
 const META = "#53502D";
 const HINT = colors.oliveDeep; // the same deep olive as the site's labels, so it reads on the grid
@@ -50,10 +55,12 @@ const GRID_LINE = withAlpha("#B3AAA1", 0.35); // kept faint so the notes, not th
 // Everything lives in one coordinate space: px inside the board (the "frame"), rails
 // included. The headline/pad "stage" is drawn at design size and scaled to fit.
 const DESK = { rail: 48, baseH: 640, stageW: 833, stageH: 600, cell: 43 };
-const MOB = { rail: 32, stageW: 358, stageIdleH: 430, freeH: 300, cell: 22 };
+const MOB = { rail: 32, stageW: 358, stageIdleH: 262, freeH: 330, cell: 22 };
 const NOTE_W = 240;
 const NOTE_H = 154;
 const GAP = 8; // breathing room kept around every note
+const ON_BOARD = 7; // the newest notes stay out on the board; the rest go on the pile
+const PILE_LABEL = 60; // room above the pile for its handwritten label (and the top note's sticker)
 
 interface Geometry {
   mobile: boolean;
@@ -183,14 +190,15 @@ const STAGE: Record<"desktop" | "mobile", {
     hint: { x: 0, y: 300, r: -8, size: 24 },
     arrow: { x: 126, y: 367, w: 189, r: 0 },
   },
+  // the headline card on top; the smaller pads just under it, overlapping its bottom edge
   mobile: {
-    padScale: 0.62,
-    card: { x: 0, y: 48, w: 358, h: 122 },
-    pads: { orange: { x: 150, y: 236, r: 0.8 }, pink: { x: 182, y: 268, r: -8.74 }, green: { x: 212, y: 226, r: -10.06 } },
+    padScale: 0.42,
+    card: { x: 0, y: 8, w: 358, h: 122 },
+    pads: { orange: { x: 186, y: 112, r: 0.8 }, pink: { x: 216, y: 128, r: -8.74 }, green: { x: 248, y: 108, r: -10.06 } },
     tucked: [{ x: 168, y: 2, r: 0.8 }, { x: 206, y: -4, r: -10.06 }],
     form: { x: 0, y: 30, w: 358 },
-    hint: { x: 4, y: 262, r: -6, size: 18 },
-    arrow: { x: 14, y: 318, w: 122, r: -6 },
+    hint: { x: 4, y: 150, r: -6, size: 18 },
+    arrow: { x: 30, y: 198, w: 140, r: -10 },
   },
 };
 const PAD_W = 239.05;
@@ -200,7 +208,8 @@ const ARROW_RATIO = 62.18 / 189;
 const HINT_LINES = ["leave a sticky note", "for me from here"];
 const hintBox = (size: number) => ({ w: size * 8, h: size * 1.3 * HINT_LINES.length });
 
-/** The headline, scribble and pad, as board-px boxes notes have to stay clear of. */
+/** The headline, scribble and pads, as board-px boxes notes stay clear of (notes may
+ *  overlap each other, but never hide the welcome or the pads people pick from). */
 function stageObstacles(g: Geometry): Rect[] {
   const L = STAGE[g.mobile ? "mobile" : "desktop"];
   const toBoard = (r: Rect): Rect => ({ l: g.stageX + r.l * g.s, t: g.stageY + r.t * g.s, r: g.stageX + r.r * g.s, b: g.stageY + r.b * g.s });
@@ -212,6 +221,15 @@ function stageObstacles(g: Geometry): Rect[] {
     turnedBox(L.arrow.x, L.arrow.y, L.arrow.w, L.arrow.w * ARROW_RATIO, L.arrow.r),
     ...NOTE_COLORS.map((c) => turnedBox(L.pads[c].x, L.pads[c].y, pw, ph, L.pads[c].r)),
   ].map(toBoard);
+}
+
+/** Where the pile of older notes sits: at the bottom of the board, below every note on it
+ *  (`below` is the lowest note's bottom edge) - bottom-left, or centred on phones. */
+function pileSpot(g: Geometry, below: number): Point {
+  return { x: g.mobile ? (g.xMin + g.xMax) / 2 : g.xMin + 12, y: Math.max(g.yMaxBase, below + PILE_LABEL + 16) };
+}
+function pileRect(g: Geometry, at: Point): Rect {
+  return { l: at.x - 16, t: at.y - PILE_LABEL - 8, r: at.x + g.noteW + 28, b: at.y + g.noteH + 12 };
 }
 
 // Placeholder notes from me, shown while the board is still empty.
@@ -346,8 +364,8 @@ type NoteMotion = { x: MotionValue<number>; y: MotionValue<number> };
 
 /** A note on the board. Its position is a pair of motion values the board drives
  *  directly while it's being dragged, and springs to its resting spot otherwise. */
-function PlacedNote({ note, pos, g, index, fresh, focused, dragging, interactive, register, onPress, onToggle }: {
-  note: GuestbookNote; pos: Point; g: Geometry; index: number; fresh: boolean; focused: boolean; dragging: boolean;
+function PlacedNote({ note, pos, g, index, z, fresh, focused, dragging, interactive, register, onPress, onToggle }: {
+  note: GuestbookNote; pos: Point; g: Geometry; index: number; z: number; fresh: boolean; focused: boolean; dragging: boolean;
   interactive: boolean;
   register: (id: GuestbookNote["id"], m: NoteMotion | null) => void;
   onPress: (id: GuestbookNote["id"], e: React.PointerEvent) => void;
@@ -383,7 +401,7 @@ function PlacedNote({ note, pos, g, index, fresh, focused, dragging, interactive
       onHoverEnd={() => setHover(false)}
       style={{
         position: "absolute", left: 0, top: 0, x, y,
-        zIndex: dragging ? 1001 : focused ? 1000 : hover ? 999 : index + 1,
+        zIndex: dragging ? 1001 : focused ? 1000 : hover ? 999 : z,
         pointerEvents: interactive ? "auto" : "none",
         cursor: dragging ? "grabbing" : "grab",
         touchAction: "pan-y", // a swipe still scrolls the page; press-and-hold picks the note up
@@ -418,6 +436,86 @@ function PlacedNote({ note, pos, g, index, fresh, focused, dragging, interactive
         </motion.div>
       </motion.div>
     </motion.div>
+  );
+}
+
+/** The older notes, piled up at the bottom of the board, the most recently piled on top.
+ *  Tapping flicks the top one off and tucks it underneath, showing the next. */
+const PILE_DEPTH = 3; // cards drawn under the top one
+function NotePile({ notes, g, at }: { notes: GuestbookNote[]; g: Geometry; at: Point }) {
+  const reduce = useReducedMotion();
+  const [order, setOrder] = useState<NoteId[]>(() => notes.map((n) => n.id));
+  const [flick, setFlick] = useState<{ id: NoteId; n: number } | null>(null);
+  const [seen, setSeen] = useState(0);
+  // newly piled notes go on top; anything that left the pile drops out
+  useEffect(() => {
+    setOrder((prev) => {
+      const ids = notes.map((n) => n.id);
+      const added = ids.filter((id) => !prev.includes(id));
+      return [...added, ...prev.filter((id) => ids.includes(id))];
+    });
+  }, [notes]);
+  const byId = useMemo(() => new Map(notes.map((n) => [n.id, n])), [notes]);
+  const live = order.filter((id) => byId.has(id));
+  if (!live.length) return null;
+  const top = byId.get(live[0])!;
+
+  const flip = () => {
+    if (live.length < 2) return;
+    softTick(0.04);
+    haptic(8);
+    setFlick({ id: live[0], n: (flick?.n ?? 0) + 1 });
+    setOrder([...live.slice(1), live[0]]);
+    setSeen((v) => (v + 1) % live.length);
+  };
+  // a calm, stable lean for every card under the top one
+  const lean = (note: GuestbookNote, depth: number) => (depth === 0 ? clamp(note.tilt, -4, 4) : clamp(note.tilt, -6, 6) + (depth % 2 ? 3 : -3));
+  const flicked = flick && byId.get(flick.id);
+
+  return (
+    <div style={{ position: "absolute", left: at.x, top: at.y - PILE_LABEL, width: g.noteW, height: g.noteH + PILE_LABEL, zIndex: 0 }}>
+      <p
+        aria-hidden="true"
+        style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap", fontFamily: fonts.hand, fontSize: g.mobile ? 16 : 18, lineHeight: 1.2, color: HINT, rotate: "-2deg" }}
+      >
+        older notes · {seen + 1} of {live.length}{live.length > 1 ? " · tap to flip" : ""}
+      </p>
+      <button
+        type="button"
+        className="gb-note"
+        onClick={flip}
+        aria-label={`Older notes, ${seen + 1} of ${live.length}. Note from ${top.name}: ${top.message}.${live.length > 1 ? " Press for the next one." : ""}`}
+        style={{ position: "absolute", left: 0, top: PILE_LABEL, width: g.noteW, height: g.noteH, padding: 0, border: "none", background: "none", cursor: live.length > 1 ? "pointer" : "default", pointerEvents: "auto", textAlign: "left" }}
+      >
+        {live.slice(0, PILE_DEPTH + 1).map((id, d) => {
+          const note = byId.get(id)!;
+          return (
+            <motion.div
+              key={id}
+              initial={false}
+              animate={{ x: d * 4, y: d * 4, rotate: lean(note, d), opacity: d < PILE_DEPTH ? 1 : 0 }}
+              whileHover={d === 0 && !reduce ? { y: -4 } : undefined}
+              transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 30 }}
+              style={{ position: "absolute", left: 0, top: 0, zIndex: PILE_DEPTH + 1 - d, transformOrigin: "50% 60%" }}
+            >
+              <NoteCard note={note} k={g.k} lifted={d === 0} />
+            </motion.div>
+          );
+        })}
+        {/* the note just flipped, flying off the top before it tucks under */}
+        {flicked && !reduce && live.indexOf(flick.id) > PILE_DEPTH && (
+          <motion.div
+            key={`flick-${flick.n}`}
+            initial={{ x: 0, y: 0, rotate: lean(flicked, 0), opacity: 1 }}
+            animate={{ x: [0, g.noteW * 0.55, g.noteW * 0.3], y: [0, -24, 8], rotate: [lean(flicked, 0), 14, 6], opacity: [1, 1, 0] }}
+            transition={{ duration: 0.45, ease: EASE }}
+            style={{ position: "absolute", left: 0, top: 0, zIndex: PILE_DEPTH + 2, pointerEvents: "none" }}
+          >
+            <NoteCard note={flicked} k={g.k} lifted />
+          </motion.div>
+        )}
+      </button>
+    </div>
   );
 }
 
@@ -684,7 +782,7 @@ function HeadlineCard({ card, mobile, minH, onBack }: { card: CardState; mobile:
         <p style={title}>Now find it a <i>spot</i>.</p>
         <p style={body}>{mobile ? "Drag it anywhere on the board, then tap “stick it here”." : "Move it around and click anywhere on the board to stick it."}</p>
         <div className="gb-btn" style={{ alignSelf: "flex-start" }}>
-          <TextLink onClick={onBack} back color={colors.oliveDeep}>keep editing</TextLink>
+          <TextLink onClick={onBack}>keep editing</TextLink>
         </div>
       </>
     );
@@ -780,7 +878,7 @@ function Pads({ phase, chosen, mobile, onPick }: { phase: Phase; chosen: NoteCol
             key={c}
             type="button"
             className="gb-pad"
-            aria-label={`Write on the ${c} post-it`}
+            aria-label={`Write on the ${PALETTE[c].name} post-it`}
             disabled={!idle}
             onClick={() => onPick(c)}
             initial={false}
@@ -890,41 +988,44 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
   const landX = useMotionValue(0); // where a let-go note will land
   const landY = useMotionValue(0);
 
+  const all = useMemo(() => (notes.length ? notes : loading ? [] : SEEDS), [notes, loading]);
+  // newest first: the first few stay on the board (drawn oldest → newest, so the newest is
+  // on top), the rest go on the pile
+  const { shown, piled } = useMemo(() => {
+    const newest = [...all].sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+    return { shown: newest.slice(0, ON_BOARD).reverse(), piled: newest.slice(ON_BOARD) };
+  }, [all]);
+  const hasPile = piled.length > 0;
   const g = useMemo(() => geometry(isMobile, width || (isMobile ? 375 : 1200)), [isMobile, width]);
   const L = STAGE[isMobile ? "mobile" : "desktop"];
-  const obstacles = useMemo(() => stageObstacles(g), [g]);
-  const shown = useMemo(() => (notes.length ? notes : loading ? [] : SEEDS), [notes, loading]);
+  const stageBlocks = useMemo(() => stageObstacles(g), [g]);
 
-  // Settle every note into the nearest free spot to where it was left, oldest first, so
-  // nothing overlaps whatever the screen size (and the board grows if it runs out of room).
+  // Every note goes where it was left - notes may overlap each other - shifted only if it
+  // would cover the headline, scribble or pads (the board grows to fit the lowest one).
   const layout = useMemo(() => {
     const spots = new Map<NoteId, Point>();
-    const rects = new Map<NoteId, Rect>();
-    const blockers = [...obstacles];
     let bottom = 0;
     for (const n of shown) {
       const o = moved.get(n.id) ?? n;
-      const p = findSpot(g, toFrame(g, o.pos_x, o.pos_y), n.tilt, blockers, Infinity);
-      const f = footprint(g, p.x, p.y, n.tilt);
+      const p = findSpot(g, toFrame(g, o.pos_x, o.pos_y), n.tilt, stageBlocks, Infinity);
       spots.set(n.id, p);
-      rects.set(n.id, f);
-      blockers.push(f);
       bottom = Math.max(bottom, p.y + g.noteH);
     }
-    return { spots, rects, bottom };
-  }, [shown, moved, g, obstacles]);
+    // the pile goes under all of them; notes can't be dropped on it
+    const pile = hasPile ? pileSpot(g, bottom) : null;
+    if (pile) bottom = pile.y + g.noteH;
+    return { spots, bottom, pile };
+  }, [shown, moved, g, stageBlocks, hasPile]);
+  const obstacles = useMemo(() => (layout.pile ? [...stageBlocks, pileRect(g, layout.pile)] : stageBlocks), [stageBlocks, layout.pile, g]);
+
+  // Stacking: oldest at the bottom; a note that's been moved this visit comes to the top.
+  const [raised, setRaised] = useState<NoteId[]>([]);
+  const zOf = (id: NoteId, i: number) => { const r = raised.indexOf(id); return r < 0 ? i + 1 : shown.length + r + 1; };
 
   const placing = phase === "placing" || phase === "sticking";
-  // While carrying a note onto a full board, open up a fresh strip at the bottom.
-  const boardFull = useMemo(() => {
-    if (!placing) return false;
-    const yl = g.baseH - g.rail - 10 - g.noteH;
-    const blockers = [...obstacles, ...layout.rects.values()];
-    const p = findSpot(g, { x: g.xMin, y: g.yMin }, 0, blockers, yl);
-    return p.y > yl || blockers.some((b) => overlaps(footprint(g, p.x, p.y, 0), b));
-  }, [placing, g, obstacles, layout]);
-  let frameH = Math.max(g.baseH, layout.bottom + 10 + g.rail);
-  if (placing && boardFull) frameH = Math.max(frameH, layout.bottom + g.noteH + 40 + g.rail);
+  const frameH0 = Math.max(g.baseH, layout.bottom + 10 + g.rail);
+  // while carrying a note, keep a little room below the lowest one to put it under
+  let frameH = placing ? Math.max(frameH0, layout.bottom + g.noteH * 0.5 + g.rail) : frameH0;
   const stageH = isMobile ? (phase === "writing" ? Math.max(MOB.stageIdleH, L.form.y + formH + 24) : MOB.stageIdleH) : DESK.stageH;
   if (isMobile && phase === "writing") frameH = Math.max(frameH, g.stageY + stageH * g.s + 10 + g.rail);
   const yLimit = Math.max(g.yMin, frameH - g.rail - 10 - g.noteH);
@@ -978,12 +1079,8 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
       const r = frameRef.current!.getBoundingClientRect();
       return { x: toCss(cx - r.left), y: toCss(cy - r.top) };
     };
-    const blockersExcept = (id: NoteId | null) => {
-      const { obstacles, layout } = live.current;
-      const out = [...obstacles];
-      layout.rects.forEach((r, k) => { if (k !== id) out.push(r); });
-      return out;
-    };
+    // only the stage is off limits; notes can sit on top of each other
+    const blockersExcept = (_id: NoteId | null) => live.current.obstacles;
     const showLanding = (x: number, y: number, t: number, id: NoteId | null) => {
       const { g, yLimit } = live.current;
       const spot = findSpot(g, { x, y }, t, blockersExcept(id), yLimit);
@@ -1085,6 +1182,7 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
         const spot = findSpot(g, { x: m.x.get(), y: m.y.get() }, p.tilt, blockersExcept(p.id), yLimit);
         const pos = fromFrame(g, spot.x, spot.y);
         setMoved((prev) => new Map(prev).set(p.id, pos));
+        setRaised((prev) => [...prev.filter((id) => id !== p.id), p.id]);
         moveNote(p.id, pos).catch(() => { /* stays moved for this visit */ });
       }
       setDraggingId(null);
@@ -1417,6 +1515,7 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
                   peeling notes off the board…
                 </p>
               )}
+              {layout.pile && <NotePile notes={piled} g={g} at={layout.pile} />}
               {shown.map((note, i) => (
                 <PlacedNote
                   key={note.id}
@@ -1424,6 +1523,7 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
                   pos={layout.spots.get(note.id) ?? { x: g.xMin, y: g.yMin }}
                   g={g}
                   index={i}
+                  z={zOf(note.id, i)}
                   fresh={note.id === freshId}
                   focused={note.id === focusId}
                   dragging={note.id === draggingId}

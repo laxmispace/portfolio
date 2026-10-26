@@ -74,12 +74,60 @@ export function SectionBlock({ id, children }: { id: string; children: React.Rea
   );
 }
 
-export function SectionHeading({ children, isMobile = false }: { children: React.ReactNode; isMobile?: boolean }) {
+// ─── Type scale (one for both case studies) ──────────────────────────────────
+//   SectionHeading  Caslon 28 (24 on phones)  a numbered section - the big break
+//   MinorHeading    Caslon 20                 a beat inside a section
+//   SubHeading      Sans 16 medium, ink       a lead-in line ("There are 3 user types:")
+//   IterationLabel  Sans 12 caps, orange      an eyebrow over a step or iteration
+//   BodyText        Sans 16/26                everything else
+// Nothing above medium (500): size and typeface carry the hierarchy.
+
+// `eyebrow` is the chapter marker above the heading ("The setup", "Part 1", "Epilogue") -
+// it's what makes the sections read as one story rather than separate chunks.
+export function SectionHeading({ children, eyebrow, isMobile = false }: { children: React.ReactNode; eyebrow?: string; isMobile?: boolean }) {
   return (
-    <p className="font-caslon not-italic case-study-heading" style={{
-      fontSize: isMobile ? 24 : 24,
-      color: colors.ink, fontWeight: 600, lineHeight: "normal",
-    }}>
+    <div className="case-study-heading" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {eyebrow && (
+        <p className="font-inclusive-sans font-normal" style={{ fontSize: 12, lineHeight: "16px", letterSpacing: "0.08em", textTransform: "uppercase", color: colors.orange }}>
+          {eyebrow}
+        </p>
+      )}
+      <p className="font-caslon not-italic case-study-heading--major" style={{
+        fontSize: isMobile ? 24 : 28,
+        color: colors.ink, fontWeight: 500, lineHeight: 1.2, letterSpacing: "-0.01em",
+      }}>
+        {children}
+      </p>
+    </div>
+  );
+}
+
+// ─── Bullet list: the one list style for every case study ────────────────────
+// Plain items, or { title, text } pairs - title in ink, the explanation beneath in body.
+export type BulletItem = string | { title: string; text: string };
+
+export function BulletList({ items }: { items: BulletItem[] }) {
+  return (
+    <ul className="font-inclusive-sans font-normal case-study-bullets" style={{ fontSize: 16, lineHeight: "26px", color: colors.body, letterSpacing: "0.1px" }}>
+      {items.map((item, i) => (
+        <li key={i}>
+          {typeof item === "string" ? (
+            <span>{item}</span>
+          ) : (
+            <span style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <span className="font-medium" style={{ color: colors.ink }}>{item.title}</span>
+              <span>{item.text}</span>
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function MinorHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-caslon not-italic case-study-heading" style={{ fontSize: 20, lineHeight: "26px", color: colors.ink, fontWeight: 500 }}>
       {children}
     </p>
   );
@@ -89,22 +137,22 @@ export function BodyText({ children, color = colors.body }: { children: React.Re
   return (
     <p className="font-inclusive-sans font-normal case-study-paragraph" style={{
       fontSize: 16,
-      lineHeight: "24px",
+      lineHeight: "26px",
       color,
-      letterSpacing: "0.15px",
+      letterSpacing: "0.1px",
     }}>
       {children}
     </p>
   );
 }
 
-export function SubHeading({ children, isMobile = false }: { children: React.ReactNode; isMobile?: boolean }) {
+export function SubHeading({ children }: { children: React.ReactNode; isMobile?: boolean }) {
   return (
-    <p className="font-inclusive-sans font-medium" style={{
-      fontSize: isMobile ? 16 : 16,
-      lineHeight: isMobile ? "24px" : "24px",
-      color: "#333333",
-      letterSpacing: isMobile ? "0.15px" : "0.16px",
+    <p className="font-inclusive-sans font-medium case-study-subheading" style={{
+      fontSize: 16,
+      lineHeight: "24px",
+      color: colors.ink,
+      letterSpacing: "0.1px",
     }}>
       {children}
     </p>
@@ -343,12 +391,12 @@ export function LandingComparisonPanel({
   );
 }
 
-export function IterationLabel({ children, isMobile = false }: { children: React.ReactNode; isMobile?: boolean }) {
+export function IterationLabel({ children }: { children: React.ReactNode; isMobile?: boolean }) {
   return (
-    <p className="font-inclusive-sans font-medium case-study-subheading" style={{
-      fontSize: isMobile ? 16 : 18,
-      lineHeight: isMobile ? "21px" : "24px",
-      letterSpacing: "0.02em",
+    <p className="font-inclusive-sans font-medium case-study-subheading case-study-eyebrow" style={{
+      fontSize: 12,
+      lineHeight: "16px",
+      letterSpacing: "0.08em",
       textTransform: "uppercase",
       color: colors.orange,
     }}>
@@ -486,7 +534,7 @@ export function PullQuote({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: "flex", flexDirection: "row", alignItems: "stretch", gap: 8 }}>
       <div style={{ width: 3, borderRadius: 4, backgroundColor: colors.orange, flexShrink: 0 }} />
-      <p className="font-caslon not-italic" style={{ flex: 1, padding: "8px 0", fontSize: 16, lineHeight: "20px", fontWeight: 600, color: colors.ink }}>
+      <p className="font-caslon not-italic" style={{ flex: 1, padding: "4px 0", fontSize: 19, lineHeight: "27px", fontWeight: 400, color: colors.ink }}>
         {children}
       </p>
     </div>
@@ -506,9 +554,9 @@ export function NumberedCallout({ items }: { items: string[] }) {
         {items.map((text, i) => (
           <div key={i} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, padding: "8px 0" }}>
             <div style={{ width: 20, height: 20, borderRadius: 16, backgroundColor: colors.orange, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <p className="font-jakarta" style={{ fontWeight: 700, fontSize: 12, lineHeight: "16px", letterSpacing: "0.01em", color: colors.white }}>{i + 1}</p>
+              <p className="font-jakarta" style={{ fontWeight: 500, fontSize: 12, lineHeight: "16px", letterSpacing: "0.01em", color: colors.white }}>{i + 1}</p>
             </div>
-            <p className="font-inclusive-sans font-medium" style={{ flex: 1, fontSize: 13, lineHeight: "16px", color: colors.body }}>{text}</p>
+            <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 15, lineHeight: "22px", color: colors.ink }}>{text}</p>
           </div>
         ))}
       </div>
@@ -522,9 +570,9 @@ export function LayerItem({ icon, title, children }: { icon: string; title: stri
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
         <span aria-hidden="true" style={{ fontSize: 16, lineHeight: "20px" }}>{icon}</span>
-        <p className="font-inclusive-sans" style={{ fontWeight: 600, fontSize: 16, lineHeight: "20px", color: colors.brown }}>{title}</p>
+        <p className="font-inclusive-sans" style={{ fontWeight: 500, fontSize: 16, lineHeight: "20px", color: colors.brown }}>{title}</p>
       </div>
-      <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>{children}</p>
+      <p className="font-inclusive-sans font-normal" style={{ fontSize: 15, lineHeight: "24px", color: colors.body }}>{children}</p>
     </div>
   );
 }
@@ -542,7 +590,7 @@ export function DataTable({ headers, rows, isMobile = false }: { headers: [strin
       <div style={{ display: "flex", flexDirection: "column", gap: 16, backgroundColor: colors.sandPanel, padding: `12px ${pad}px` }}>
         {rows.map(([left, right], i) => (
           <div key={i} style={{ display: "flex", flexDirection: "row", gap: 16 }}>
-            <p className="font-jakarta" style={{ flex: 1, fontWeight: 600, fontSize: 12, lineHeight: "16px", color: colors.body }}>{i + 1}. {left}</p>
+            <p className="font-jakarta" style={{ flex: 1, fontWeight: 500, fontSize: 12, lineHeight: "16px", color: colors.body }}>{i + 1}. {left}</p>
             <p className="font-inclusive-sans font-normal" style={{ flex: 1, fontSize: 12, lineHeight: "20px", color: colors.body }}>{right}</p>
           </div>
         ))}

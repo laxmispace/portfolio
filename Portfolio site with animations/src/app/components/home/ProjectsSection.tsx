@@ -102,7 +102,7 @@ const CASE_STUDY_CARDS: CardConfig[] = [
     isIcici: true,
     cardTitle: "Redesigning how 10M+ ICICI Bank cardholders activate their card for international travel",
     tags: ["UX + UI", "Sole designer"],
-    statusText: "under development • 2026",
+    statusText: "under review • 2026",
     statusColor: colors.oliveDeep,
   },
   {
@@ -119,7 +119,7 @@ const CASE_STUDY_CARDS: CardConfig[] = [
     isIcici: true,
     cardTitle: "Bringing India's most-used toll payment system to ICICI's web platform - for the first time",
     tags: ["UX + UI", "Sole designer"],
-    statusText: "under development • 2026",
+    statusText: "under development • 2025–2026",
     statusColor: colors.ink,
   },
   {
@@ -389,8 +389,10 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
     const slug = slugFromPath(window.location.pathname);
     const cs = slug ? CASE_STUDY_DATA.find((c) => c.slug === slug && !c.comingSoon) : undefined;
     if (cs) {
+      // keep any #section so the drawer can jump straight to it
+      const { hash } = window.location;
       window.history.replaceState(null, "", import.meta.env.BASE_URL);
-      window.history.pushState({ caseStudySlug: cs.slug }, "", caseStudyUrl(cs.slug));
+      window.history.pushState({ caseStudySlug: cs.slug }, "", caseStudyUrl(cs.slug) + hash);
       setSelectedCase(cs);
       onDrawerChange?.(true);
     }

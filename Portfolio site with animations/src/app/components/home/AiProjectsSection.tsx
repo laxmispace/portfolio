@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { motion, useTransform } from "motion/react";
 import { useScrollProgress } from "@/app/context/ScrollContext";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
@@ -7,6 +7,10 @@ import { AiProjectDrawer } from "@/app/components/ai-projects/AiProjectDrawer";
 import { AiProjectFrame } from "@/app/components/ai-projects/AiProjectFrame";
 import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
 import { SquiggleLink } from "@/app/components/ui/Buttons";
+import { BASE_URL, slugify, useRoutedSelection } from "@/app/lib/routedSelection";
+
+// AI project slug in the URL, e.g. /portfolio/ai-project/browser-piano
+const AI_PROJECT_BASE = `${BASE_URL}ai-project/`;
 
 // Featured on the homepage: openable projects first, then fill up to 3 with the rest.
 const FEATURED_AI_PROJECTS: AiProject[] = [...ALL_AI_PROJECTS]
@@ -17,7 +21,17 @@ const FEATURED_AI_PROJECTS: AiProject[] = [...ALL_AI_PROJECTS]
 export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [selectedProject, setSelectedProject] = useState<AiProject | null>(null);
+  const { selected: selectedProject, open: openProject, close: closeProject } = useRoutedSelection({
+    items: ALL_AI_PROJECTS.filter(isOpenableAiProject),
+    slugOf: (p) => slugify(p.title),
+    stateKey: "aiProjectSlug",
+    urlFor: (slug) => `${AI_PROJECT_BASE}${slug}`,
+    closedUrl: () => BASE_URL,
+    slugFromLocation: () => {
+      const { pathname } = window.location;
+      return pathname.startsWith(AI_PROJECT_BASE) ? pathname.slice(AI_PROJECT_BASE.length).replace(/\/$/, "") : null;
+    },
+  });
 
   const scrollYProgress = useScrollProgress(sectionRef, ["start end", "end start"]);
   const sectionY     = useTransform(scrollYProgress, [0, 0.5, 1], [60, 0, -40]);
@@ -25,7 +39,7 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
 
   return (
     <section ref={sectionRef} style={{ padding: isMobile ? "40px 16px 24px" : "80px 40px 40px" }}>
-      <AiProjectDrawer project={selectedProject} onClose={() => setSelectedProject(null)} />
+      <AiProjectDrawer project={selectedProject} onClose={closeProject} />
 
       <motion.div
         style={{
@@ -63,7 +77,7 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={clickable && !isMobile ? { y: -4 } : undefined}
-                onClick={clickable ? () => setSelectedProject(project) : undefined}
+                onClick={clickable ? () => openProject(project) : undefined}
                 style={{ flex: 1, cursor: clickable ? "pointer" : "default", opacity: clickable ? 1 : 0.55 }}
               >
                 <motion.div
