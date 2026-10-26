@@ -7,6 +7,10 @@ import { AiProjectFrame } from "./AiProjectFrame";
 import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
 import { toCss } from "@/app/lib/zoom";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { slugify, useRoutedSelection } from "@/app/lib/routedSelection";
+
+// Inside the lab a project lives at #lab/<slug>, e.g. /portfolio/#lab/browser-piano
+const LAB_PROJECT_HASH = "#lab/";
 
 // The animation lab pulls in p5 and three.js - only fetch them once the tab is opened.
 const AnimationLab = lazy(() => import("./AnimationLab").then((m) => ({ default: m.AnimationLab })));
@@ -463,7 +467,17 @@ interface AiProjectsPageProps {
 
 export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
   const [tab, setTab] = useState<TabKey>("project");
-  const [selected, setSelected] = useState<AiProject | null>(null);
+  const { selected, open: setSelected, close: closeSelected } = useRoutedSelection({
+    items: LAB_PROJECTS.filter(isOpenableAiProject),
+    slugOf: (p) => slugify(p.title),
+    stateKey: "labProjectSlug",
+    urlFor: (slug) => `${LAB_PROJECT_HASH}${slug}`,
+    closedUrl: () => "#lab",
+    slugFromLocation: () => {
+      const { hash } = window.location;
+      return hash.startsWith(LAB_PROJECT_HASH) ? hash.slice(LAB_PROJECT_HASH.length) : null;
+    },
+  });
 
   useEffect(() => {
     if (!onBack) return;
@@ -502,7 +516,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
       <GooDefs />
       <BubbleField />
 
-      <AiProjectDrawer project={selected} onClose={() => setSelected(null)} />
+      <AiProjectDrawer project={selected} onClose={closeSelected} />
 
       {/* Header - back link, lab mark + title, tabs. On phones the back link and tabs
           share the top row and the title drops beneath them. */}

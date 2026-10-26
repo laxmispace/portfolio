@@ -1,24 +1,35 @@
 /* Case study content rhythm.
-   .case-study-sections   top-level sections: 40px apart
-   .case-study-flow       a section's content: 16px between blocks, 24px around
-                          headings and media, 20px between consecutive media
+   .case-study-sections   top-level sections: 64px of air, a hairline, 64px of air
+   .case-study-flow       a section's content: 16px between blocks, 48px before a
+                          heading and 12px after it, 28px before a lead-in, 32px
+                          around media, 20px between consecutive media
    .case-study-bullets    arrow bullet list, 8px between items
    .case-study-mt-*       force one element's top margin (4, 8, 12, 16, 20, 24, 40)
    .case-study-spacer     <Spacer size={n} />: exact gap, cancels the flow's own margin */
 
-.case-study-sections > * + * { margin-top: 40px; }
+.case-study-sections > * + * {
+  margin-top: 64px;
+  padding-top: 64px;
+  border-top: 1px solid color-mix(in srgb, var(--color-ink, #1a1a1a) 10%, transparent);
+}
 
 .case-study-flow > * + * { margin-top: 16px; }
-.case-study-flow > * + .case-study-heading,
-.case-study-flow > * + .case-study-subheading { margin-top: 24px; }
-.case-study-flow > .case-study-heading + *,
-.case-study-flow > .case-study-subheading + * { margin-top: 16px; }
-.case-study-flow > .case-study-paragraph + .case-study-paragraph { margin-top: 20px; }
-.case-study-flow > * + .case-study-media { margin-top: 24px; }
-.case-study-flow > .case-study-media + * { margin-top: 24px; }
+.case-study-flow > * + .case-study-heading { margin-top: 48px; }
+.case-study-flow > * + .case-study-subheading { margin-top: 28px; }
+.case-study-flow > .case-study-heading + * { margin-top: 12px; }
+.case-study-flow > .case-study-subheading + * { margin-top: 8px; }
+.case-study-flow > .case-study-paragraph + .case-study-paragraph { margin-top: 16px; }
+.case-study-flow > * + .case-study-media { margin-top: 32px; }
+.case-study-flow > .case-study-media + * { margin-top: 32px; }
 .case-study-flow > .case-study-media + .case-study-media { margin-top: 20px; }
+.case-study-flow > .case-study-media + .case-study-heading { margin-top: 48px; }
 .case-study-flow > .case-study-spacer,
 .case-study-flow > .case-study-spacer + * { margin-top: 0 !important; }
+
+@media (max-width: 768px) {
+  .case-study-sections > * + * { margin-top: 48px; padding-top: 48px; }
+  .case-study-heading--major { font-size: 24px !important; }
+}
 
 /* On phones, media runs edge to edge past the 16px content gutter. */
 @media (max-width: 768px) {
@@ -38,18 +49,17 @@
   overscroll-behavior-x: contain;
 }
 
-.case-study-bullets { list-style: none; }
-.case-study-bullets > li { display: flex; gap: 8px; }
-.case-study-bullets > li + li { margin-top: 8px; }
+.case-study-bullets { list-style: none; margin: 0; padding: 0; }
+.case-study-bullets > li { display: flex; gap: 12px; }
+.case-study-bullets > li + li { margin-top: 12px; }
 .case-study-bullets > li::before {
   content: "→";
   font-family: var(--font-serif);
-  font-size: 1em;
+  color: var(--color-orange);
   flex-shrink: 0;
 }
-.case-study-bullets strong { font-weight: 500; }
-.case-study-bullets li span { font-weight: 400; font-size: calc(1em - 2px); }
-.case-study-bullets--accent > li::before { color: var(--color-brown); }
+
+
 
 .case-study-mt-4 { margin-top: 4px !important; }
 .case-study-mt-8 { margin-top: 8px !important; }
@@ -58,3 +68,8 @@
 .case-study-mt-20 { margin-top: 20px !important; }
 .case-study-mt-24 { margin-top: 24px !important; }
 .case-study-mt-40 { margin-top: 40px !important; }
+
+/* No bold or extra-bold anywhere on a case study - hierarchy comes from size and
+   typeface, topping out at medium (500). */
+.case-study-drawer strong,
+.case-study-drawer b { font-weight: 500; color: var(--color-ink); }

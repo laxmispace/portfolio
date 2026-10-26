@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Lottie } from "lottie-react";
 import { X, Play, Pause, Volume2 } from "lucide-react";
+import { TextLink } from "@/app/components/ui/Buttons";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { useAudioPlayer } from "@/app/hooks/useAudioPlayer";
 import { Spacer, ThumbnailPlaceholder, StrokedImage, SectionBlock, SectionHeading, BodyText } from "./CaseStudyPrimitives";
@@ -9,6 +11,8 @@ import "./CaseStudy.css";
 
 // ─── CS2 cover (ICICI FASTag) - "FASTag cover", exported at 2400×1200 (2:1) ───
 import fastagCover from "@/assets/case-studies/fastag/cover.jpg";
+// The FASTag case study opens on this Lottie (1800×1200) rather than the still cover.
+import fastagCoverAnimation from "@/assets/case-studies/fastag/videos/cover-nw.json?url";
 import { colors, withAlpha } from "@/app/theme/tokens";
 
 // ─── CS1 cover (iTravel) - "Story 4.0", exported at 2400×1200 (2:1) ───
@@ -46,7 +50,17 @@ export interface CaseStudyInfo {
   cover?: string;
   /** A 2:1 video cover; plays muted on a loop in place of `cover`. */
   video?: string;
+  /** Lottie JSON url (3:2); replaces the cover in the case study's own hero only. */
+  animation?: string;
+  /** Video walkthrough of the case study, shown at the bottom. */
+  walkthrough?: string;
 }
+
+// The drawer's width, as a share of the viewport (never narrower than 880px).
+const DRAWER_WIDTH = "max(880px, 75vw)";
+
+/** "Card exploration" -> "card-exploration", for section hashes in the URL. */
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 // Every cover slot is this shape (see `cover` above).
 export const COVER_RATIO = "2 / 1";
@@ -87,6 +101,22 @@ export function CaseStudyCover({ cs, iconSize = 40 }: { cs: CaseStudyInfo; iconS
   return <ThumbnailPlaceholder bgColor={cs.imageBg} strokeColor={cs.textColor} height="100%" iconSize={iconSize} />;
 }
 
+/** The hero at the top of an open case study: its Lottie when it has one, else the 2:1 cover. */
+function DrawerHero({ cs, iconSize }: { cs: CaseStudyInfo; iconSize: number }) {
+  if (cs.animation) {
+    return (
+      <div style={{ aspectRatio: "1800 / 1200" }}>
+        <Lottie src={cs.animation} loop autoplay style={{ width: "100%", height: "100%" }} />
+      </div>
+    );
+  }
+  return (
+    <div style={{ aspectRatio: COVER_RATIO }}>
+      <CaseStudyCover cs={cs} iconSize={iconSize} />
+    </div>
+  );
+}
+
 // ─── Section index definitions per case study ─────────────────────────────────
 const SECTIONS_BY_CASE_STUDY: Record<number, { id: string; label: string; noNumber?: boolean }[]> = {
   0: [
@@ -97,7 +127,8 @@ const SECTIONS_BY_CASE_STUDY: Record<number, { id: string; label: string; noNumb
     { id: "cs-limits", label: "Setting limits" },
     { id: "cs-expiry", label: "Auto-expiring controls" },
     { id: "cs-wrapup", label: "Travel wrap-up" },
-    { id: "cs-media", label: "Walkthrough" },
+    { id: "cs-tldr", label: "TL;DR", noNumber: true },
+    { id: "cs-media", label: "Walkthrough", noNumber: true },
   ],
   1: [
     { id: "cs-intro", label: "Introduction", noNumber: true },
@@ -105,13 +136,14 @@ const SECTIONS_BY_CASE_STUDY: Record<number, { id: string; label: string; noNumb
     { id: "cs-card", label: "FASTag card exploration" },
     { id: "cs-details", label: "All FASTag details" },
     { id: "cs-recharge", label: "FASTag recharge" },
-    { id: "cs-media", label: "Walkthrough" },
+    { id: "cs-tldr", label: "TL;DR", noNumber: true },
+    { id: "cs-media", label: "Walkthrough", noNumber: true },
   ],
   2: [
     { id: "cs-problem", label: "Problem statement" },
     { id: "cs-process", label: "Process" },
     { id: "cs-findings", label: "Key findings" },
-    { id: "cs-media", label: "Walkthrough" },
+    { id: "cs-media", label: "Walkthrough", noNumber: true },
   ],
 };
 
@@ -130,11 +162,11 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     type: "UX + UI",
     role: "Sole designer",
     status: "Under review",
-    year: "2023",
+    year: "2026",
     client: "ICICI Bank",
     designTeam: "Canvs - Harleen Chatha (Design manager), Laxmi Mahajan (Designer)",
     crossTeam: "Product Manager, Engineering, Risk & Compliance (stakeholder reviewers)",
-    timeline: "2 weeks",
+    timeline: "1 week",
     statusFull: "Final design iteration complete (Currently with the client for review, pre-launch)",
     overview: "Led end-to-end redesign of ICICI Bank's international card activation for 10M+ cardholders.",
   },
@@ -142,6 +174,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     index: 1,
     slug: "icici-fastag-platform",
     cover: fastagCover,
+    animation: fastagCoverAnimation,
     label: "CASE STUDY 2",
     color: colors.orange,
     textColor: colors.ink,
@@ -150,14 +183,14 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     title: "Bringing India's most-used toll payment system to ICICI's web platform - for the first time.",
     type: "UX + UI",
     role: "Sole designer",
-    status: "Ongoing",
-    year: "2022–2023",
+    status: "Under development",
+    year: "2025–2026",
     client: "ICICI Bank",
-    designTeam: "Laxmi Mahajan (Designer), Harleen Chatha (Design Manager)",
-    crossTeam: "Product Manager, Design Manager, Product Designer",
-    timeline: "2 weeks",
+    designTeam: "Canvs - Harleen Chatha (Design manager), Laxmi Mahajan (Designer)",
+    crossTeam: "Product Manager, Engineering",
+    timeline: "2 weeks + iterations",
     statusFull: "Under development",
-    overview: "Created a token-based design system from scratch, reducing handoff time by 60% across 20+ clients.",
+    overview: "Designed ICICI Bank's first web FASTag experience end to end, adapting the iMobile flows for a larger screen and a wider set of services.",
   },
   {
     index: 2,
@@ -182,95 +215,40 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
   },
 ];
 
-// ─── Content helpers ──────────────────────────────────────────────────────────
-// ─── Desktop meta-chip strip (replaces the old left-sidebar meta list) ────────
-// Matches Figma "Frame 1597884687": two rows of "dash + shape" markers followed
-// by an italic Caslon label and the value, each chip sliding in left→right on mount.
-type MetaChipShape = "square" | "diamond" | "circle" | "arrow";
-
-// Every marker reads left→right as: [lead shape] - [line] ▸ [diamond arrowhead].
-// The lead shape (square / diamond / circle) differentiates the rows; the "arrow"
-// row has no lead shape, just the line + arrowhead.
-function MetaChipMarker({ shape }: { shape: MetaChipShape }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 3, width: 26, height: 14, flexShrink: 0 }}>
-      {shape === "square" && <div style={{ width: 7, height: 7, backgroundColor: colors.orange, flexShrink: 0 }} />}
-      {shape === "diamond" && <div style={{ width: 6, height: 6, backgroundColor: colors.orange, transform: "rotate(45deg)", flexShrink: 0 }} />}
-      {shape === "circle" && <div style={{ width: 7, height: 7, borderRadius: 8, backgroundColor: colors.orange, flexShrink: 0 }} />}
-      <div style={{ flex: 1, minWidth: 5, height: 1, backgroundColor: colors.orange }} />
-      {/* diamond arrowhead - a rotated square clipped to its leading half so it points right */}
-      <div style={{ width: 6, height: 6, backgroundColor: colors.orange, transform: "rotate(45deg)", flexShrink: 0 }} />
-    </div>
-  );
-}
-
-function MetaChip({ shape, label, value, grow, delay }: { shape: MetaChipShape; label: string; value: string; grow?: boolean; delay: number }) {
-  return (
-    <motion.div
-      initial={{ x: -24, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
-      style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12, flex: grow ? 1 : "0 0 auto", minWidth: 0 }}
-    >
-      <MetaChipMarker shape={shape} />
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-end", gap: 4, minWidth: 0 }}>
-        <p className="font-caslon" style={{ fontStyle: "italic", fontSize: 14, lineHeight: "18px", color: colors.orange, flexShrink: 0 }}>{label}</p>
-        <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "17px", color: colors.ink }}>{value}</p>
-      </div>
-    </motion.div>
-  );
-}
-
-function MetaChipStrip({ caseStudy }: { caseStudy: CaseStudyInfo }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 16, width: "100%" }}>
-        <MetaChip shape="square" label="for" value={caseStudy.client} delay={0} />
-        <MetaChip shape="diamond" label="for a duration of" value={caseStudy.timeline} delay={0.06} />
-        <MetaChip shape="circle" label="project is" value={caseStudy.status.toLowerCase()} grow delay={0.12} />
-      </div>
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", gap: 16, width: "100%" }}>
-        <MetaChip shape="arrow" label="canvs team" value={caseStudy.designTeam.replace(/^Canvs\s*-\s*/, "")} grow delay={0.18} />
-      </div>
-    </div>
-  );
-}
-
-// Mobile meta table - matches Viewport/Expanded Figma exactly
-function MobileMetaTable({ cs }: { cs: CaseStudyInfo }) {
-  const rows = [
+// ─── Project details ──────────────────────────────────────────────────────────
+// A quiet grid between two hairlines: small muted labels, values beneath. Same block on
+// every case study; four columns on desktop (team spans the row), two on phones.
+function ProjectDetails({ cs, isMobile }: { cs: CaseStudyInfo; isMobile: boolean }) {
+  const items: { label: string; value: string; wide?: boolean }[] = [
     { label: "Client", value: cs.client },
-    { label: "Timeline", value: cs.timeline },
-    { label: "Team", value: cs.designTeam },
-    { label: "Role", value: cs.role },
-    { label: "Team", value: cs.crossTeam },
-    { label: "Status", value: cs.statusFull },
+    { label: "Role", value: `${cs.role}, ${cs.type}` },
+    { label: "Timeline", value: `${cs.timeline} · ${cs.year}` },
+    { label: "Status", value: cs.status },
+    { label: "Team", value: cs.designTeam.replace(/^Canvs\s*-\s*/, "Canvs · "), wide: true },
   ];
   return (
-    <div style={{
-      backgroundColor: colors.sandPanel, borderRadius: 12,
-      border: `1px solid ${withAlpha(colors.ink, 0.1)}`,
-      padding: 16, display: "flex", flexDirection: "column", gap: 12,
-      fontSize: 10, letterSpacing: "0.4px",
-    }}>
-      {rows.map((row, i) => (
-        <div key={i} style={{ display: "flex", gap: 4, alignItems: "flex-start" }}>
-          <div style={{
-            width: 60, flexShrink: 0,
-            fontFamily: "'Inclusive Sans', sans-serif", fontWeight: 500,
-            color: colors.orange, lineHeight: "normal",
-          }}>
-            {row.label}
-          </div>
-          <div style={{
-            flex: 1, fontFamily: "'Inclusive Sans', sans-serif", fontWeight: 500,
-            color: colors.body, lineHeight: "normal", wordBreak: "break-word",
-          }}>
-            {row.value}
-          </div>
+    <motion.div
+      key={cs.index}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+      style={{
+        display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))",
+        columnGap: 24, rowGap: 16, padding: "16px 0",
+        borderTop: `1px solid ${withAlpha(colors.ink, 0.12)}`, borderBottom: `1px solid ${withAlpha(colors.ink, 0.12)}`,
+      }}
+    >
+      {items.map((item) => (
+        <div key={item.label} style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, gridColumn: item.wide ? "1 / -1" : undefined }}>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, lineHeight: "14px", letterSpacing: "0.06em", textTransform: "uppercase", color: withAlpha(colors.ink, 0.45) }}>
+            {item.label}
+          </p>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: colors.ink }}>
+            {item.value}
+          </p>
         </div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
@@ -308,44 +286,85 @@ function AudioPlayer({ color, slug }: { color: string; slug: string }) {
   );
 }
 
-function VideoFrame({ cs }: { cs: CaseStudyInfo }) {
+/** The case study's video walkthrough - a placeholder until `cs.walkthrough` is set. */
+function VideoFrame({ cs, fullWidth = false }: { cs: CaseStudyInfo; fullWidth?: boolean }) {
+  const box: React.CSSProperties = fullWidth
+    ? { width: "100%", aspectRatio: "16 / 9", borderRadius: 8, overflow: "hidden", position: "relative" }
+    : { flex: "0 0 320px", height: 180, borderRadius: 8, overflow: "hidden", position: "relative" };
+  if (cs.walkthrough) {
+    return (
+      <div style={box}>
+        <video src={cs.walkthrough} controls playsInline preload="metadata" poster={cs.cover} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      </div>
+    );
+  }
   return (
-    <div style={{ flex: "0 0 320px", height: 180, borderRadius: 8, overflow: "hidden", position: "relative" }}>
+    <div style={box}>
       <ThumbnailPlaceholder bgColor={cs.imageBg} strokeColor={cs.textColor} height="100%" iconSize={0} />
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, backgroundColor: withAlpha(colors.ink, 0.55) }}>
         <div style={{ width: 48, height: 48, borderRadius: "50%", backgroundColor: withAlpha(colors.white, 0.92), display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Play size={20} fill={colors.ink} color={colors.ink} />
         </div>
-        <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: withAlpha(colors.white, 0.65), letterSpacing: "0.1px", textAlign: "center" }}>Case study walkthrough</p>
+        <p className="font-inclusive-sans font-medium" style={{ fontSize: 11, color: withAlpha(colors.white, 0.65), letterSpacing: "0.1px", textAlign: "center" }}>Walkthrough coming soon</p>
       </div>
     </div>
   );
 }
 
 // ─── Related case study card ──────────────────────────────────────────────────
-function RelatedCard({ cs, onClick }: { cs: CaseStudyInfo; onClick: () => void }) {
-  const clickable = !cs.comingSoon;
+// A faint wash of the case study's own card colour (the olive / orange of its home
+// page card), text left, small cover right; stacks on phones.
+function RelatedCard({ cs, onClick, stacked }: { cs: CaseStudyInfo; onClick: () => void; stacked: boolean }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <motion.div
-      onClick={clickable ? onClick : undefined}
-      whileHover={clickable ? { scale: 1.015, y: -2 } : undefined}
-      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-      aria-disabled={!clickable || undefined}
-      style={{ flex: 1, backgroundColor: cs.color, borderRadius: 16, overflow: "hidden", cursor: clickable ? "pointer" : "default", display: "flex", flexDirection: "column" }}
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      role="link"
+      style={{
+        cursor: "pointer", transition: "background-color 0.3s ease",
+        backgroundColor: withAlpha(cs.color, hovered ? 0.26 : 0.18), borderRadius: 12, padding: stacked ? 12 : 16,
+        display: "flex", flexDirection: stacked ? "column-reverse" : "row", alignItems: stacked ? "stretch" : "center", gap: stacked ? 12 : 20,
+      }}
     >
-      <div style={{ aspectRatio: COVER_RATIO, overflow: "hidden", flexShrink: 0 }}>
-        <CaseStudyCover cs={cs} iconSize={24} />
-      </div>
-      <div style={{ padding: "14px 20px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ display: "inline-flex", backgroundColor: withAlpha(colors.ink, 0.12), padding: "4px 12px", borderRadius: 100, alignSelf: "flex-start" }}>
-          <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, color: cs.textColor, letterSpacing: "0.5px", textTransform: "uppercase" }}>{cs.label}</p>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+        <p className="font-caslon not-italic" style={{ fontSize: stacked ? 19 : 21, lineHeight: 1.3, color: colors.ink, fontWeight: 400 }}>
+          {cs.title}
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, lineHeight: "14px", letterSpacing: "0.06em", textTransform: "uppercase", color: withAlpha(colors.ink, 0.45) }}>
+            Client
+          </p>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 12, lineHeight: "16px", color: colors.ink }}>{cs.client}</p>
         </div>
-        <p className="font-caslon" style={{ fontSize: 17, lineHeight: "23px", color: colors.ink, fontWeight: 600 }}>{cs.title}</p>
-        {cs.comingSoon && (
-          <p className="font-caslon" style={{ fontSize: 14, fontStyle: "italic", color: withAlpha(colors.ink, 0.6) }}>coming soon</p>
-        )}
+        <div style={{ marginTop: 2 }}>
+          <TextLink as="span" hovered={hovered} style={{ fontSize: 14 }}>read case study</TextLink>
+        </div>
       </div>
-    </motion.div>
+      <div style={{ width: stacked ? "100%" : 200, aspectRatio: COVER_RATIO, borderRadius: 8, overflow: "hidden", flexShrink: 0 }}>
+        <motion.div animate={{ scale: hovered ? 1.04 : 1 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} style={{ width: "100%", height: "100%" }}>
+          <CaseStudyCover cs={cs} iconSize={20} />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+/** "Read more": the label and the cards. */
+function ReadMore({ related, onNavigate, stacked }: { related: CaseStudyInfo[]; onNavigate: (cs: CaseStudyInfo) => void; stacked: boolean }) {
+  if (!related.length) return null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 12 }}>
+        Read more
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {related.map((cs) => (
+          <RelatedCard key={cs.index} cs={cs} stacked={stacked} onClick={() => onNavigate(cs)} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -375,37 +394,11 @@ function PlaceholderCaseStudy({ cs, isMobile }: { cs: CaseStudyInfo; isMobile: b
   );
 }
 
-// ─── Left panel audio button ──────────────────────────────────────────────────
-function LeftPanelAudio({ color, slug }: { color: string; slug: string }) {
-  const { playing, toggle, available, timeLabel } = useAudioPlayer(caseStudyAudioUrl(slug));
+// ─── Reading progress: a hairline along the bottom of the sticky header ───────
+function ReadingProgress({ progress }: { progress: number }) {
   return (
-    <div style={{ paddingTop: 4 }}>
-      <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 8 }}>
-        listen
-      </p>
-      <button
-        onClick={toggle}
-        disabled={!available}
-        style={{
-          display: "flex", alignItems: "center", gap: 8,
-          backgroundColor: playing ? color : withAlpha(colors.ink, 0.06),
-          border: "none", borderRadius: 10, padding: "10px 14px",
-          cursor: available ? "pointer" : "not-allowed", opacity: available ? 1 : 0.5,
-          transition: "background 0.2s", width: "100%",
-        }}
-      >
-        <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: playing ? withAlpha(colors.white, 0.3) : color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {playing ? <Pause size={12} color={colors.ink} fill={colors.ink} /> : <Play size={12} color={colors.ink} fill={colors.ink} />}
-        </div>
-        <div style={{ textAlign: "left" }}>
-          <p className="font-inclusive-sans font-semibold" style={{ fontSize: 12, color: colors.ink, lineHeight: "15px" }}>
-            {!available ? "Narration coming soon" : playing ? "Playing..." : "Hear this case study"}
-          </p>
-          <p className="font-inclusive-sans" style={{ fontSize: 10, color: withAlpha(colors.ink, 0.5), marginTop: 1 }}>
-            {available ? (playing ? timeLabel : "audio narrative") : "check back soon"}
-          </p>
-        </div>
-      </button>
+    <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, bottom: -1, height: 2, pointerEvents: "none" }}>
+      <div style={{ width: `${progress * 100}%`, height: "100%", backgroundColor: withAlpha(colors.orange, 0.7), transition: "width 0.1s linear" }} />
     </div>
   );
 }
@@ -425,6 +418,9 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
   const rightPaneRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
+  // How far through the story the reader is (0-1), and roughly how long it takes to read.
+  const [progress, setProgress] = useState(0);
+  const [readMinutes, setReadMinutes] = useState<number | null>(null);
 
   useEffect(() => {
     if (!caseStudy) return;
@@ -432,12 +428,28 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
     rightPaneRef.current?.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     setScrolled(false);
     setActiveSection("");
+    setProgress(0);
   }, [caseStudy?.index]);
+
+  // ~220 words a minute over the case study's own text, counted once it has rendered.
+  useEffect(() => {
+    if (!caseStudy) return;
+    const t = setTimeout(() => {
+      const el = isMobile ? scrollableRef.current : rightPaneRef.current;
+      const words = el?.innerText.trim().split(/\s+/).length ?? 0;
+      setReadMinutes(words ? Math.max(1, Math.round(words / 220)) : null);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [caseStudy?.index, isMobile]);
 
   useEffect(() => {
     const el = isMobile ? scrollableRef.current : rightPaneRef.current;
     if (!el) return;
-    const handle = () => setScrolled(el.scrollTop > 60);
+    const handle = () => {
+      setScrolled(el.scrollTop > 60);
+      const max = el.scrollHeight - el.clientHeight;
+      setProgress(max > 0 ? Math.min(1, el.scrollTop / max) : 0);
+    };
     el.addEventListener("scroll", handle, { passive: true });
     return () => el.removeEventListener("scroll", handle);
   }, [caseStudy, isMobile]);
@@ -466,18 +478,36 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
     return () => obs.disconnect();
   }, [caseStudy, isMobile]);
 
-  const scrollToSection = useCallback((id: string) => {
-    scrollableRef.current?.querySelector(`#${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
-
   const sections = caseStudy ? (SECTIONS_BY_CASE_STUDY[caseStudy.index] ?? []) : [];
+
+  // Every index click gets its own URL (…/case-study/<slug>#<section>). replaceState keeps
+  // the history entry - and its caseStudySlug - so back still closes the drawer.
+  const scrollToSection = useCallback((id: string, behavior: ScrollBehavior = "smooth") => {
+    scrollableRef.current?.querySelector(`#${id}`)?.scrollIntoView({ behavior, block: "start" });
+    const section = sections.find((s) => s.id === id);
+    if (section) {
+      const { pathname, search } = window.location;
+      window.history.replaceState(window.history.state, "", `${pathname}${search}#${slugify(section.label)}`);
+    }
+  }, [sections]);
+
+  // Landing on …/case-study/<slug>#<section>: jump to that section once the drawer has slid in.
+  useEffect(() => {
+    if (!caseStudy) return;
+    const hash = window.location.hash.slice(1);
+    const target = hash && sections.find((s) => slugify(s.label) === hash);
+    if (!target) return;
+    const t = setTimeout(() => scrollToSection(target.id, "instant" as ScrollBehavior), 500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseStudy?.index]);
   // Running number for the index list - items flagged `noNumber` (e.g. Introduction)
   // are skipped so the first *numbered* section reads as "1.".
   const numberedSections = (() => {
     let n = 0;
     return sections.map((s) => ({ ...s, num: s.noNumber ? null : ++n }));
   })();
-  const related = CASE_STUDY_DATA.filter((cs) => cs.index !== caseStudy?.index);
+  const related = CASE_STUDY_DATA.filter((cs) => cs.index !== caseStudy?.index && !cs.comingSoon);
 
   return (
     <AnimatePresence>
@@ -497,13 +527,14 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
           {/* Drawer */}
           <motion.div
             key="drawer"
-            initial={{ x: isMobile ? "100%" : 880 }}
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: isMobile ? "100%" : 880 }}
+            exit={{ x: "100%" }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            className="case-study-drawer"
             style={{
               position: "fixed", right: 0, top: 0, bottom: 0,
-              width: isMobile ? "100%" : 880,
+              width: isMobile ? "100%" : DRAWER_WIDTH,
               zIndex: 500,
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
               backgroundColor: colors.sand,
@@ -548,7 +579,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         className="font-caslon not-italic"
                         animate={{ fontSize: scrolled ? "16px" : "22px" }}
                         transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        style={{ flex: 1, lineHeight: "normal", color: colors.ink, fontWeight: 600 }}
+                        style={{ flex: 1, lineHeight: "normal", color: colors.ink, fontWeight: 500 }}
                       >
                         {caseStudy.title}
                       </motion.p>
@@ -566,23 +597,18 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       </button>
                     </div>
                     <Spacer size={8} />
+                    <ReadingProgress progress={progress} />
                   </div>
 
-                  {/* Hero: the case study's 2:1 cover (or the grid placeholder until it has one) */}
+                  {/* Hero: the case study's Lottie or 2:1 cover (or the grid placeholder until it has one) */}
                   <div style={{ backgroundColor: colors.white, overflow: "hidden", flexShrink: 0 }}>
-                    <div style={{ aspectRatio: COVER_RATIO }}>
-                      <CaseStudyCover cs={caseStudy} iconSize={40} />
-                    </div>
+                    <DrawerHero cs={caseStudy} iconSize={40} />
                   </div>
 
                   {/* Meta table + content */}
                   <div style={{ padding: "16px 16px 0", display: "flex", flexDirection: "column" }}>
-                    {caseStudy.index !== 0 && (
-                      <>
-                        <MobileMetaTable cs={caseStudy} />
-                        <Spacer size={20} />
-                      </>
-                    )}
+                    <ProjectDetails cs={caseStudy} isMobile />
+                    <Spacer size={24} />
 
                     {/* Content */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
@@ -598,12 +624,15 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
 
                     {/* Media strip - dark card */}
                     <motion.div
+                      id="cs-media"
+                      data-section
                       initial={{ opacity: 0, y: 16 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
                       viewport={{ once: true }}
                       style={{ backgroundColor: colors.ink, borderRadius: 12, padding: 16, display: "flex", flexDirection: "column", gap: 16 }}
                     >
+                      <VideoFrame cs={caseStudy} fullWidth />
                       {/* Audio player full-width on mobile */}
                       <AudioPlayer color={caseStudy.color} slug={caseStudy.slug} />
                     </motion.div>
@@ -611,16 +640,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                     <Spacer size={8} />
 
                     {/* Related case studies - vertical stack on mobile */}
-                    <div>
-                      <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 12 }}>
-                        Read more
-                      </p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {related.map((cs) => (
-                          <RelatedCard key={cs.index} cs={cs} onClick={() => onNavigate(cs)} />
-                        ))}
-                      </div>
-                    </div>
+                    <ReadMore related={related} onNavigate={onNavigate} stacked />
                   </div>
                 </div>
               ) : (
@@ -648,10 +668,11 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       className="font-caslon not-italic"
                       animate={{ fontSize: scrolled ? "18px" : "24px" }}
                       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      style={{ color: colors.ink, fontWeight: 600, lineHeight: "normal", paddingRight: 48, maxWidth: 680 }}
+                      style={{ color: colors.ink, fontWeight: 500, lineHeight: "normal", paddingRight: 48, maxWidth: 680 }}
                     >
                       {caseStudy.title}
                     </motion.p>
+                    <ReadingProgress progress={progress} />
                   </motion.div>
 
                   {/* Two-pane body: fills whatever height the header leaves. Left panel never
@@ -666,14 +687,13 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         position: "sticky", top: 16,
                         backgroundColor: "#DACEBE", borderRadius: 16,
                         padding: 12, boxSizing: "border-box", overflow: "hidden",
-                        display: "flex", flexDirection: "column", justifyContent: "space-between",
+                        display: "flex", flexDirection: "column", justifyContent: "flex-start",
                       }}
                     >
-                      <LeftPanelAudio color={caseStudy.color} slug={caseStudy.slug} />
 
                       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                         <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 4 }}>
-                          index
+                          index{readMinutes ? ` · ${readMinutes} min read` : ""}
                         </p>
                         {numberedSections.map((s) => (
                           <button
@@ -704,21 +724,13 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        style={{ backgroundColor: colors.white, borderRadius: 8, marginBottom: caseStudy.index === 0 ? 24 : 32, overflow: "hidden" }}
+                        style={{ backgroundColor: colors.white, borderRadius: 8, marginBottom: 24, overflow: "hidden" }}
                       >
-                        <div style={{ aspectRatio: COVER_RATIO }}>
-                          <CaseStudyCover cs={caseStudy} iconSize={48} />
-                        </div>
+                        <DrawerHero cs={caseStudy} iconSize={48} />
                       </motion.div>
 
-                      {/* keyed on the case study so the chips re-run their left→right
-                          slide every time this screen is opened or switched */}
-                      {caseStudy.index !== 0 && (
-                        <>
-                          <MetaChipStrip key={caseStudy.index} caseStudy={caseStudy} />
-                          <Spacer size={32} />
-                        </>
-                      )}
+                      <ProjectDetails cs={caseStudy} isMobile={false} />
+                      <Spacer size={40} />
 
                       {caseStudy.index === 0
                         ? <ItravelCaseStudy isMobile={false} />
@@ -750,14 +762,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                         viewport={{ once: true }}
                         style={{ padding: "48px 0 60px" }}
                       >
-                        <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 16 }}>
-                          Read more
-                        </p>
-                        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                          {related.map((cs) => (
-                            <RelatedCard key={cs.index} cs={cs} onClick={() => onNavigate(cs)} />
-                          ))}
-                        </div>
+                        <ReadMore related={related} onNavigate={onNavigate} stacked={false} />
                       </motion.div>
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { colors, withAlpha } from "@/app/theme/tokens";
+import { SquiggleLink } from "@/app/components/ui/Buttons";
 import { BOOKS, MOVIES, RESOURCES } from "@/app/data/shelf";
 
 // ── Shelf cards: Books / Movies / Resources ────────────────────────────────────
@@ -169,18 +170,25 @@ export function ShelfCard({ shelves, isMobile }: { shelves: Shelf[]; isMobile: b
       <div style={{ position: "absolute", left: 170, top: 16, right: isMobile ? 12 : 16, height: SHELF_HEIGHT - 32, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {shelves.length === 1 ? (
-            <p className="font-caslon" style={{ ...headingStyle, fontStyle: "italic" }}>{shelf.label}</p>
+            <p className="font-caslon" style={{ ...headingStyle, fontWeight: 500 }}>{shelf.label}</p>
           ) : (
-            shelves.map((sh, i) => (
-              <button
-                key={sh.label}
-                onClick={() => setTab(i)}
-                className="font-caslon"
-                style={{ ...headingStyle, cursor: "pointer", fontStyle: i === tab ? "italic" : "normal", textDecoration: i === tab ? "underline" : "none" }}
-              >
-                {sh.label}
-              </button>
-            ))
+            // The open tab is the footer's text button; the others are the same words, unlined.
+            shelves.map((sh, i) =>
+              i === tab ? (
+                <SquiggleLink key={sh.label} onClick={() => setTab(i)} style={{ fontSize: 12, letterSpacing: "-0.02em" }}>
+                  {sh.label}
+                </SquiggleLink>
+              ) : (
+                <button
+                  key={sh.label}
+                  onClick={() => setTab(i)}
+                  className="font-caslon"
+                  style={{ ...headingStyle, fontWeight: 500, cursor: "pointer", color: withAlpha(colors.ink, 0.6) }}
+                >
+                  {sh.label}
+                </button>
+              ),
+            )
           )}
         </div>
 

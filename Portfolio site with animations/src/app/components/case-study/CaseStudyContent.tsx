@@ -4,7 +4,7 @@ import {
   Spacer, SectionBlock, SectionHeading, BodyText, SubHeading, ImageCarousel,
   LandingComparisonPanel, IterationLabel, IterationThumbnailRow, StateTreatmentTable,
   ImageGrid2x2, TableColumnDivider, MediaCaption, PhoneScreen, PhoneRow, MediaPanel, PullQuote,
-  NumberedCallout, LayerItem, DataTable,
+  NumberedCallout, LayerItem, DataTable, MinorHeading, BulletList,
 } from "./CaseStudyPrimitives";
 
 // ─── CS1 image assets (ICICI Bank iTravel) ────────────────────────────────────
@@ -166,30 +166,38 @@ function JtbdTable({ isMobile = false }: { isMobile?: boolean }) {
   );
 }
 
-// ─── CS1 content (ICICI Bank iTravel) - Figma "Frame 38" (584px column) ───────
-// Its own type scale, tighter than the shared helpers: 20/26 Caslon headings,
-// 14/20 Inclusive Sans body, 12px rhythm inside a section, 52px between sections.
-
-function ItravelHeading({ children }: { children: React.ReactNode }) {
+// ─── TL;DR - closes each case study and sets it inside the wider Canvs × ICICI partnership.
+// Only facts that are public on canvs.in/projects/icici-bank (NDA).
+function Tldr({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-caslon not-italic" style={{ fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.ink }}>
-      {children}
-    </p>
+    <SectionBlock id="cs-tldr">
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "16px 20px", backgroundColor: colors.sandPanel, borderRadius: 8, borderLeft: `2px solid ${colors.brown}` }}>
+        <p className="font-inclusive-sans font-medium" style={{ fontSize: 10, lineHeight: "12px", letterSpacing: "1px", textTransform: "uppercase", color: colors.brown }}>
+          TL;DR
+        </p>
+        <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "22px", color: colors.body }}>
+          {children}
+        </p>
+      </div>
+    </SectionBlock>
   );
 }
 
+// ─── CS1 content (ICICI Bank iTravel) ─────────────────────────────────────────
+// Shares FASTag's type scale (see CaseStudyPrimitives): section headings, 16/26 body.
+
+function ItravelHeading({ children, eyebrow }: { children: React.ReactNode; eyebrow?: string }) {
+  return <SectionHeading eyebrow={eyebrow}>{children}</SectionHeading>;
+}
+
 function ItravelText({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>
-      {children}
-    </p>
-  );
+  return <BodyText>{children}</BodyText>;
 }
 
 function ItravelSection({ id, children }: { id: string; children: React.ReactNode }) {
   return (
     <SectionBlock id={id}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{children}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>{children}</div>
     </SectionBlock>
   );
 }
@@ -247,22 +255,22 @@ function ItravelCroppedShot() {
 
 export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 52 }}>
+    <div className="case-study-sections" style={{ display: "flex", flexDirection: "column" }}>
       <SectionBlock id="cs-problem">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <ItravelHeading>THE PROBLEM</ItravelHeading>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <ItravelHeading eyebrow="The setup">The problem</ItravelHeading>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <ItravelText>
               30% of ICICI Bank international transactions were declining. The obvious fix - surface the toggle - would have helped. But I started from a different question: why does the decline happen at all, and what would actually prevent it?
             </ItravelText>
             <ItravelText>
               The answer wasn't in the UI. It was in how RBI mandates work, how fraud engines evaluate transactions, and how travelers actually use their phones abroad. Every decision in iTravel came from reasoning through those layers first, then designing backward to the screen.
             </ItravelText>
-            <p className="font-inclusive-sans font-normal" style={{ fontSize: 14, lineHeight: "20px", letterSpacing: "0.01em", color: colors.body }}>The PM briefed...</p>
+            <p className="font-inclusive-sans font-normal" style={{ fontSize: 16, lineHeight: "26px", color: colors.body, marginTop: 8 }}>The PM briefed...</p>
             <PullQuote>
               Build <em>iTravel</em>, a single, unified hub where customers declare their travel plans and the bank automatically aligns card usage and fraud monitoring to that profile.
             </PullQuote>
-            <p className="font-inclusive-sans font-medium" style={{ fontSize: 14, lineHeight: "20px", color: colors.body }}>Three HMWs:</p>
+            <p className="font-inclusive-sans font-medium" style={{ fontSize: 16, lineHeight: "24px", color: colors.ink, marginTop: 8 }}>Three HMWs:</p>
             <NumberedCallout items={ITRAVEL_HMWS} />
           </div>
         </div>
@@ -271,8 +279,8 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
       <SectionBlock id="cs-why">
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <ItravelHeading>Why the obvious fix wasn't enough</ItravelHeading>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <ItravelHeading eyebrow="The twist">Why the obvious fix wasn't enough</ItravelHeading>
+            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
               <LayerItem icon="📜" title="Layer 1 - RBI compliance">
                 Separate switches for POS, ATM, and e-commerce. Enabling one doesn't enable the others. A user who turns on POS can still get silently declined buying online.
               </LayerItem>
@@ -292,7 +300,7 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <ItravelSection id="cs-entry">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <ItravelHeading>1. Getting users in before they need it</ItravelHeading>
+          <ItravelHeading eyebrow="Part 1">Getting users in before they need it</ItravelHeading>
           <ItravelText>
             Most ICICI cardholders barely open iMobile - bill payments increasingly happen through CRED, PhonePe or other 3rd party apps. An in-app-only entry point reaches almost nobody.
           </ItravelText>
@@ -304,7 +312,7 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <ItravelSection id="cs-trip">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <ItravelHeading>2. Declaring the trip</ItravelHeading>
+          <ItravelHeading eyebrow="Part 2">Declaring the trip</ItravelHeading>
           <ItravelText>
             User declares destination, layover stops, travel dates, purpose, and multiple trips. The layover field wasn't in the brief - I proposed it.
           </ItravelText>
@@ -325,7 +333,7 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <ItravelSection id="cs-limits">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <ItravelHeading>3. Setting limits without currency math</ItravelHeading>
+          <ItravelHeading eyebrow="Part 3">Setting limits without currency math</ItravelHeading>
           <ItravelText>
             Card control limits shown as a slider with a live conversion-rate label for the destination currency.
           </ItravelText>
@@ -347,7 +355,7 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <ItravelSection id="cs-expiry">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <ItravelHeading>4. Auto-expiring controls</ItravelHeading>
+          <ItravelHeading eyebrow="Part 4">Auto-expiring controls</ItravelHeading>
           <ItravelText>
             RBI mandates manual activation but says nothing about deactivation. Left on indefinitely, the fraud exposure window stays open long after the trip ends.
           </ItravelText>
@@ -360,7 +368,7 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <ItravelSection id="cs-wrapup">
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <ItravelHeading>5. Travel wrap-up</ItravelHeading>
+          <ItravelHeading eyebrow="Part 5">Travel wrap-up</ItravelHeading>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <ItravelText>
               After the trip: a fun summary - total spend, category breakdown, top merchants, country stamp added to a collection.
@@ -375,6 +383,10 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
         </div>
         <ItravelCroppedShot />
       </ItravelSection>
+
+      <Tldr>
+        Canvs has been ICICI Bank's design partner since 2021, redesigning its retail banking experience for 50M+ users across mobile and web, each built on its own design system. I joined in May 2024 and have designed across bill payments, credit cards, forex, home loans, GIFT City, customer service, the iMobile Global app and more. iTravel was a one-week sprint in May 2026, built on the iMobile design system.
+      </Tldr>
     </div>
   );
 }
@@ -385,22 +397,25 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
     <div className="case-study-sections" style={{ display: "flex", flexDirection: "column" }}>
       <SectionBlock id="cs-intro">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading isMobile={isMobile}>Introduction</SectionHeading>
+          <SectionHeading isMobile={isMobile} eyebrow="The setup">Introduction</SectionHeading>
           <div className="case-study-flow " style={{ display: "flex", flexDirection: "column"  }}>
             <BodyText isMobile={isMobile}>
               FASTag is mandatory for all four-wheelers on Indian highways, and ICICI Bank commands nearly 29% of the national FASTag market. Before this project, every one of those customers relied solely on iMobile or a third-party app to manage their tag.
             </BodyText>
             <BodyText isMobile={isMobile}>
-              I designed the entire FASTag experience for RIB from scratch. No brief. No precedent. Just iMobile's existing flows as reference, a fixed two-week deadline, and three distinct user types that needed to coexist on the same platform.
+              I designed the entire FASTag experience for RIB (Retail Internet Banking) from scratch. No brief. No web precedent. Just iMobile's existing flows as reference, a fixed two-week deadline, and three distinct user types that needed to coexist on the same platform.
+            </BodyText>
+            <BodyText isMobile={isMobile}>
+              The mobile flows were a starting point, not a template. Web isn't a bigger phone - more real estate changes how information flows, and RIB carried additional services on top of what iMobile offered. Much of the work was deciding what to surface together on one screen that mobile had split across several.
             </BodyText>
             <Spacer size={isMobile ? 24 : 40} />
-            <SectionHeading isMobile={isMobile}>Users and JTBD</SectionHeading>
+            <MinorHeading>Users and JTBD</MinorHeading>
             <BodyText isMobile={isMobile}>
               With the reference I had, before designing the screens, I mapped four core jobs users come to FASTag to do. These drove every layout and hierarchy decision that followed.
             </BodyText>
             <JtbdTable isMobile={isMobile} />
 
-            <SectionHeading isMobile={isMobile}>It's 11pm on the highway, and the toll is ahead</SectionHeading>
+            <MinorHeading>It's 11pm on the highway, and the toll is ahead</MinorHeading>
 
             <BodyText isMobile={isMobile}>
               Think about Job 1 for a second - someone's checking their FASTag balance while driving toward a toll plaza. They're not relaxed, they're not browsing. They need an answer in a glance. Urgent, quick, no room for hunting.
@@ -408,32 +423,12 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
             <SubHeading isMobile={isMobile}>
               That's exactly why the card works the way it does:
             </SubHeading>
-            <ul className="font-inclusive-sans font-normal case-study-bullets case-study-bullets--accent" style={{ fontSize: 16, lineHeight: "24px", color: colors.body, letterSpacing: "0.15px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
-              <li>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: colors.brown }}>Vehicle number and model</strong>
-                  <span>You can scan it in under 2-seconds, no reading needed.</span>
-                </div>
-              </li>
-              <li>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: colors.brown }}>Balance</strong>
-                  <span>It's the biggest thing on the card, impossible to miss.</span>
-                </div>
-              </li>
-              <li>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: colors.brown }}>Recharge</strong>
-                  <span>One tap, always there, always in the same spot no matter the card state.</span>
-                </div>
-              </li>
-              <li>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong style={{ color: colors.brown }}>Everything else</strong>
-                  <span>Tucked behind the three-dot menu or the detail page, out of the way until you actually need it.</span>
-                </div>
-              </li>
-            </ul>
+            <BulletList items={[
+              { title: "Vehicle number and model", text: "You can scan it in under 2 seconds, no reading needed." },
+              { title: "Balance", text: "It's the biggest thing on the card, impossible to miss." },
+              { title: "Recharge", text: "One tap, always there, always in the same spot no matter the card state." },
+              { title: "Everything else", text: "Tucked behind the three-dot menu or the detail page, out of the way until you actually need it." },
+            ]} />
             <BodyText isMobile={isMobile}>
               The secondary stuff (tag replacement, KYC, close tag, raise a query) - sure, it matters. But it's not why someone opens FASTag at 11pm on the highway. Keeping it secondary isn't a compromise. That's the whole point.
             </BodyText>
@@ -443,7 +438,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-landing">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading isMobile={isMobile}>1. Landing page</SectionHeading>
+          <SectionHeading isMobile={isMobile} eyebrow="Part 1">Landing page</SectionHeading>
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <BodyText isMobile={isMobile}>
               One landing page. Three user types. Multiple card states. Everything had to be readable at a glance - including for fleet owners managing 20+ FASTags simultaneously.
@@ -451,19 +446,15 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
             <SubHeading isMobile={isMobile}>
               There are 3 user types:
             </SubHeading>
-            <ul className="font-inclusive-sans font-normal case-study-bullets" style={{ fontSize: 14, lineHeight: "20px", color: colors.body, letterSpacing: "0.14px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
-              <li>New user</li>
-              <li>Existing users (ICICI Bank and non-ICICI Bank)</li>
-              <li>Fleet owners (ICICI Bank and non-ICICI Bank)</li>
-            </ul>
+            <BulletList items={[
+              "New user",
+              "Existing users (ICICI Bank and non-ICICI Bank)",
+              "Fleet owners (ICICI Bank and non-ICICI Bank)",
+            ]} />
 
             <ImageCarousel
               isMobile={isMobile}
               slides={[
-                {
-                  embed: "https://embed.figma.com/proto/zhkgGHFZUiEiSgc7WO4FQ6/Laxmi-s-portfolio---only-for-recruiters?node-id=105-28114&scaling=min-zoom&content-scaling=fixed&page-id=71%3A2831&embed-host=share",
-                  caption: "Interactive prototype - walk through the landing flow",
-                },
                 { src: imgLandingEmpty, caption: "New user with no FASTags" },
                 { src: imgLandingExisting, caption: "Existing user with ICICI Bank and other bank FASTag" },
                 { src: imgLandingScrolled, caption: "Critical usecase, scrolled state - callout for critical action" },
@@ -471,7 +462,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
               ]}
             />
 
-            <SectionHeading isMobile={isMobile}>The TAB decision</SectionHeading>
+            <MinorHeading>The tab decision</MinorHeading>
             <BodyText isMobile={isMobile}>
               Early versions showed all FASTags in one mixed list - ICICI and non-ICICI together, sorted by recency. The problem: a just-linked third-party FASTag would float to the top, pushing the user's ICICI card down the scroll. Wrong for the user. Wrong for the bank.
             </BodyText>
@@ -491,7 +482,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-card">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading isMobile={isMobile}>2. FASTag card exploration</SectionHeading>
+          <SectionHeading isMobile={isMobile} eyebrow="Part 2">FASTag card exploration</SectionHeading>
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>
               The problem
@@ -553,7 +544,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-details">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading isMobile={isMobile}>3. All FASTag details</SectionHeading>
+          <SectionHeading isMobile={isMobile} eyebrow="Part 3">All FASTag details</SectionHeading>
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>Three card types, one layout</SubHeading>
             <BodyText isMobile={isMobile}>
@@ -617,7 +608,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-recharge">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading isMobile={isMobile}>4. FASTag recharge</SectionHeading>
+          <SectionHeading isMobile={isMobile} eyebrow="Part 4">FASTag recharge</SectionHeading>
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <SubHeading isMobile={isMobile}>The problem with the first version</SubHeading>
             <BodyText isMobile={isMobile}>
@@ -632,20 +623,10 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
             <SubHeading isMobile={isMobile}>
               The vehicle type determines what's shown within that standard flow:
             </SubHeading>
-            <ul className="font-inclusive-sans font-normal case-study-bullets" style={{ fontSize: 14, lineHeight: "20px", color: colors.body, letterSpacing: "0.14px", paddingLeft: isMobile ? 12 : 16, paddingRight: isMobile ? 12 : 16 }}>
-              <li>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong>For a linked vehicle</strong>
-                  <span>Registration number pre-filled, balance visible, straight to amount.</span>
-                </div>
-              </li>
-              <li>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <strong>For a non-linked vehicle (first time)</strong>
-                  <span>Registration number entry required, then the same flow.</span>
-                </div>
-              </li>
-            </ul>
+            <BulletList items={[
+              { title: "For a linked vehicle", text: "Registration number pre-filled, balance visible, straight to amount." },
+              { title: "For a non-linked vehicle (first time)", text: "Registration number entry required, then the same flow." },
+            ]} />
             <BodyText isMobile={isMobile}>
               The entry point context is resolved before the user enters the flow. Inside the flow, it is always the same.
             </BodyText>
@@ -665,7 +646,7 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
 
       <SectionBlock id="cs-reflection">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <SectionHeading isMobile={isMobile}>Currently <em>in-development</em>, but what I took away...</SectionHeading>
+          <SectionHeading isMobile={isMobile} eyebrow="Epilogue">Currently <em>in-development</em>, but what I took away...</SectionHeading>
           <div className="case-study-flow" style={{ display: "flex", flexDirection: "column" }}>
             <BodyText isMobile={isMobile}>
               The requirements were half-baked and the timeline was too short for the volume. The biggest thing I learned: negotiate on scope or timeline upfront, not after you're already deep in it.
@@ -679,7 +660,10 @@ export function FastagCaseStudy({ isMobile }: { isMobile: boolean }) {
           </div>
         </div>
       </SectionBlock>
+
+      <Tldr>
+        Canvs has been ICICI Bank's design partner since 2021, redesigning its retail banking experience for 50M+ users, with separate design systems for mobile and web. Canvs had already redesigned FASTag for iMobile. This project brought it to the web for the first time: designed in a two-week sprint on the web design system, with iterations running into April 2026.
+      </Tldr>
     </div>
   );
 }
-
