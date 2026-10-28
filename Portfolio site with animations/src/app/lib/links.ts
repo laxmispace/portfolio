@@ -9,3 +9,5 @@ export const LINKEDIN_RECOMMENDATIONS_URL = "https://www.linkedin.com/in/laxmi-m
 // URL here once deployed, e.g. "https://laxmi-spotify.<you>.workers.dev". While empty,
 // the About drawer's player falls back to "Connect Spotify" (per-browser login).
 export const SPOTIFY_NOW_PLAYING_URL = "https://laxmi-spotify.laxmimahajan.workers.dev";
+export const GITHUB_USER = "laxmispace";
+export const GITHUB_URL = `https://github.com/${GITHUB_USER}`;
