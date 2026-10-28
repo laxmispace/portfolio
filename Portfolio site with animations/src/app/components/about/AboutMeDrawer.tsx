@@ -12,6 +12,7 @@ import { RESUME_URL, LINKEDIN_URL, EMAIL_URL, EMAIL_ADDRESS, LINKEDIN_RECOMMENDA
 import { PHOTO_PLACES } from "@/app/data/aboutPhotos";
 import { MusicPlayerCard } from "./MusicPlayerCard";
 import { ShelfCard, BOOKS_SHELF, MOVIES_SHELF, RESOURCES_SHELF } from "./ShelfCard";
+import { GithubCard } from "./GithubCard";
 
 // ── Work experience data ───────────────────────────────────────────────────────
 
@@ -717,22 +718,21 @@ export function AboutMeDrawer({ open, onClose }: AboutMeDrawerProps) {
                 </div>
               </div>
 
-              {/* ── Section B2: personal photo strip ── */}
-              <PhotoFrameSection isMobile={isMobile} />
-
-              {/* ── Section B3: things outside work - books/films, music, resources ── */}
-              <div style={{ backgroundColor: colors.sand }}>
-                <div style={{ backgroundColor: colors.olive, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
+              {/* ── Section B2: things outside work - GitHub, films/books/random, music ──
+                  An olive card rounded at both ends: sand behind its top (work section),
+                  the photo strip's pink behind its bottom. */}
+              <div style={{ background: `linear-gradient(180deg, ${colors.sand} 50%, ${colors.pinkLight} 50%)` }}>
+                <div style={{ backgroundColor: colors.olive, borderRadius: isMobile ? 16 : 24, padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
                   <p className="font-inclusive-sans" style={{ fontSize: isMobile ? 14 : 18, lineHeight: isMobile ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: colors.ink, maxWidth: 560, margin: "0 auto", marginBottom: isMobile ? 24 : 32 }}>
-                    A small window into the things I return to outside of work - the books I read, the films I rewatch, and the songs on repeat.
+                    A small window into some of my favorite things on the internet that I visit outside of work.
                   </p>
 
-                  {/* Books and Movies & resources stack beside the music player: two 188px
+                  {/* GitHub and Movies/Books/Resources stack beside the music player: two 188px
                       cards + a 24px gap = the player's 400px height. Mobile stacks all three. */}
                   <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexDirection: isMobile ? "column" : "row", alignItems: "stretch", marginBottom: isMobile ? 24 : 36 }}>
                     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 16 : 24 }}>
-                      <ShelfCard shelves={[BOOKS_SHELF]} isMobile={isMobile} />
-                      <ShelfCard shelves={[MOVIES_SHELF, RESOURCES_SHELF]} isMobile={isMobile} />
+                      <GithubCard isMobile={isMobile} />
+                      <ShelfCard shelves={[MOVIES_SHELF, BOOKS_SHELF, RESOURCES_SHELF]} isMobile={isMobile} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <MusicPlayerCard isMobile={isMobile} />
@@ -741,8 +741,14 @@ export function AboutMeDrawer({ open, onClose }: AboutMeDrawerProps) {
                 </div>
               </div>
 
-              {/* Breathing room at the end of the drawer (and clear of the mobile FAB) */}
-              <div style={{ height: isMobile ? 88 : 60 }} />
+              {/* ── Section B3: personal photo strip ── */}
+              <PhotoFrameSection isMobile={isMobile} />
+
+              {/* Breathing room at the end of the drawer (and clear of the mobile FAB),
+                  rounded into the photo strip's sand like the sections above. */}
+              <div style={{ backgroundColor: colors.sand }}>
+                <div style={{ height: isMobile ? 88 : 60, backgroundColor: colors.olive, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0" }} />
+              </div>
             </div>
           </motion.div>
         </>
