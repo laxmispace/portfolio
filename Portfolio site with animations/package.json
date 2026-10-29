@@ -7,9 +7,12 @@
     "build": "vite build",
     "dev": "vite",
     "voiceover": "node scripts/generate-voiceovers.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "encrypt": "node scripts/encrypt-case-studies.mjs"
   },
   "dependencies": {
+    "@noble/ciphers": "1.3.0",
+    "@noble/hashes": "1.8.0",
     "canvas-confetti": "1.9.4",
     "gsap": "^3.15.0",
     "lottie-react": "^3.1.0",

@@ -7,3 +7,7 @@ dist/
 
 # old local copy of the site, not part of the repo
 temp-local.html/
+
+# Readable sources of the password-protected case studies - local only, never pushed.
+# The site ships the encrypted copy in public/cs/ (pnpm encrypt).
+Portfolio site with animations/src/private/

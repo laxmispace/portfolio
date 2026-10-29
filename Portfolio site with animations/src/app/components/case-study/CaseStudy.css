@@ -73,3 +73,9 @@
    typeface, topping out at medium (500). */
 .case-study-drawer strong,
 .case-study-drawer b { font-weight: 500; color: var(--color-ink); }
+
+/* a long single-screen design, scrolling slowly inside a phone-sized window */
+.cs-longshot img { animation: cs-longscroll 16s ease-in-out infinite alternate; }
+.cs-longshot:hover img { animation-play-state: paused; }
+@keyframes cs-longscroll { 0%, 6% { transform: translateY(0); } 94%, 100% { transform: translateY(var(--d, 0px)); } }
+@media (prefers-reduced-motion: reduce) { .cs-longshot img { animation: none; } }
