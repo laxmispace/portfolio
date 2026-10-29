@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X } from "lucide-react";
+import { Github, X } from "lucide-react";
 import type { AiProject } from "@/app/data/aiProjects";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
-import { colors, withAlpha } from "@/app/theme/tokens";
+import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
 import { ICON_BUTTON, PrimaryButton, TextLink } from "@/app/components/ui/Buttons";
 
 interface AiProjectDrawerProps {
@@ -125,14 +125,16 @@ function TypefaceBody({ project }: { project: AiProject }) {
     <div style={{ flex: 1, overflowY: "auto", scrollbarWidth: "none", padding: isMobile ? "28px 20px 48px" : "40px 48px 56px" }}>
       <p className="font-inclusive-sans" style={{ ...body, marginBottom: 12 }}>{project.longDescription}</p>
       {project.original && (
-        <p className="font-inclusive-sans" style={{ ...body, marginBottom: 32 }}>
+        <p className="font-inclusive-sans" style={{ ...body, marginBottom: 16 }}>
           The Latin is by {project.original.author} - <InlineLink href={project.original.repoUrl}>see the repo</InlineLink> - and you can find
           Faculty Glyphic on <InlineLink href={project.original.googleFontsUrl}>Google Fonts</InlineLink>.
         </p>
       )}
+      {/* above the tester, so it stays put while the tester grows and shrinks */}
+      {project.repoUrl && <RepoLink href={project.repoUrl} />}
 
       {/* the tester: type anything - Kannada or Latin - and size it up or down */}
-      <div style={{ border: `1px solid ${withAlpha(colors.sand, 0.12)}`, borderRadius: 12, padding: isMobile ? 16 : 24, marginBottom: 28 }}>
+      <div style={{ background: withAlpha(colors.sand, 0.05), borderRadius: 16, padding: isMobile ? 16 : 24 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, marginBottom: 16 }}>
           <span className="font-inclusive-sans" style={{ fontSize: 11, letterSpacing: "0.5px", textTransform: "uppercase", color: withAlpha(colors.sand, 0.5) }}>
             type to try it
@@ -157,17 +159,39 @@ function TypefaceBody({ project }: { project: AiProject }) {
           aria-label="Type to try the font"
           rows={2}
           style={{
-            width: "100%", resize: "vertical", background: "none", border: "none", outline: "none", padding: 0,
+            width: "100%", resize: "none", background: "none", border: "none", outline: "none", padding: 0,
             fontFamily: "'Faculty Glyphic Kannada', serif", fontSize: size, lineHeight: 1.45, color: colors.sand,
           }}
         />
       </div>
+    </div>
+  );
+}
 
-      {project.repoUrl && (
-        <PrimaryButton href={project.repoUrl} color={colors.orange} deep={colors.sand} ariaLabel="View Faculty Glyphic Kannada on GitHub (opens in a new tab)">
-          view on github
-        </PrimaryButton>
-      )}
+/** "VIEW ON" in the site's label type, then a round GitHub button. */
+function RepoLink({ href }: { href: string }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32 }}>
+      <span aria-hidden="true" style={{ ...textStyles.label, color: withAlpha(colors.sand, 0.6) }}>view on</span>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="View Faculty Glyphic Kannada on GitHub (opens in a new tab)"
+        title="GitHub"
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onFocus={() => setHover(true)}
+        onBlur={() => setHover(false)}
+        style={{
+          width: 40, height: 40, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center",
+          background: hover ? colors.orange : withAlpha(colors.sand, 0.1), color: hover ? colors.ink : colors.sand,
+          transition: "background 0.2s ease, color 0.2s ease",
+        }}
+      >
+        <Github size={18} strokeWidth={1.75} color="currentColor" />
+      </a>
     </div>
   );
 }

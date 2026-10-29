@@ -45,7 +45,8 @@ function label(d: Day) {
   return `${d.count || "No"} contribution${d.count === 1 ? "" : "s"} on ${when}`;
 }
 
-export function GithubCard({ isMobile }: { isMobile: boolean }) {
+/** `height` defaults to the card's own 188px; pass "100%" to match a taller neighbour. */
+export function GithubCard({ isMobile, height = CARD_HEIGHT }: { isMobile: boolean; height?: number | string }) {
   const [data, setData] = useState<{ total: number; days: Day[] } | null>(null);
   const [fit, setFit] = useState(20);
   const gridWrapRef = useRef<HTMLDivElement>(null);
@@ -78,9 +79,9 @@ export function GithubCard({ isMobile }: { isMobile: boolean }) {
   const weeks = data ? toWeeks(data.days).slice(-fit) : Array.from({ length: fit }, () => Array(7).fill(null));
 
   return (
-    <div style={{ position: "relative", overflow: "hidden", borderRadius: 16, width: "100%", height: CARD_HEIGHT, backgroundColor: colors.sandLight, padding: `16px ${isMobile ? 12 : 16}px`, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box" }}>
+    <div style={{ position: "relative", overflow: "hidden", borderRadius: 16, width: "100%", height, backgroundColor: colors.sandLight, padding: `16px ${isMobile ? 12 : 16}px`, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <p className="font-caslon not-italic" style={{ fontSize: 20, lineHeight: "26px", letterSpacing: "-0.01em", fontWeight: 600, color: colors.ink }}>GitHub contributions</p>
+        <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 16 : 20, lineHeight: isMobile ? "20px" : "26px", letterSpacing: "-0.01em", fontWeight: 600, color: colors.ink }}>GitHub contributions</p>
         <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="Open GitHub profile" style={{ width: 24, height: 24, display: "block" }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <rect width="24" height="24" rx="12" fill="white" fillOpacity="0.5" />

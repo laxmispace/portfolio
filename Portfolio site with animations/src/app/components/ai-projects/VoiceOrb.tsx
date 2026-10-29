@@ -2,13 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
 import { motion } from "motion/react";
-import { startMic, startVoice, type AudioRig } from "@/app/lib/labAudio";
+import { Pause, Play, Square } from "lucide-react";
+import { startMic, startSpeech, type AudioRig } from "@/app/lib/labAudio";
 import { colors, withAlpha } from "@/app/theme/tokens";
-import { pillStyle } from "./LabFrames";
+import { pillStyle, watchVisible } from "./LabFrames";
 
 // A voice agent, seen on the bottom half of a phone. The orb, in the spirit of ElevenLabs',
 // is a soft sphere of drifting blue drawn in a three.js shader; when it hears something
-// (your mic, or the little synth voice) the colours churn faster, the rim ripples and it
+// (your mic, or a spoken voice) the colours churn faster, the rim ripples and it
 // swells. What's said is typed out underneath: each new phrase lands at the top left in
 // the orb's blue and pushes everything before it along and down.
 
@@ -136,7 +137,11 @@ function Orb({ rigRef }: { rigRef: React.MutableRefObject<AudioRig | null> }) {
     let wave = new Uint8Array(1024);
     const scaleTo = gsap.quickTo(host, "scale", { duration: 0.25, ease: "power2.out" });
 
+    let visible = true;
+    const unwatch = watchVisible(host, (v) => (visible = v));
+
     const tick = (_t: number, dt: number) => {
+      if (!visible) return;
       const a = rigRef.current?.analyser;
       let target = 0;
       if (a) {
@@ -159,6 +164,7 @@ function Orb({ rigRef }: { rigRef: React.MutableRefObject<AudioRig | null> }) {
 
     return () => {
       gsap.ticker.remove(tick);
+      unwatch();
       gsap.killTweensOf(host);
       quad.geometry.dispose();
       material.dispose();
@@ -170,7 +176,7 @@ function Orb({ rigRef }: { rigRef: React.MutableRefObject<AudioRig | null> }) {
   return <div ref={hostRef} style={{ width: ORB, height: ORB, filter: `drop-shadow(0 18px 28px ${withAlpha(ORB_TINT, 0.28)})` }} />;
 }
 
-// What the synth voice "says" - typed out a word at a time, in step with its words.
+// What the voice says - read aloud by the browser, typed out a word at a time as it speaks.
 const SCRIPT = [
   "hi, i'm laxmi's lab assistant",
   "she designs things that feel calm",
@@ -254,16 +260,12 @@ export function VoiceOrb() {
     const mine = session.current;
 
     if (src === "voice") {
-      rigRef.current = startVoice(() => {
-        const pos = scriptPos.current;
-        const words = SCRIPT[pos.line].split(" ");
-        pushWord(words[pos.word], pos.word === 0);
-        pos.word++;
-        if (pos.word >= words.length) {
-          pos.word = 0;
-          pos.line = (pos.line + 1) % SCRIPT.length;
-        }
+      // a paused line starts over, so it's heard whole
+      rigRef.current = startSpeech(SCRIPT, scriptPos.current.line, (line, word) => {
+        scriptPos.current = { line, word };
+        pushWord(SCRIPT[line].split(" ")[word], word === 0);
       });
+      if (!rigRef.current) setNote("this browser can't speak here - try the mic");
       return;
     }
 
@@ -357,24 +359,28 @@ export function VoiceOrb() {
     note ??
     (source === "idle" ? "pick mic or voice to begin" : run === "running" ? (source === "mic" ? "listening…" : "speaking…") : run === "paused" ? "paused" : "press start");
 
-  const control = (label: string, onClick: () => void, enabled: boolean) => (
+  // round icon buttons - big enough to hit with a thumb even when the card is scaled down
+  const control = (label: string, Icon: typeof Play, onClick: () => void, enabled: boolean) => (
     <button
       onClick={onClick}
       disabled={!enabled}
+      aria-label={label}
+      title={label}
       style={{
-        background: "none",
+        width: 52,
+        height: 52,
+        borderRadius: "50%",
         border: "none",
-        padding: "4px 6px",
-        fontSize: 17,
-        lineHeight: "22px",
-        fontWeight: 600,
-        letterSpacing: "-0.01em",
-        color: enabled ? colors.ink : withAlpha(colors.ink, 0.3),
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: enabled ? colors.ink : withAlpha(colors.ink, 0.08),
+        color: enabled ? colors.sand : withAlpha(colors.ink, 0.3),
         cursor: enabled ? "pointer" : "default",
-        transition: "color 0.2s ease",
+        transition: "background 0.2s ease, color 0.2s ease",
       }}
     >
-      {label}
+      <Icon size={20} fill="currentColor" strokeWidth={0} />
     </button>
   );
 
@@ -439,19 +445,21 @@ export function VoiceOrb() {
       </div>
 
       {/* source */}
-      <div role="tablist" style={{ position: "absolute", left: 0, right: 0, top: 312, display: "flex", justifyContent: "center", gap: 10 }}>
+      {/* source - large pills, so they're still easy to tap on a phone */}
+      <div role="tablist" style={{ position: "absolute", left: 0, right: 0, top: 300, display: "flex", justifyContent: "center", gap: 10 }}>
         {(["idle", "mic", "voice"] as Source[]).map((s) => (
-          <button key={s} role="tab" aria-selected={source === s} onClick={() => pick(s)} style={pillStyle(source === s)}>
+          <button key={s} role="tab" aria-selected={source === s} onClick={() => pick(s)} style={{ ...pillStyle(source === s), fontSize: 16, lineHeight: "20px", padding: "10px 22px" }}>
             {s}
           </button>
         ))}
       </div>
 
-      {/* transport */}
-      <div style={{ position: "absolute", left: 0, right: 0, top: 356, display: "flex", justifyContent: "space-around", padding: "0 52px" }}>
-        {control(run === "paused" ? "Resume" : "Start", start, source !== "idle" && run !== "running")}
-        {control("Pause", pause, run === "running")}
-        {control("Stop", stop, run !== "stopped" || phrases.length > 0)}
+      {/* transport, along the bottom - only once there's something to play */}
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, display: "flex", justifyContent: "center", gap: 18, opacity: source === "idle" ? 0.35 : 1, transition: "opacity 0.2s ease" }}>
+        {run === "running"
+          ? control("Pause", Pause, pause, true)
+          : control(run === "paused" ? "Resume" : "Start", Play, start, source !== "idle")}
+        {control("Stop", Square, stop, run !== "stopped" || phrases.length > 0)}
       </div>
 
     </div>

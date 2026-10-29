@@ -236,8 +236,9 @@ function ProjectDetails({ cs, isMobile }: { cs: CaseStudyInfo; isMobile: boolean
       transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
       style={{
         display: "grid", gridTemplateColumns: isMobile ? "repeat(2, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))",
+        // no rule on top - it sat right under the cover; just the one below, before the story
         columnGap: 24, rowGap: 16, padding: "16px 0",
-        borderTop: `1px solid ${withAlpha(colors.ink, 0.12)}`, borderBottom: `1px solid ${withAlpha(colors.ink, 0.12)}`,
+        borderBottom: `1px solid ${withAlpha(colors.ink, 0.12)}`,
       }}
     >
       {items.map((item) => (

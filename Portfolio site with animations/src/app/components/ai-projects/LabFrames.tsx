@@ -22,3 +22,12 @@ export function pillStyle(on: boolean, ground: "light" | "dark" = "light"): CSSP
     transition: "background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease",
   };
 }
+
+/** Tracks whether `el` is on screen, so a piece can skip drawing frames nobody can see
+ *  (keeps scrolling smooth on a phone). Returns the cleanup. */
+export function watchVisible(el: Element, onChange: (visible: boolean) => void): () => void {
+  if (typeof IntersectionObserver === "undefined") return () => {};
+  const io = new IntersectionObserver(([entry]) => onChange(entry.isIntersecting), { rootMargin: "100px" });
+  io.observe(el);
+  return () => io.disconnect();
+}

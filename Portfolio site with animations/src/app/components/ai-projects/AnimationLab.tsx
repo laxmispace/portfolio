@@ -258,6 +258,8 @@ const POPPER_OPTIONS: { key: PopperKind; label: string }[] = [
 ];
 
 const HEART_SIZE = { w: 380, h: 150 };
+// the site orange (hsl 29°, 55%, 50%) turned to red: same saturation and lightness, hue 0
+const HEART_RED = "hsl(0, 55%, 50%)";
 
 function HeartPopper() {
   const [kinds, setKinds] = useState<PopperKind[]>(["flower"]);
@@ -268,7 +270,7 @@ function HeartPopper() {
   return (
     <div style={{ width: HEART_SIZE.w, height: HEART_SIZE.h, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 30 }}>
       <div style={{ whiteSpace: "nowrap" }}>
-        <MadeWithLove fontSize={20} color={colors.oliveDeep} heart={colors.orange} kinds={kinds} palette={POPPER_COLOURS} ripples="heartbeat" />
+        <MadeWithLove fontSize={20} color={colors.oliveDeep} heart={HEART_RED} kinds={kinds} palette={POPPER_COLOURS} ripples="heartbeat" />
       </div>
 
       <div role="group" aria-label="Poppers" style={{ display: "flex", gap: 8 }}>
@@ -375,6 +377,9 @@ export function AnimationLab() {
 
   return (
     <div>
+      <p style={{ ...textStyles.byline, fontSize: phone ? 13 : 14, color: withAlpha(colors.ink, 0.65), marginBottom: phone ? 16 : 28, padding: "0 2px" }}>
+        All of these animations are interactive, so {phone ? "tap" : "hover, click"} and play around.
+      </p>
       {phone && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, padding: "0 2px" }}>
           <p style={{ ...textStyles.label, color: withAlpha(colors.ink, 0.5) }}>{PIECES.length} experiments</p>

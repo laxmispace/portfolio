@@ -3,6 +3,7 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { colors, withAlpha } from "@/app/theme/tokens";
 import linocut from "@/assets/about-photos/2.1.jpg";
+import { watchVisible } from "./LabFrames";
 
 // The shimmer an AI image generator shows before the picture arrives - a soft lattice of
 // diamonds with light sweeping across it - drawn in a three.js shader. Hover the card and
@@ -104,7 +105,10 @@ function Placeholder() {
     const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
     scene.add(quad);
 
+    let visible = true;
+    const unwatch = watchVisible(host, (v) => (visible = v));
     const tick = (_t: number, dt: number) => {
+      if (!visible) return;
       uniforms.uTime.value += dt / 1000;
       renderer.render(scene, camera);
     };
@@ -169,6 +173,7 @@ function Placeholder() {
       host.removeEventListener("pointerdown", down);
       host.removeEventListener("click", click);
       gsap.ticker.remove(tick);
+      unwatch();
       gsap.killTweensOf(uniforms.uHover);
       gsap.killTweensOf(uniforms.uReveal);
       tex.dispose();

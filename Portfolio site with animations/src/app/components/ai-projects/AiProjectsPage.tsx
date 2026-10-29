@@ -226,7 +226,7 @@ function Tabs({ active, onSelect, isMobile }: { active: TabKey; onSelect: (k: Ta
           // no lift on hover - it would open a gap onto the dark page behind; the colour
           // just eases a touch lighter instead
           <div key={t.key} role="tab" aria-selected={on} className="lab-tab" style={{ position: "relative", zIndex: on ? 1 : 0 }}>
-            <CaseStudyTab color={on ? SHEET_BG : t.color} label={t.label} compact={isMobile} lift={false} weight={400} onClick={on ? undefined : () => onSelect(t.key)} />
+            <CaseStudyTab color={on ? SHEET_BG : t.color} label={t.label} compact={isMobile} lift={false} weight={on ? 600 : 400} onClick={on ? undefined : () => onSelect(t.key)} />
           </div>
         );
       })}
@@ -238,9 +238,10 @@ function Tabs({ active, onSelect, isMobile }: { active: TabKey; onSelect: (k: Ta
 // Same card as the homepage AI section - the hand-designed cover on top, title and
 // one line below - laid out three across, each cover inset so it has room to breathe.
 
-// The lab's line-up, in order: the typeface, the piano, the other two homepage projects,
-// then the music player.
-const LAB_PROJECT_IDS = [11, 9, 2, 0, 10];
+// The lab's line-up. Ordered so no two covers of the same colour touch: typeface (orange),
+// job tracker (olive), piano (orange), breathing (pink). That only holds at one or three
+// across, so the grid below is fixed to exactly those.
+const LAB_PROJECT_IDS = [11, 2, 9, 0];
 const LAB_PROJECTS = LAB_PROJECT_IDS.map((id) => AI_PROJECTS.find((p) => p.id === id)).filter(
   (p): p is AiProject => Boolean(p),
 );
@@ -408,10 +409,10 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
     <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
       <LabMark />
       <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-        <p className="font-caslon" style={{ fontStyle: "normal", fontSize: 20, lineHeight: "26px", fontWeight: 600, color: colors.sand }}>
+        <p className="font-caslon" style={{ fontStyle: "normal", fontSize: isMobile ? 17 : 20, lineHeight: isMobile ? "22px" : "26px", fontWeight: 600, color: colors.sand }}>
           This is my <span style={{ fontStyle: "italic" }}>personal lab</span>
         </p>
-        <p style={{ ...textStyles.byline, color: withAlpha(colors.sand, 0.6) }}>where risk is zero and satisfaction is total</p>
+        <p style={{ ...textStyles.byline, ...(isMobile && { fontSize: 12, lineHeight: "16px" }), color: withAlpha(colors.sand, 0.6) }}>where risk is zero and satisfaction is total</p>
       </div>
     </div>
   );
@@ -455,7 +456,7 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
         <Tabs active={tab} onSelect={setTab} isMobile={isMobile} />
         <div role="tabpanel" aria-label={tab === "project" ? "Project lab" : "Animation lab"}>
           {projectView ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 360px), 1fr))", gap: isMobile ? 20 : 32 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "repeat(3, minmax(0, 1fr))", gap: isMobile ? 20 : 32 }}>
               {LAB_PROJECTS.map((project, i) => (
                 <LabProjectCard
                   key={project.id}

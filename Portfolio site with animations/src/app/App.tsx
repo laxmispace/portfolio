@@ -225,9 +225,19 @@ export default function App() {
     {/* The lab sits over the portfolio instead of replacing it, so coming back
         doesn't remount the site (and replay the intro) or lose the scroll spot. */}
     {page === "ai-projects" && (
+      // inset: 0 instead of 100vh/100vw, so on a phone the scroller ends where the visible
+      // screen does (100vh runs under the browser bars and clips the bottom)
       <div
-        className="h-screen w-screen"
-        style={{ position: "fixed", inset: 0, zIndex: 1000, backgroundColor: colors.ink, overflowY: "auto", overflowX: "hidden" }}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 1000,
+          backgroundColor: colors.ink,
+          overflowY: "auto",
+          overflowX: "hidden",
+          overscrollBehavior: "contain",
+          WebkitOverflowScrolling: "touch",
+        }}
       >
         <AiProjectsPage onBack={closeLab} />
       </div>

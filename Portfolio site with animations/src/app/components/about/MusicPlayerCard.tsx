@@ -38,7 +38,8 @@ function formatTrackTime(ms: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export function MusicPlayerCard({ isMobile, tone: t = SITE_TONE }: { isMobile: boolean; tone?: PlayerTone }) {
+/** `tile`: a small upright card for a phone, made to sit half-width beside the GitHub card. */
+export function MusicPlayerCard({ isMobile, tone: t = SITE_TONE, tile = false }: { isMobile: boolean; tone?: PlayerTone; tile?: boolean }) {
   const { status, track, errorMessage, connect, disconnect, togglePlay, seek, isPublic } = useSpotifyPlayer();
   const artSrc = track?.albumArt || vinylDisc;
   const spinning = !!track?.isPlaying;
@@ -82,6 +83,57 @@ export function MusicPlayerCard({ isMobile, tone: t = SITE_TONE }: { isMobile: b
       )}
     </div>
   );
+
+  if (tile) {
+    // Half-width tile: the disc peeking down from the top, the track and a play button under it.
+    return (
+      <div style={{ position: "relative", width: "100%", height: 220, borderRadius: 16, overflow: "hidden", backgroundColor: t.surface, border: `1px solid ${t.line}`, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+        <div style={{ position: "absolute", top: -96, left: "50%", transform: "translateX(-50%)" }}>
+          <Vinyl size={190} art={artSrc} spinning={spinning} spindle={t.spindle} artFilter={t.artFilter} />
+        </div>
+        {status === "connected" && track ? (
+          <div style={{ position: "relative", padding: "0 12px 12px", display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ minWidth: 0 }}>
+              <p className="font-inclusive-sans" style={{ fontSize: 9, lineHeight: "12px", letterSpacing: "0.06em", textTransform: "uppercase", color: t.accent, marginBottom: 2 }}>
+                {stateLabel}
+              </p>
+              <p className="font-caslon not-italic" style={{ fontSize: 15, lineHeight: "19px", letterSpacing: "-0.02em", fontWeight: 600, color: t.ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {track.name}
+              </p>
+              <p className="font-inclusive-sans" style={{ fontSize: 10, lineHeight: "13px", letterSpacing: "0.02em", textTransform: "uppercase", color: t.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {track.artist}
+              </p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <button
+                onClick={togglePlay}
+                aria-label={playLabel}
+                title={playLabel}
+                style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 14, backgroundColor: withAlpha(t.muted, 0.2), border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                {track.isPlaying ? (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <rect x="4" y="3" width="3" height="10" rx="1" fill={t.muted} />
+                    <rect x="9" y="3" width="3" height="10" rx="1" fill={t.muted} />
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <path d="M5 3L13 8L5 13V3Z" fill={t.muted} />
+                  </svg>
+                )}
+              </button>
+              <div onClick={handleSeek} style={{ position: "relative", flex: 1, height: 8, display: "flex", alignItems: "center", cursor: isPublic ? "default" : "pointer" }}>
+                <div style={{ position: "absolute", width: "100%", height: 2, backgroundColor: t.track, borderRadius: 2 }} />
+                <div style={{ position: "absolute", left: 0, height: 2, borderRadius: 2, backgroundColor: t.accent, width: `${Math.max(2, (track.progressMs / track.durationMs) * 100)}%` }} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ position: "relative", paddingBottom: 16 }}>{notPlayingState}</div>
+        )}
+      </div>
+    );
+  }
 
   if (isMobile) {
     // Mobile: slim horizontal bar, album art peeking from the left edge.
