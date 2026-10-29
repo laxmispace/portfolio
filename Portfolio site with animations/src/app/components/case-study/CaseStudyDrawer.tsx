@@ -6,7 +6,8 @@ import { TextLink } from "@/app/components/ui/Buttons";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { useAudioPlayer } from "@/app/hooks/useAudioPlayer";
 import { Spacer, ThumbnailPlaceholder, StrokedImage, SectionBlock, SectionHeading, BodyText } from "./CaseStudyPrimitives";
-import { ItravelCaseStudy, FastagCaseStudy } from "./CaseStudyContent";
+import { CaseStudyLock } from "./CaseStudyLock";
+import { restoreCaseStudy, unlockCaseStudy, getLoadedCaseStudy, type ProtectedCaseStudy } from "./protectedCaseStudies";
 import "./CaseStudy.css";
 
 // ─── CS2 cover (ICICI FASTag) - "FASTag cover", exported at 2400×1200 (2:1) ───
@@ -45,6 +46,8 @@ export interface CaseStudyInfo {
   overview: string;
   /** Shown as "coming soon": its card and related links don't open anything. */
   comingSoon?: boolean;
+  /** Needs the case study password before it can be read (see CaseStudyLock). */
+  locked?: boolean;
   /** Cover image (import it from src/assets/case-studies/covers). Designed in Figma at
    *  1600×800 (2:1), exported @2x; every cover slot - the home card, the case study's
    *  hero and the "read more" cards - is 2:1, so it shows uncropped everywhere. */
@@ -119,27 +122,8 @@ function DrawerHero({ cs, iconSize }: { cs: CaseStudyInfo; iconSize: number }) {
 }
 
 // ─── Section index definitions per case study ─────────────────────────────────
+// Case studies 1 and 2 bring their own index from the encrypted bundle (see protectedCaseStudies).
 const SECTIONS_BY_CASE_STUDY: Record<number, { id: string; label: string; noNumber?: boolean }[]> = {
-  0: [
-    { id: "cs-problem", label: "The problem", noNumber: true },
-    { id: "cs-why", label: "Why the obvious fix wasn't enough", noNumber: true },
-    { id: "cs-entry", label: "Getting users in" },
-    { id: "cs-trip", label: "Declaring the trip" },
-    { id: "cs-limits", label: "Setting limits" },
-    { id: "cs-expiry", label: "Auto-expiring controls" },
-    { id: "cs-wrapup", label: "Travel wrap" },
-    { id: "cs-tldr", label: "TL;DR", noNumber: true },
-    { id: "cs-media", label: "Walkthrough", noNumber: true },
-  ],
-  1: [
-    { id: "cs-intro", label: "Introduction", noNumber: true },
-    { id: "cs-landing", label: "Landing page" },
-    { id: "cs-card", label: "FASTag card exploration" },
-    { id: "cs-details", label: "All FASTag details" },
-    { id: "cs-recharge", label: "FASTag recharge" },
-    { id: "cs-tldr", label: "TL;DR", noNumber: true },
-    { id: "cs-media", label: "Walkthrough", noNumber: true },
-  ],
   2: [
     { id: "cs-problem", label: "Problem statement" },
     { id: "cs-process", label: "Process" },
@@ -155,6 +139,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     slug: "icici-bank-onboarding",
     cover: itravelCover,
     label: "CASE STUDY 1",
+    locked: true,
     color: colors.olive,
     textColor: colors.oliveDeep,
     imageBg: colors.oliveLight,
@@ -177,6 +162,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
     cover: fastagCover,
     animation: fastagCoverAnimation,
     label: "CASE STUDY 2",
+    locked: true,
     color: colors.orange,
     textColor: colors.ink,
     imageBg: colors.orangeLight,
@@ -424,6 +410,28 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
   // How far through the story the reader is (0-1), and roughly how long it takes to read.
   const [progress, setProgress] = useState(0);
   const [readMinutes, setReadMinutes] = useState<number | null>(null);
+  // Locked case studies stay behind the password screen until their encrypted content is
+  // decrypted; one correct password unlocks both for the rest of the tab.
+  const [protectedCs, setProtectedCs] = useState<ProtectedCaseStudy | null>(null);
+  const [restoring, setRestoring] = useState(false);
+  useEffect(() => {
+    if (!caseStudy?.locked) { setProtectedCs(null); return; }
+    const index = caseStudy.index;
+    const ready = getLoadedCaseStudy(index);
+    setProtectedCs(ready);
+    if (ready) return;
+    let live = true;
+    setRestoring(true);
+    restoreCaseStudy(index).then((cs) => { if (live) { setProtectedCs(cs); setRestoring(false); } });
+    return () => { live = false; };
+  }, [caseStudy?.index, caseStudy?.locked]);
+  const isLocked = !!caseStudy?.locked && !protectedCs;
+  const unlock = useCallback(async (password: string) => {
+    if (!caseStudy) return false;
+    const cs = await unlockCaseStudy(caseStudy.index, password);
+    if (cs) setProtectedCs(cs);
+    return !!cs;
+  }, [caseStudy]);
 
   useEffect(() => {
     if (!caseStudy) return;
@@ -443,7 +451,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
       setReadMinutes(words ? Math.max(1, Math.round(words / 220)) : null);
     }, 300);
     return () => clearTimeout(t);
-  }, [caseStudy?.index, isMobile]);
+  }, [caseStudy?.index, isMobile, isLocked]);
 
   useEffect(() => {
     const el = isMobile ? scrollableRef.current : rightPaneRef.current;
@@ -455,7 +463,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
     };
     el.addEventListener("scroll", handle, { passive: true });
     return () => el.removeEventListener("scroll", handle);
-  }, [caseStudy, isMobile]);
+  }, [caseStudy, isMobile, isLocked]);
 
   // Esc closes the drawer the same way the close icon does.
   useEffect(() => {
@@ -479,9 +487,9 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
     const nodes = el.querySelectorAll("[data-section]");
     nodes.forEach((n) => obs.observe(n));
     return () => obs.disconnect();
-  }, [caseStudy, isMobile]);
+  }, [caseStudy, isMobile, isLocked]);
 
-  const sections = caseStudy ? (SECTIONS_BY_CASE_STUDY[caseStudy.index] ?? []) : [];
+  const sections = caseStudy ? (protectedCs?.sections ?? SECTIONS_BY_CASE_STUDY[caseStudy.index] ?? []) : [];
 
   // Every index click gets its own URL (…/case-study/<slug>#<section>). replaceState keeps
   // the history entry - and its caseStudySlug - so back still closes the drawer.
@@ -499,11 +507,11 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
     if (!caseStudy) return;
     const hash = window.location.hash.slice(1);
     const target = hash && sections.find((s) => slugify(s.label) === hash);
-    if (!target) return;
+    if (!target || isLocked) return;
     const t = setTimeout(() => scrollToSection(target.id, "instant" as ScrollBehavior), 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [caseStudy?.index]);
+  }, [caseStudy?.index, isLocked]);
   // Running number for the index list - items flagged `noNumber` (e.g. Introduction)
   // are skipped so the first *numbered* section reads as "1.".
   const numberedSections = (() => {
@@ -562,7 +570,10 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
               </button>
             )}
 
-            {/* Scrollable inner */}
+            {isLocked ? (
+              restoring ? null : <CaseStudyLock onSubmit={unlock} onClose={onClose} />
+            ) : (
+            /* Scrollable inner */
             <div ref={scrollableRef} style={{ height: "100%", overflowY: "auto", scrollbarWidth: "none", display: "flex", flexDirection: "column" }}>
 
               {/* ── MOBILE LAYOUT ── */}
@@ -615,10 +626,8 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
 
                     {/* Content */}
                     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-                      {caseStudy.index === 0
-                        ? <ItravelCaseStudy isMobile={true} />
-                        : caseStudy.index === 1
-                        ? <FastagCaseStudy isMobile={true} />
+                      {protectedCs
+                        ? <protectedCs.Content isMobile={true} />
                         : <PlaceholderCaseStudy cs={caseStudy} isMobile={true} />
                       }
                     </div>
@@ -735,10 +744,8 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                       <ProjectDetails cs={caseStudy} isMobile={false} />
                       <Spacer size={40} />
 
-                      {caseStudy.index === 0
-                        ? <ItravelCaseStudy isMobile={false} />
-                        : caseStudy.index === 1
-                        ? <FastagCaseStudy isMobile={false} />
+                      {protectedCs
+                        ? <protectedCs.Content isMobile={false} />
                         : <PlaceholderCaseStudy cs={caseStudy} isMobile={false} />
                       }
 
@@ -772,6 +779,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
                 </>
               )}
             </div>
+            )}
           </motion.div>
         </>
       )}

@@ -8,6 +8,7 @@ export const colors = {
   ink: "#212012",
   body: "#444444",
   white: "#FFFFFF",
+  offWhite: "#FAF7F2", // warm white, e.g. the lock screen's eyes
 
   // Brand accents (one per case study)
   olive: "#C3BE6F",
