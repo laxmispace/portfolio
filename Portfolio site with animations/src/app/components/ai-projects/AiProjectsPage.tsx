@@ -1,12 +1,13 @@
-import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowRight, Home } from "lucide-react";
 import { AI_PROJECTS, isOpenableAiProject, type AiProject } from "@/app/data/aiProjects";
 import { AiProjectDrawer } from "./AiProjectDrawer";
 import { AiProjectFrame } from "./AiProjectFrame";
 import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
 import { toCss } from "@/app/lib/zoom";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
+import { CaseStudyTab } from "@/app/components/home/ProjectsSection";
 import { slugify, useRoutedSelection } from "@/app/lib/routedSelection";
 
 // Inside the lab a project lives at #lab/<slug>, e.g. /portfolio/#lab/browser-piano
@@ -159,7 +160,7 @@ function LabMark() {
       style={{
         width: 44,
         height: 44,
-        borderRadius: 8,
+        borderRadius: "50%",
         background: colors.orange,
         position: "relative",
         overflow: "hidden",
@@ -201,129 +202,32 @@ function LabMark() {
 // ── Tabs ───────────────────────────────────────────────────────────────────────
 
 type TabKey = "animation" | "project";
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "animation", label: "Animation lab" },
-  { key: "project", label: "Project lab" },
+// Project lab first - it's where the page opens. Each tab has its own colour while it's
+// not chosen; the chosen one turns the sheet's sand.
+const TABS: { key: TabKey; label: string; color: string }[] = [
+  { key: "project", label: "Project lab", color: colors.orange },
+  { key: "animation", label: "Animation lab", color: colors.pink },
 ];
 
-const GOO_ID = "ai-projects-tab-goo";
-
-// The gooey filter itself - dropped once into the page. Blur + a hard alpha
-// contrast so overlapping opaque shapes fuse into a metaball / liquid blob.
-function GooDefs() {
-  return (
-    <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden>
-      <defs>
-        <filter id={GOO_ID}>
-          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
-          <feColorMatrix
-            in="blur"
-            mode="matrix"
-            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
-          />
-        </filter>
-      </defs>
-    </svg>
-  );
-}
-
-// Opaque equivalent of rgba(227,217,206,0.18) over the #212012 header - needed
-// because the gooey alpha trick only works on near-opaque sources.
-// Opaque equivalent of sand at ~18% over the dark page - the gooey trick needs an opaque fill.
-const PILL = "#444134";
-
-function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => void }) {
-  const reduced = useMemo(prefersReducedMotion, []);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [rects, setRects] = useState<{ left: number; width: number }[]>([]);
-
-  useLayoutEffect(() => {
-    const measure = () => {
-      const wrap = wrapRef.current;
-      if (!wrap) return;
-      const base = wrap.getBoundingClientRect().left;
-      setRects(
-        btnRefs.current.map((b) => {
-          const r = b!.getBoundingClientRect();
-          return { left: toCss(r.left - base), width: toCss(r.width) };
-        }),
-      );
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    if (typeof document !== "undefined" && "fonts" in document) {
-      (document as Document).fonts.ready.then(measure).catch(() => {});
-    }
-    return () => window.removeEventListener("resize", measure);
-  }, []);
-
-  const activeIdx = TABS.findIndex((t) => t.key === active);
-  const target = rects[activeIdx];
-
+/** The homepage's case-study folder tabs, sitting on the sheet's top edge: they choose
+ *  what the sheet below shows, so they belong to it. */
+function Tabs({ active, onSelect, isMobile }: { active: TabKey; onSelect: (k: TabKey) => void; isMobile: boolean }) {
   return (
     <div
-      ref={wrapRef}
-      style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}
+      role="tablist"
+      aria-label="What's in the lab"
+      className="lab-tabs"
+      style={{ position: "absolute", left: isMobile ? 12 : 28, bottom: "calc(100% - 1px)", display: "flex", alignItems: "flex-end", gap: isMobile ? 0 : 4 }}
     >
-      {/* Gooey highlight - two blobs chase the same target at different spring
-          rates, so during a click they stretch apart then fuse under the filter.
-          The button text lives outside this layer, so it never distorts. */}
-      {target && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 0,
-            pointerEvents: "none",
-            filter: reduced ? undefined : `url(#${GOO_ID})`,
-          }}
-        >
-          <motion.div
-            initial={false}
-            animate={{ x: target.left, width: target.width }}
-            transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 480, damping: 34, mass: 0.7 }}
-            style={{ position: "absolute", top: 0, bottom: 0, borderRadius: 999, background: PILL }}
-          />
-          {!reduced && (
-            <motion.div
-              initial={false}
-              animate={{ x: target.left, width: target.width }}
-              transition={{ type: "spring", stiffness: 120, damping: 17, mass: 1 }}
-              style={{ position: "absolute", top: 0, bottom: 0, borderRadius: 999, background: PILL }}
-            />
-          )}
-        </div>
-      )}
-
-      {TABS.map((t, i) => {
+      <style>{".lab-tab [role=button] { transition: filter .25s ease; } .lab-tab [role=button]:hover { filter: brightness(1.06); }"}</style>
+      {TABS.map((t) => {
         const on = active === t.key;
         return (
-          <button
-            key={t.key}
-            ref={(el) => {
-              btnRefs.current[i] = el;
-            }}
-            onClick={() => onSelect(t.key)}
-            className="font-inclusive-sans"
-            style={{
-              position: "relative",
-              zIndex: 1,
-              fontSize: 14,
-              fontWeight: 400,
-              lineHeight: "20px",
-              color: colors.sand,
-              background: on ? "transparent" : withAlpha(colors.sand, 0.1),
-              border: "none",
-              borderRadius: 999,
-              padding: "6px 14px",
-              cursor: "pointer",
-              transition: "background 0.2s ease, color 0.25s ease",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {t.label}
-          </button>
+          // no lift on hover - it would open a gap onto the dark page behind; the colour
+          // just eases a touch lighter instead
+          <div key={t.key} role="tab" aria-selected={on} className="lab-tab" style={{ position: "relative", zIndex: on ? 1 : 0 }}>
+            <CaseStudyTab color={on ? SHEET_BG : t.color} label={t.label} compact={isMobile} lift={false} weight={400} onClick={on ? undefined : () => onSelect(t.key)} />
+          </div>
         );
       })}
     </div>
@@ -334,8 +238,9 @@ function Tabs({ active, onSelect }: { active: TabKey; onSelect: (k: TabKey) => v
 // Same card as the homepage AI section - the hand-designed cover on top, title and
 // one line below - laid out three across, each cover inset so it has room to breathe.
 
-// The lab's line-up, in order: the three homepage projects, then the music player.
-const LAB_PROJECT_IDS = [9, 2, 0, 10];
+// The lab's line-up, in order: the typeface, the piano, the other two homepage projects,
+// then the music player.
+const LAB_PROJECT_IDS = [11, 9, 2, 0, 10];
 const LAB_PROJECTS = LAB_PROJECT_IDS.map((id) => AI_PROJECTS.find((p) => p.id === id)).filter(
   (p): p is AiProject => Boolean(p),
 );
@@ -344,7 +249,30 @@ const KIND_LABEL: Record<NonNullable<AiProject["kind"]>, string> = {
   webapp: "web app",
   extension: "chrome extension",
   player: "spotify player",
+  typeface: "typeface",
 };
+
+/** The small "web app" / "chrome extension" tag beside a project's title - here and on the
+ *  homepage's AI cards. */
+export function KindTag({ kind }: { kind: AiProject["kind"] }) {
+  return (
+    <span
+      className="font-inclusive-sans"
+      style={{
+        padding: 6,
+        borderRadius: 4,
+        background: withAlpha(colors.oliveDeep, 0.2),
+        color: colors.sand,
+        fontSize: 11,
+        lineHeight: "12px",
+        textTransform: "uppercase",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {KIND_LABEL[kind ?? "webapp"]}
+    </span>
+  );
+}
 
 const SAND_SOFT = "rgba(227, 224, 208, 0.1)";
 
@@ -384,21 +312,7 @@ function LabProjectCard({
             <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 16, lineHeight: "20px", fontWeight: 600 }}>
               {project.title}
             </p>
-            <span
-              className="font-inclusive-sans"
-              style={{
-                padding: 6,
-                borderRadius: 4,
-                background: withAlpha(colors.oliveDeep, 0.2),
-                color: colors.sand,
-                fontSize: 11,
-                lineHeight: "12px",
-                textTransform: "uppercase",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {KIND_LABEL[project.kind ?? "webapp"]}
-            </span>
+            <KindTag kind={project.kind} />
           </div>
           <p className="font-inclusive-sans" style={{ color: colors.sand, opacity: 0.8, fontSize: 14, lineHeight: "20px" }}>
             {project.description}
@@ -426,34 +340,33 @@ function LabProjectCard({
   );
 }
 
+/** Back to the portfolio: just a home icon, top right. */
 function BackHome({ onClick }: { onClick: () => void }) {
   const [hover, setHover] = useState(false);
   return (
     <button
+      type="button"
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className="font-inclusive-sans"
+      aria-label="Back to home"
+      title="Back to home"
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 6,
-        background: "none",
+        justifyContent: "center",
+        width: 40,
+        height: 40,
+        borderRadius: "50%",
         border: "none",
-        padding: 0,
         cursor: "pointer",
-        color: withAlpha(colors.sand, hover ? 1 : 0.6),
-        fontSize: 14,
-        fontWeight: 400,
-        lineHeight: "20px",
-        transition: "color 0.2s ease",
+        background: withAlpha(colors.sand, hover ? 0.16 : 0.08),
+        color: withAlpha(colors.sand, hover ? 1 : 0.8),
+        transition: "background 0.2s ease, color 0.2s ease",
         flexShrink: 0,
       }}
     >
-      <motion.span animate={{ x: hover ? -2 : 0 }} transition={{ duration: 0.2 }} style={{ display: "flex" }}>
-        <ArrowLeft size={14} color="currentColor" />
-      </motion.span>
-      home
+      <Home size={18} strokeWidth={1.75} color="currentColor" />
     </button>
   );
 }
@@ -513,36 +426,17 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
       }}
     >
 
-      <GooDefs />
       <BubbleField />
 
       <AiProjectDrawer project={selected} onClose={closeSelected} />
 
-      {/* Header - back link, lab mark + title, tabs. On phones the back link and tabs
-          share the top row and the title drops beneath them. */}
+      {/* Header - the lab mark + title, and a home icon on the right. The tabs live on
+          the sheet below, since they only change what's in it. */}
       <header style={{ position: "relative", zIndex: 2, padding: isMobile ? "20px 16px 0" : "28px 32px 0" }}>
-        {isMobile ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-              {onBack ? <BackHome onClick={onBack} /> : <span />}
-              <Tabs active={tab} onSelect={setTab} />
-            </div>
-            {title}
-          </div>
-        ) : (
-          <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1, minWidth: 0 }}>
-              {onBack && (
-                <>
-                  <BackHome onClick={onBack} />
-                  <span aria-hidden style={{ width: 1, height: 28, background: withAlpha(colors.sand, 0.15), margin: "0 4px" }} />
-                </>
-              )}
-              {title}
-            </div>
-            <Tabs active={tab} onSelect={setTab} />
-          </div>
-        )}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+          {title}
+          {onBack && <BackHome onClick={onBack} />}
+        </div>
       </header>
 
       {/* The container: sand, edge to edge, rounded at the top, painted over the bubble
@@ -551,14 +445,15 @@ export function AiProjectsPage({ onBack }: AiProjectsPageProps) {
         style={{
           position: "relative",
           zIndex: 1,
-          marginTop: isMobile ? 20 : 28,
+          marginTop: isMobile ? 56 : 68, // room for the tabs on its top edge
           background: SHEET_BG,
           borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0",
           padding: isMobile ? 16 : 40,
           minHeight: "calc(100vh / var(--page-zoom) - 120px)",
         }}
       >
-        <div>
+        <Tabs active={tab} onSelect={setTab} isMobile={isMobile} />
+        <div role="tabpanel" aria-label={tab === "project" ? "Project lab" : "Animation lab"}>
           {projectView ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 360px), 1fr))", gap: isMobile ? 20 : 32 }}>
               {LAB_PROJECTS.map((project, i) => (

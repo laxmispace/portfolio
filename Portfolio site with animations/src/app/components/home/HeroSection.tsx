@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, useTransform } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion, useTransform } from "motion/react";
 import { useScrollProgress } from "@/app/context/ScrollContext";
 import { MobileHeader } from "@/app/components/layout/MobileHeader";
 import { useIsMobile } from "@/app/hooks/useIsMobile";
 import { Walker } from "@/app/components/walker/Walker";
 import { colors, fonts, textStyles } from "@/app/theme/tokens";
-import { Clouds, Night, PullCord } from "@/app/components/home/HeroNight";
+import { Clouds, Night, PullCord, SLEEPER } from "@/app/components/home/HeroNight";
 
 /** "IST - 06:30:12 PM" on desktop; `short` (phones) drops the zone and seconds: "06:30 PM". */
 function LiveClock({ color, short = false, style }: { color: string; short?: boolean; style?: React.CSSProperties }) {
@@ -47,6 +47,7 @@ const fadeIn = {
 export function HeroSection({ ready = true }: { ready?: boolean }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const reduceMotion = useReducedMotion();
 
   const scrollYProgress = useScrollProgress(sectionRef, ["start start", "end start"]);
   const opacity  = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
@@ -60,12 +61,18 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
     fontFamily: fonts.serif,
     fontSize: isMobile ? 20 : 27,
     lineHeight: isMobile ? "27px" : "35px",
-    fontWeight: isMobile ? 500 : 400, // phones match "select projects"
+    fontWeight: isMobile ? 600 : 400, // phones: semibold, like "select projects"
     letterSpacing: "-0.01em",
     color: ink,
     transition: "color 0.7s",
   } as const;
   const br = isMobile ? " " : <br />;
+  // at night the day's copy steps back (fainter, and on phones it squeezes down a size)
+  // and a night-time line joins it at full size
+  const dimmed = { opacity: night ? 0.5 : 1, transition: "opacity 0.7s" };
+  const dayCopy = isMobile
+    ? { ...copy, fontSize: night ? 15 : 20, lineHeight: night ? "20px" : "27px", transition: "color 0.7s, font-size 0.6s cubic-bezier(0.16, 1, 0.3, 1), line-height 0.6s cubic-bezier(0.16, 1, 0.3, 1)" }
+    : copy;
 
   return (
     <div ref={sectionRef} data-no-reveal style={{ height: isMobile ? "calc(100dvh - var(--mobile-nav-height))" : "calc(100vh / var(--page-zoom))", display: "flex", flexDirection: "column", position: "relative", overflow: "hidden" }}>
@@ -92,14 +99,31 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
 
         {/* Intro copy */}
         <div style={{ padding: isMobile ? "28px 16px 0" : "40px 38px 0", position: "relative", zIndex: 1 }}>
-          <motion.p initial="hidden" animate={state} variants={rise(0)} style={{ ...copy, marginBottom: isMobile ? 16 : 30 }}>
-            I’m a product designer with 3+ years of work experience.{br}
-            Previously designed experiences for ICICI Bank and a few B2B startups.
+          <motion.p initial="hidden" animate={state} variants={rise(0)} style={{ ...dayCopy, marginBottom: isMobile ? (night ? 10 : 16) : 30, transition: `${dayCopy.transition}, margin-bottom 0.6s` }}>
+            <span style={dimmed}>
+              I’m a product designer with 3+ years of work experience.{br}
+              Previously designed experiences for ICICI Bank and a few B2B startups.
+            </span>
           </motion.p>
-          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={copy}>
-            Currently building small ai projects, upskilling and trying to be a{br}
-            <em>Design Engineer</em> who can design, code and ship!
+          <motion.p initial="hidden" animate={state} variants={rise(0.1)} style={dayCopy}>
+            <span style={dimmed}>
+              Currently building small ai projects, upskilling and trying to be a{br}
+              <em>Design Engineer</em> who can design, code and ship!
+            </span>
           </motion.p>
+          <AnimatePresence initial={false}>
+            {night && (
+              <motion.p
+                key="night-line"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE, delay: 0.35 } }}
+                exit={{ opacity: 0, y: 8, transition: { duration: 0.3 } }}
+                style={{ ...copy, marginTop: isMobile ? 16 : 30 }}
+              >
+                Nights are for books, rabbit holes, and ‘what if’ experiments.
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* The walker strolls along the bottom right */}
@@ -115,7 +139,30 @@ export function HeroSection({ ready = true }: { ready?: boolean }) {
           <div style={{ position: "relative" }}>
             {/* clouds drift behind the walker */}
             <Clouds dim={night} />
-            <Walker style={{ position: "relative", zIndex: 1 }} />
+            {/* by day the walker strolls; pull the cord and he's asleep on the moon instead */}
+            <motion.div animate={{ opacity: night && SLEEPER ? 0 : 1 }} transition={{ duration: 0.6, ease: EASE }} style={{ position: "relative", zIndex: 1 }}>
+              <Walker />
+            </motion.div>
+            <AnimatePresence>
+              {night && SLEEPER && (
+                <motion.div
+                  key="sleeper"
+                  initial={{ opacity: 0, y: 24, scale: 0.94 }}
+                  animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.9, ease: EASE, delay: 0.2 } }}
+                  exit={{ opacity: 0, y: 16, transition: { duration: 0.4 } }}
+                  style={{ position: "absolute", right: isMobile ? "6%" : "2%", bottom: 0, height: isMobile ? "100%" : "135%", zIndex: 2, pointerEvents: "none", transformOrigin: "50% 100%" }}
+                >
+                  {/* a slow, gentle float so he drifts in place instead of sitting still */}
+                  <motion.img
+                    src={SLEEPER}
+                    alt="The character asleep on a crescent moon, tapping a boot as music notes drift up"
+                    animate={reduceMotion ? undefined : { y: [0, -10, 0], rotate: [-1.2, 1.2, -1.2] }}
+                    transition={{ y: { duration: 5.5, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
+                    style={{ display: "block", height: "100%", width: "auto", transformOrigin: "50% 70%" }}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
         {/* phones: place and time in the bottom-left corner; the time lines up with the

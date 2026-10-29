@@ -52,7 +52,7 @@ const T = {
   eyebrow: { fontFamily: SANS, fontWeight: 400, fontSize: 12, lineHeight: "16px", textTransform: "uppercase" as const },
   // the intro uses the site's shared label, and a headline that sits on the bands' top edge
   label: textStyles.label,
-  headline: (m: boolean) => ({ fontFamily: SERIF, fontWeight: 500, fontSize: m ? 24 : 32, lineHeight: m ? "32px" : "40px", letterSpacing: "-0.02em" }),
+  headline: (m: boolean) => ({ fontFamily: SERIF, fontWeight: m ? 600 : 500, fontSize: m ? 24 : 32, lineHeight: m ? "32px" : "40px", letterSpacing: "-0.02em" }),
   title: { fontFamily: SERIF, fontWeight: 600, fontSize: 16, lineHeight: "21px" },
   body: { fontFamily: SANS, fontWeight: 400, fontSize: 12, lineHeight: "18px" },
   meta: { fontFamily: SANS, fontWeight: 400, fontSize: 12, lineHeight: "16px" },

@@ -11,6 +11,7 @@ import logoJobTracker from "@/assets/ai-projects/logo-job-tracker.svg";
 import pianoImg from "@/assets/ai-projects/piano.png";
 import jobTrackerImg from "@/assets/ai-projects/job-tracker.png";
 import breathingImg from "@/assets/ai-projects/breathing.png";
+import glyphicImg from "@/assets/ai-projects/faculty-glyphic-kannada.jpg";
 import vinylDisc from "@/assets/vinyl-player/vinyl-disc.png";
 import { Vinyl } from "@/app/components/about/Vinyl";
 import { useSpotifyPlayer } from "@/app/hooks/useSpotifyPlayer";
@@ -42,6 +43,7 @@ const FRAME_BACKGROUND: Record<AiProjectFrameKey, string> = {
   "job-tracker": colors.olive,
   breathing: colors.pink,
   vinyl: colors.orangeLight,
+  glyphic: colors.orange,
 };
 
 // Foreground photo placement, shared by web and mobile. Each photo keeps its natural
@@ -53,6 +55,8 @@ const PHOTO_STYLE: Record<AiProjectFrameKey, CSSProperties> = {
   "job-tracker": { right: "-4%", bottom: 0, width: "72%", height: "auto", borderRadius: "8px 0 0 0" },
   breathing: { left: "50%", bottom: 0, height: "84%", width: "auto" },
   vinyl: {},
+  // the whole designed cover ("Story 4.0"), filling the frame
+  glyphic: { inset: 0, width: "100%", height: "100%", objectFit: "cover" },
 };
 
 // The live record: same disc as the About Me player, wearing whatever I'm listening
@@ -121,6 +125,8 @@ export function AiProjectFrame({
         overflow: "hidden",
       }}
     >
+      {frameKey === "glyphic" && <FrameImg src={glyphicImg} className="ai-project-card__photo ai-project-card__photo--glyphic" style={photo} />}
+
       {frameKey === "piano" && (
         <>
           <FrameImg src={gridPiano} style={{ ...grid, left: 0 }} />

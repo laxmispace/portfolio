@@ -7,6 +7,7 @@ import { AiProjectDrawer } from "@/app/components/ai-projects/AiProjectDrawer";
 import { AiProjectFrame } from "@/app/components/ai-projects/AiProjectFrame";
 import { colors, textStyles, withAlpha } from "@/app/theme/tokens";
 import { SquiggleLink } from "@/app/components/ui/Buttons";
+import { KindTag } from "@/app/components/ai-projects/AiProjectsPage";
 import { BASE_URL, slugify, useRoutedSelection } from "@/app/lib/routedSelection";
 
 // AI project slug in the URL, e.g. /portfolio/ai-project/browser-piano
@@ -51,7 +52,7 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
       >
         {/* Header */}
         <div style={{ textAlign: "center", padding: isMobile ? "0 20px" : 0 }}>
-          <p className="font-caslon not-italic text-center" style={{ color: colors.sand, fontSize: isMobile ? 26 : 52, lineHeight: isMobile ? "38px" : "70px", fontWeight: 500, letterSpacing: "-0.03em" }}>
+          <p className="font-caslon not-italic text-center" style={{ color: colors.sand, fontSize: isMobile ? 26 : 52, lineHeight: isMobile ? "38px" : "70px", fontWeight: isMobile ? 600 : 500, letterSpacing: "-0.03em" }}>
             sometimes i tinker with ai
           </p>
           <p className="text-center" style={{ ...textStyles.byline, color: withAlpha(colors.sand, 0.6), marginTop: 8 }}>
@@ -112,13 +113,11 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
                 {isMobile ? (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12, padding: "0 16px", width: "100%", boxSizing: "border-box" }}>
                     <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 4, alignSelf: "stretch" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 4, flexGrow: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", flexGrow: 1, minWidth: 0 }}>
                         <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 16, lineHeight: "21px", fontWeight: 600 }}>
                           {project.title}
                         </p>
-                        <p className="font-caslon" style={{ color: withAlpha(colors.sand, 0.8), fontSize: 12, lineHeight: "12px", fontStyle: "italic", fontWeight: 500 }}>
-                          {project.kind === "extension" ? "Chrome extension" : "Web app"}
-                        </p>
+                        <KindTag kind={project.kind} />
                       </div>
                       {clickable && (
                         <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 26, lineHeight: "24px", fontWeight: 600, flexShrink: 0 }}>
@@ -132,9 +131,12 @@ export function AiProjectsSection({ onViewAll }: { onViewAll?: () => void }) {
                   </div>
                 ) : (
                   <>
-                    <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 18, lineHeight: "22px", fontWeight: 600 }}>
-                      {project.title}
-                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                      <p className="font-caslon not-italic" style={{ color: colors.sand, fontSize: 18, lineHeight: "22px", fontWeight: 600 }}>
+                        {project.title}
+                      </p>
+                      <KindTag kind={project.kind} />
+                    </div>
                     <p className="font-inclusive-sans" style={{ color: withAlpha(colors.sand, 0.5), fontSize: 13, lineHeight: "18px", marginTop: 4 }}>
                       {project.description}
                     </p>

@@ -38,10 +38,10 @@ const FLOWER_IMG: Record<NoteColor, string> = { pink: flowerPinkImg, orange: flo
 // button) and the note it becomes on the board.
 // The stored keys are the original colours; on screen they're pastels:
 // orange → violet, pink → peach, green → yellow.
-const PALETTE: Record<NoteColor, { name: string; pad: string; form: string; label: string; ring: string; button: string; note: string }> = {
-  orange: { name: "violet", pad: "#C8B6E2", form: "#DDD1EF", label: "#7A62A6", ring: "#B4A0D6", button: "#E9E1F5", note: "#DDD1EF" },
-  pink: { name: "peach", pad: "#F3BE9E", form: "#F7D3BD", label: "#C0703F", ring: "#E8A982", button: "#FAE1D2", note: "#F7D3BD" },
-  green: { name: "yellow", pad: "#F0DC86", form: "#F6EBB4", label: "#957D1F", ring: "#DCC468", button: "#FAF2CF", note: "#F6EBB4" },
+const PALETTE: Record<NoteColor, { name: string; pad: string; form: string; label: string; ring: string; note: string }> = {
+  orange: { name: "violet", pad: "#C8B6E2", form: "#DDD1EF", label: "#7A62A6", ring: "#B4A0D6", note: "#DDD1EF" },
+  pink: { name: "peach", pad: "#F3BE9E", form: "#F7D3BD", label: "#C0703F", ring: "#E8A982", note: "#F7D3BD" },
+  green: { name: "yellow", pad: "#F0DC86", form: "#F6EBB4", label: "#957D1F", ring: "#DCC468", note: "#F6EBB4" },
 };
 const META = "#53502D";
 const HINT = colors.oliveDeep; // the same deep olive as the site's labels, so it reads on the grid
@@ -564,7 +564,7 @@ function Ghost({ note, g, x, y, busy, touch, onStick, onBack }: {
       <NoteCard note={note} k={g.k} lifted={!busy} />
       {touch && (
         <div onPointerDown={(e) => e.stopPropagation()} style={{ position: "absolute", left: 0, right: 0, top: "100%", marginTop: 14, display: "flex", justifyContent: "center", gap: 8 }}>
-          <PrimaryButton className="gb-btn" onClick={onStick} disabled={busy} color={PALETTE[note.color].button} arrow={!busy}>
+          <PrimaryButton className="gb-btn" onClick={onStick} disabled={busy} color={colors.orangeDeep} deep={colors.ink}>
             {busy ? "sticking…" : "stick it here"}
           </PrimaryButton>
           <motion.button
@@ -749,7 +749,7 @@ function Composer({ draft, errors, status, mobile, shakeKey, trap, onTrap, onCha
             })}
           </div>
         </div>
-        <PrimaryButton type="submit" className="gb-btn" disabled={!isGuestbookConfigured} color={p.button} style={{ flexShrink: 0 }}>
+        <PrimaryButton type="submit" className="gb-btn" disabled={!isGuestbookConfigured} color={colors.orangeDeep} deep={colors.ink}>
           {isGuestbookConfigured ? "post it" : "soon"}
         </PrimaryButton>
       </div>

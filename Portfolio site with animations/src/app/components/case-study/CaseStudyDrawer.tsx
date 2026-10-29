@@ -17,6 +17,7 @@ import { colors, withAlpha } from "@/app/theme/tokens";
 
 // ─── CS1 cover (iTravel) - "Story 4.0", exported at 2400×1200 (2:1) ───
 import itravelCover from "@/assets/case-studies/itravel/cover.jpg";
+import daliCover from "@/assets/case-studies/dali/cover.jpg";
 
 // Pre-generated ElevenLabs narration lives in public/audio/ (see scripts/generate-voiceovers.mjs)
 // - base-aware so it resolves correctly whether served at "/" locally or "/portfolio/" on GitHub Pages.
@@ -126,7 +127,7 @@ const SECTIONS_BY_CASE_STUDY: Record<number, { id: string; label: string; noNumb
     { id: "cs-trip", label: "Declaring the trip" },
     { id: "cs-limits", label: "Setting limits" },
     { id: "cs-expiry", label: "Auto-expiring controls" },
-    { id: "cs-wrapup", label: "Travel wrap-up" },
+    { id: "cs-wrapup", label: "Travel wrap" },
     { id: "cs-tldr", label: "TL;DR", noNumber: true },
     { id: "cs-media", label: "Walkthrough", noNumber: true },
   ],
@@ -195,6 +196,7 @@ export const CASE_STUDY_DATA: CaseStudyInfo[] = [
   {
     index: 2,
     slug: "ai-design-experiments",
+    cover: daliCover,
     label: "CASE STUDY 3",
     color: colors.pink,
     textColor: colors.ink,

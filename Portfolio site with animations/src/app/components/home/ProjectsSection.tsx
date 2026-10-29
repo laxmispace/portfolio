@@ -32,7 +32,12 @@ function IciciBankLogo() {
   );
 }
 
-export function CaseStudyTab({ color, label, compact = false, onClick }: { color: string; label: string; compact?: boolean; onClick?: () => void }) {
+export function CaseStudyTab({ color, label, compact = false, onClick, lift = true, weight = 500 }: {
+  color: string; label: string; compact?: boolean; onClick?: () => void;
+  /** rise a little on hover (off where the gap it opens would show what's behind) */
+  lift?: boolean;
+  weight?: number;
+}) {
   return (
     <motion.div
       onClick={onClick}
@@ -40,7 +45,7 @@ export function CaseStudyTab({ color, label, compact = false, onClick }: { color
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } } : undefined}
       aria-label={onClick ? `Show ${label.toLowerCase()}` : undefined}
-      whileHover={onClick ? { y: -2 } : undefined}
+      whileHover={onClick && lift ? { y: -2 } : undefined}
       transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
       style={{ display: "flex", alignItems: "flex-end", cursor: onClick ? "pointer" : undefined }}
     >
@@ -56,7 +61,7 @@ export function CaseStudyTab({ color, label, compact = false, onClick }: { color
           alignItems: "center",
         }}
       >
-        <p className="font-inclusive-sans font-medium text-ink whitespace-nowrap" style={{ fontSize: compact ? 11 : 12, letterSpacing: "0.25px" }}>
+        <p className="font-inclusive-sans text-ink whitespace-nowrap" style={{ fontSize: compact ? 11 : 12, letterSpacing: "0.25px", fontWeight: weight }}>
           {label}
         </p>
       </div>
@@ -506,7 +511,7 @@ export function ProjectsSection({ onDrawerChange }: { onDrawerChange?: (open: bo
           <>
             <p
               className="font-caslon text-center"
-              style={{ position: "absolute", top: 24, left: 0, right: 0, color: colors.sand, fontSize: 26, lineHeight: "38px", fontWeight: 500, letterSpacing: "-0.03em" }}
+              style={{ position: "absolute", top: 24, left: 0, right: 0, color: colors.sand, fontSize: 26, lineHeight: "38px", fontWeight: 600, letterSpacing: "-0.03em" }}
             >
               select projects
             </p>
