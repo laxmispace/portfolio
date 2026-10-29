@@ -123,7 +123,7 @@ function SectionDrum({ activeIndex, onNavigate }: { activeIndex: number; onNavig
               <div style={{ position: "relative", width: RULER_W, height: ROW_H, flexShrink: 0 }}>
                 <Tick
                   width={isActive ? RULER_W : near ? 70 : 64}
-                  color={isActive ? colors.ink : withAlpha(colors.orange, near ? 0.45 : 0.3)}
+                  color={isActive ? colors.oliveDeep : withAlpha(colors.orange, near ? 0.45 : 0.3)} // same green as the active label
                   top={ROW_H / 2}
                 />
                 <MinorTicks near={isActive} />

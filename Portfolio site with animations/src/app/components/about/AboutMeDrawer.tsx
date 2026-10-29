@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import gsap from "gsap";
 import { X } from "lucide-react";
@@ -9,10 +9,11 @@ import myPhoto1 from "@/assets/about-me-page/my-photo-1.webp";
 import myPhoto2 from "@/assets/about-me-page/my-photo-2.webp";
 import { colors, withAlpha } from "@/app/theme/tokens";
 import { RESUME_URL, LINKEDIN_URL, EMAIL_URL, EMAIL_ADDRESS, LINKEDIN_RECOMMENDATIONS_URL } from "@/app/lib/links";
-import { PHOTO_PLACES } from "@/app/data/aboutPhotos";
+import { PHOTO_PLACES, ABOUT_SCRAPBOOK } from "@/app/data/aboutPhotos";
 import { MusicPlayerCard } from "./MusicPlayerCard";
 import { ShelfCard, BOOKS_SHELF, MOVIES_SHELF, RESOURCES_SHELF } from "./ShelfCard";
 import { GithubCard } from "./GithubCard";
+import { Scrapbook, PAPER_GRAIN, type ScrapPhoto } from "./Scrapbook";
 
 // ── Work experience data ───────────────────────────────────────────────────────
 
@@ -191,313 +192,31 @@ function EducationRow({ ed, index, isMobile }: { ed: typeof EDUCATION[0]; index:
 }
 
 // ── PhotoFrameSection ────────────────────────────────────────────────────────────
-// An endlessly looping film-strip of personal photos under the work-experience
-// shelf. Every frame keeps a FIXED layout size; only transforms move it, so the
-// layout never reflows while the strip moves. Each frame's scale + opacity follow
-// its distance from the centre (full size dead-centre, tapering to the edges), and
-// its position is squashed by the same curve so the gaps stay even as frames
-// shrink. It drifts slowly on its own; scroll it, flick it, or click a frame and
-// GSAP glides that frame to the centre. Three identical copies are rendered and
-// the scroll position is silently wrapped, so there is never an empty end.
+// A scrapbook row of photos, mostly from hackathons and community nights (see Scrapbook).
 
-// Every personal photo (src/assets/about-photos - same set as the home page's PersonalSection),
-// shuffled once into a fixed jumbled order so the strip looks random but stays put between
-// visits. The centred photo's caption (PHOTO_PLACES) shows as the strip's subheading.
-const stripFiles = import.meta.glob<string>("@/assets/about-photos/*.jpg", { eager: true, query: "?url", import: "default" });
-type StripPhoto = { id: string; src: string; place?: string };
-function seeded(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return (h >>> 0) / 4294967296;
-}
-const STRIP_PHOTOS: StripPhoto[] = Object.entries(stripFiles)
-  .map(([path, src]) => {
-    const id = path.split("/").pop()!.replace(/\.jpg$/, "");
-    return { id, src, place: PHOTO_PLACES[id] || undefined };
-  })
-  .sort((a, b) => seeded(a.id + "frames") - seeded(b.id + "frames"));
-const N_PHOTOS = STRIP_PHOTOS.length;
-const LOOP_PHOTOS = [...STRIP_PHOTOS, ...STRIP_PHOTOS, ...STRIP_PHOTOS];
-const START_INDEX = N_PHOTOS + Math.floor(N_PHOTOS / 2);
+const photoFiles = import.meta.glob<string>("@/assets/about-photos/*.jpg", { eager: true, query: "?url", import: "default" });
+const SCRAP_PHOTOS: ScrapPhoto[] = ABOUT_SCRAPBOOK.map(({ id, w, h }) => ({
+  id,
+  w,
+  h,
+  src: Object.entries(photoFiles).find(([path]) => path.endsWith(`/${id}.jpg`))?.[1] ?? "",
+  place: PHOTO_PLACES[id] || undefined,
+})).filter((p) => p.src);
 
 function PhotoFrameSection({ isMobile }: { isMobile: boolean }) {
-  const MAX_H = isMobile ? 168 : 230;                 // centre frame height
-  const MIN_SCALE = (isMobile ? 96 : 128) / MAX_H;    // furthest-out frame
-  const TRACK_H = MAX_H + 24;
-  const SPAN = isMobile ? 400 : 620;                  // px over which a frame tapers
-  const GAP = 12;
-  const DRIFT_SPEED = isMobile ? 14 : 18;             // px per second - ambient, not busy
-  const PAUSE_AFTER_USER = 2500;
-
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const frameRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const pos = useRef(0);               // logical (fractional) scroll position
-  const tweenRef = useRef<gsap.core.Tween | null>(null);
-  const snapRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const started = useRef(false);       // drifting or touched - stop re-centring on image loads
-  const userUntil = useRef(0);         // drift stays paused until this time (ms)
-  const hovering = useRef(false);
-  // Which photo sits dead-centre - its caption replaces the "a few frames" subheading.
-  // Committed only once the centre has held for a moment, so it never flickers mid-move.
-  const [centred, setCentred] = useState(Math.floor(N_PHOTOS / 2));
-  const pendingCentre = useRef(-1);
-  const captionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const pauseForUser = () => { started.current = true; userUntil.current = performance.now() + PAUSE_AFTER_USER; };
-
-  // Scale for a frame `d` px (layout) from the centre: easeOutCubic taper to MIN_SCALE.
-  const scaleAt = (d: number) => {
-    const x = Math.min(Math.abs(d) / SPAN, 1);
-    return 1 - (1 - MIN_SCALE) * (1 - Math.pow(1 - x, 3));
-  };
-  // Where that frame should sit visually: the integral of the scale curve, so shrunken
-  // frames pack together with even gaps. Continuous, so nothing ever jumps.
-  const squash = (d: number) => {
-    const a = Math.abs(d);
-    const k = 1 - MIN_SCALE;
-    const x = Math.min(a / SPAN, 1);
-    let v = a - k * SPAN * (x - (1 - Math.pow(1 - x, 4)) / 4);
-    if (a > SPAN) v -= k * (a - SPAN);
-    return Math.sign(d) * v;
-  };
-
-  // Exact width of one copy (every frame + its gap), from the (static) layout.
-  const copyWidth = () => {
-    const a = frameRefs.current[0];
-    const b = frameRefs.current[N_PHOTOS];
-    return a && b ? b.offsetLeft - a.offsetLeft : 0;
-  };
-
-  // Paint every frame for logical position `p`. Reads layout, writes only transforms
-  // and opacity - no reflow. The sub-pixel part of `p` the browser can't scroll to is
-  // folded into the transform, so slow drift stays perfectly smooth.
-  const render = (p = pos.current) => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const frac = p - scroller.scrollLeft;
-    const mid = p + scroller.clientWidth / 2;
-    let bestI = -1;
-    let bestD = Infinity;
-    frameRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const d = el.offsetLeft + el.offsetWidth / 2 - mid;
-      if (Math.abs(d) < bestD) { bestD = Math.abs(d); bestI = i; }
-      const s = scaleAt(d);
-      el.style.transform = `translate3d(${squash(d) - d - frac}px,0,0) scale(${s})`;
-      el.style.opacity = `${1 - 0.25 * ((1 - s) / (1 - MIN_SCALE))}`;
-    });
-    const next = bestI % N_PHOTOS;
-    if (bestI >= 0 && next !== pendingCentre.current) {
-      pendingCentre.current = next;
-      if (captionTimer.current) clearTimeout(captionTimer.current);
-      captionTimer.current = setTimeout(() => setCentred(next), 220);
-    }
-  };
-
-  const setPos = (p: number) => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    pos.current = p;
-    scroller.scrollLeft = p;
-    render(p);
-  };
-
-  // Keep the position inside the middle copy - invisible, as all three are identical.
-  const wrap = () => {
-    const w = copyWidth();
-    if (!w) return;
-    if (pos.current < w * 0.5) setPos(pos.current + w);
-    else if (pos.current > w * 1.5) setPos(pos.current - w);
-  };
-
-  const centreFrame = (el: HTMLDivElement, animate: boolean) => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const w = copyWidth();
-    let start = pos.current;
-    let target = el.offsetLeft + el.offsetWidth / 2 - scroller.clientWidth / 2;
-    // Pin both ends of the move into the middle copy so no wrap is needed mid-flight.
-    if (w) {
-      while (target < w * 0.5) target += w;
-      while (target > w * 1.5) target -= w;
-      if (Math.abs(start - target) > w * 0.75) {
-        start += start < target ? w : -w;
-        setPos(start);
-      }
-    }
-    tweenRef.current?.kill();
-    if (!animate) { setPos(target); return; }
-    const proxy = { x: start };
-    tweenRef.current = gsap.to(proxy, {
-      x: target,
-      duration: isMobile ? 0.8 : 1,
-      ease: "power3.inOut",
-      onUpdate: () => setPos(proxy.x),
-    });
-  };
-
-  const nearestFrame = () => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return null;
-    const mid = pos.current + scroller.clientWidth / 2;
-    let best: HTMLDivElement | null = null;
-    let bestD = Infinity;
-    for (const el of frameRefs.current) {
-      if (!el) continue;
-      const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
-      if (d < bestD) { bestD = d; best = el; }
-    }
-    return best;
-  };
-
-  // Our own scroll writes land within a pixel of `pos`; anything else is a person
-  // scrolling/flicking - follow it, then snap the nearest frame to the centre.
-  const onScroll = () => {
-    const scroller = scrollerRef.current;
-    if (!scroller || tweenRef.current?.isActive()) return;
-    if (Math.abs(scroller.scrollLeft - pos.current) <= 1) return;
-    pauseForUser();
-    pos.current = scroller.scrollLeft;
-    wrap();
-    render();
-    if (snapRef.current) clearTimeout(snapRef.current);
-    snapRef.current = setTimeout(() => { const el = nearestFrame(); if (el) centreFrame(el, true); }, 160);
-  };
-
-  const centreOnClick = (i: number) => {
-    const el = frameRefs.current[i];
-    if (!el) return;
-    pauseForUser();
-    userUntil.current += 1000; // let the glide finish before drifting again
-    centreFrame(el, true);
-  };
-
-  // Seed the resting layout (and re-seed when the breakpoint flips).
-  useLayoutEffect(() => {
-    const el = frameRefs.current[START_INDEX];
-    if (el) centreFrame(el, false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile]);
-
-  // Slow, continuous drift. Pauses while hovered, during a glide, for a beat after any
-  // touch/wheel/drag, and entirely for reduced-motion users.
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let raf = 0;
-    let last = performance.now();
-    const startAt = last + 1200; // let the photos load and settle their widths first
-    const tick = (now: number) => {
-      const dt = Math.min(now - last, 64) / 1000;
-      last = now;
-      if (now > startAt && now > userUntil.current && !hovering.current && !tweenRef.current?.isActive()) {
-        started.current = true;
-        const w = copyWidth();
-        let p = pos.current + DRIFT_SPEED * dt;
-        if (w && p > w * 1.5) p -= w;
-        setPos(p);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile]);
-
-  useEffect(() => () => {
-    if (snapRef.current) clearTimeout(snapRef.current);
-    if (captionTimer.current) clearTimeout(captionTimer.current);
-    tweenRef.current?.kill();
-  }, []);
-
-  const caption = STRIP_PHOTOS[centred]?.place ?? "a few frames";
-
   return (
     <div
       style={{
-        background: `linear-gradient(180deg, ${colors.pinkLight} 0%, ${colors.sand} 66.83%)`,
-        padding: `${isMobile ? 24 : 28}px 0 ${isMobile ? 28 : 36}px`,
+        backgroundColor: colors.sandLight,
+        backgroundImage: PAPER_GRAIN,
+        padding: `${isMobile ? 24 : 28}px 0 40px`,
         overflow: "hidden",
       }}
     >
-      {/* Centred heading + short vertical rule */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: `0 ${isMobile ? 18 : 36}px`, marginBottom: isMobile ? 22 : 30 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, width: "100%" }}>
-          <p className="font-caslon not-italic" style={{ fontSize: 24, lineHeight: "28px", textAlign: "center", color: colors.ink, fontWeight: 600 }}>
-            Outside of work
-          </p>
-          {/* The centred photo's caption; photos without one fall back to "a few frames".
-              The old line fades out before the new one fades in, so they never overlap. */}
-          <div style={{ height: 28, width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.p
-                key={caption}
-                className="font-caslon"
-                initial={{ opacity: 0, filter: "blur(2px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, filter: "blur(2px)" }}
-                transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-                style={{ fontSize: isMobile ? 18 : 24, lineHeight: "28px", fontStyle: "italic", textAlign: "center", whiteSpace: "nowrap", color: colors.oliveDeep }}
-              >
-                {caption}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-        </div>
-        <span style={{ width: 2, height: 36, backgroundColor: colors.ink }} />
-      </div>
-
-      {/* Looping film-strip track - fixed height, deliberately wider than the drawer */}
-      <div
-        ref={scrollerRef}
-        onScroll={onScroll}
-        onPointerEnter={(e) => { if (e.pointerType === "mouse") hovering.current = true; }}
-        onPointerLeave={() => { hovering.current = false; }}
-        onPointerDown={pauseForUser}
-        onTouchStart={pauseForUser}
-        onTouchMove={pauseForUser}
-        onWheel={pauseForUser}
-        style={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          gap: GAP,
-          height: TRACK_H,
-          overflowX: "auto",
-          overflowY: "hidden",
-          scrollbarWidth: "none",
-        }}
-      >
-        {LOOP_PHOTOS.map((photo, i) => (
-          <button
-            key={i}
-            onClick={() => centreOnClick(i)}
-            aria-label={photo.place ?? "Photo"}
-            style={{ flex: "0 0 auto", background: "none", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", height: TRACK_H }}
-          >
-            {/* Fixed height; width = height × the photo's own aspect ratio (read once it
-                loads), so a photo is never stretched or cropped. */}
-            <div
-              ref={(el) => { frameRefs.current[i] = el; }}
-              style={{ height: MAX_H, aspectRatio: "3 / 4", flex: "0 0 auto", transformOrigin: "50% 50%", willChange: "transform, opacity" }}
-            >
-              <div style={{ width: "100%", height: "100%", backgroundColor: colors.white, borderRadius: 4, overflow: "hidden", boxShadow: `0 4px 14px ${withAlpha(colors.ink, 0.14)}` }}>
-                <img
-                  src={photo.src}
-                  alt={photo.place ?? ""}
-                  draggable={false}
-                  onLoad={(e) => {
-                    const img = e.currentTarget;
-                    const frame = frameRefs.current[i];
-                    if (frame && img.naturalWidth) frame.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
-                    if (!started.current) { const el = frameRefs.current[START_INDEX]; if (el) centreFrame(el, false); } else { render(); }
-                  }}
-                  style={{ width: "100%", height: "100%", display: "block", objectFit: "contain" }}
-                />
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
+      <p className="font-caslon not-italic" style={{ fontSize: 24, lineHeight: "28px", textAlign: "center", color: colors.ink, fontWeight: 600, marginBottom: isMobile ? 4 : 8, padding: "0 18px" }}>
+        Outside of work
+      </p>
+      <Scrapbook photos={SCRAP_PHOTOS} isMobile={isMobile} />
     </div>
   );
 }
@@ -718,37 +437,47 @@ export function AboutMeDrawer({ open, onClose }: AboutMeDrawerProps) {
                 </div>
               </div>
 
-              {/* ── Section B2: things outside work - GitHub, films/books/random, music ──
-                  An olive card rounded at both ends: sand behind its top (work section),
-                  the photo strip's pink behind its bottom. */}
-              <div style={{ background: `linear-gradient(180deg, ${colors.sand} 50%, ${colors.pinkLight} 50%)` }}>
-                <div style={{ backgroundColor: colors.olive, borderRadius: isMobile ? 16 : 24, padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
+              {/* ── Section B2: things outside work - GitHub, music, films/books/random ──
+                  An olive card rounded only at the top, over the work section's sand; its
+                  flat bottom runs straight into the photo strip. */}
+              <div style={{ backgroundColor: colors.sand }}>
+                <div style={{ backgroundColor: colors.olive, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0", padding: `${isMobile ? 24 : 36}px ${contentPad}px 0` }}>
                   <p className="font-inclusive-sans" style={{ fontSize: isMobile ? 14 : 18, lineHeight: isMobile ? "21px" : "26px", textAlign: "center", letterSpacing: "-0.02em", color: colors.ink, maxWidth: 560, margin: "0 auto", marginBottom: isMobile ? 24 : 32 }}>
                     A small window into some of my favorite things on the internet that I visit outside of work.
                   </p>
 
-                  {/* GitHub and Movies/Books/Resources stack beside the music player: two 188px
-                      cards + a 24px gap = the player's 400px height. Mobile stacks all three. */}
-                  <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexDirection: isMobile ? "column" : "row", alignItems: "stretch", marginBottom: isMobile ? 24 : 36 }}>
-                    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? 16 : 24 }}>
-                      <GithubCard isMobile={isMobile} />
-                      <ShelfCard shelves={[MOVIES_SHELF, BOOKS_SHELF, RESOURCES_SHELF]} isMobile={isMobile} />
+                  {isMobile ? (
+                    // Phone: GitHub and the music player side by side (the player as a small
+                    // upright tile, so both fit), the Movies/Books/Resources shelf below.
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+                      <div style={{ display: "flex", gap: 12, alignItems: "stretch" }}>
+                        <div style={{ flex: 1, minWidth: 0, display: "flex" }}>
+                          <GithubCard isMobile height="100%" />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <MusicPlayerCard isMobile tile />
+                        </div>
+                      </div>
+                      <ShelfCard shelves={[MOVIES_SHELF, BOOKS_SHELF, RESOURCES_SHELF]} isMobile />
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <MusicPlayerCard isMobile={isMobile} />
+                  ) : (
+                    // Web: GitHub and Movies/Books/Resources stack beside the music player: two
+                    // 188px cards + a 24px gap = the player's 400px height.
+                    <div style={{ display: "flex", gap: 24, alignItems: "stretch", marginBottom: 36 }}>
+                      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 24 }}>
+                        <GithubCard isMobile={false} />
+                        <ShelfCard shelves={[MOVIES_SHELF, BOOKS_SHELF, RESOURCES_SHELF]} isMobile={false} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <MusicPlayerCard isMobile={false} />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
-              {/* ── Section B3: personal photo strip ── */}
+              {/* ── Section B3: personal photo strip - the end of the drawer ── */}
               <PhotoFrameSection isMobile={isMobile} />
-
-              {/* Breathing room at the end of the drawer (and clear of the mobile FAB),
-                  rounded into the photo strip's sand like the sections above. */}
-              <div style={{ backgroundColor: colors.sand }}>
-                <div style={{ height: isMobile ? 88 : 60, backgroundColor: colors.olive, borderRadius: isMobile ? "16px 16px 0 0" : "24px 24px 0 0" }} />
-              </div>
             </div>
           </motion.div>
         </>

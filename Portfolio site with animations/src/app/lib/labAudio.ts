@@ -114,3 +114,100 @@ export function startVoice(onWord?: () => void): AudioRig {
     },
   };
 }
+
+// A real spoken voice: the browser's own text-to-speech reads `lines` out one after another.
+// Its sound can't be tapped, so a silent tone pulses in time with each spoken word and feeds
+// the analyser instead - the orb swells on the words just as it would to a mic.
+/** `onWord(line, word)` fires as each word is spoken - for the live transcript. */
+export function startSpeech(lines: string[], fromLine: number, onWord: (line: number, word: number) => void): AudioRig | null {
+  const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined;
+  if (!synth || typeof SpeechSynthesisUtterance === "undefined") return null;
+
+  const ctx = new AudioContext();
+  const analyser = makeAnalyser(ctx);
+  const mute = ctx.createGain();
+  mute.gain.value = 0; // the tone is only there to be measured, never heard
+  analyser.connect(mute).connect(ctx.destination);
+  const tone = ctx.createOscillator();
+  tone.frequency.value = 220;
+  const env = ctx.createGain();
+  env.gain.value = 0;
+  tone.connect(env).connect(analyser);
+  tone.start();
+
+  const pulse = () => {
+    const now = ctx.currentTime;
+    env.gain.cancelScheduledValues(now);
+    env.gain.setTargetAtTime(0.17, now, 0.03);
+    env.gain.setTargetAtTime(0.05, now + 0.16, 0.08);
+  };
+
+  // a clear English voice, preferring one that runs on the device
+  const pickVoice = () => {
+    const en = synth.getVoices().filter((v) => v.lang?.toLowerCase().startsWith("en"));
+    return (
+      en.find((v) => /samantha|google us english|aria|jenny|zira/i.test(v.name)) ??
+      en.find((v) => v.localService && /en[-_]us/i.test(v.lang)) ??
+      en.find((v) => v.localService) ??
+      en[0]
+    );
+  };
+
+  let stopped = false;
+  let gap = 0;
+  let fallback = 0;
+  const clearTimers = () => {
+    window.clearTimeout(gap);
+    window.clearInterval(fallback);
+  };
+
+  const say = (line: number) => {
+    if (stopped) return;
+    const words = lines[line].split(" ");
+    const u = new SpeechSynthesisUtterance(lines[line]);
+    const voice = pickVoice();
+    if (voice) u.voice = voice;
+    u.lang = voice?.lang ?? "en-US";
+    u.rate = 0.95;
+
+    let next = 0;
+    let gotBoundary = false;
+    const word = () => {
+      if (stopped || next >= words.length) return;
+      onWord(line, next++);
+      pulse();
+    };
+    u.onstart = () => {
+      word();
+      // some voices never send word boundaries - then keep time at a natural speaking pace
+      fallback = window.setInterval(() => !gotBoundary && word(), 330);
+    };
+    u.onboundary = (e) => {
+      if (e.name && e.name !== "word") return;
+      gotBoundary = true;
+      if (e.charIndex === 0) return; // the first word was already shown on start
+      word();
+    };
+    u.onend = () => {
+      clearTimers();
+      while (!stopped && next < words.length) word(); // show anything still left
+      env.gain.setTargetAtTime(0, ctx.currentTime, 0.1);
+      gap = window.setTimeout(() => say((line + 1) % lines.length), 700);
+    };
+    synth.speak(u);
+  };
+
+  synth.cancel();
+  say(fromLine);
+
+  return {
+    ctx,
+    analyser,
+    stop: () => {
+      stopped = true;
+      clearTimers();
+      synth.cancel();
+      ctx.close();
+    },
+  };
+}
