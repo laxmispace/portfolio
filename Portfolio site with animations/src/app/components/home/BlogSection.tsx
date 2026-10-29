@@ -72,7 +72,7 @@ export function BlogSection({ onDrawerChange }: { onDrawerChange?: (open: boolea
       <p style={{ ...textStyles.label, color: colors.oliveDeep, marginBottom: 12 }}>
         i write. sometimes.
       </p>
-      <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 32, lineHeight: isMobile ? "32px" : "40px", letterSpacing: "-0.02em", color: colors.ink, fontWeight: 500 }}>
+      <p className="font-caslon not-italic" style={{ fontSize: isMobile ? 24 : 32, lineHeight: isMobile ? "32px" : "40px", letterSpacing: "-0.02em", color: colors.ink, fontWeight: isMobile ? 600 : 500 }}>
         ideas that probably<br />should stay in my notes app
       </p>
     </div>

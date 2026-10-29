@@ -2,7 +2,7 @@
 // night (the screen darkens, fireflies wander about and glow specks twinkle everywhere),
 // and clouds that keep drifting behind the walker's head and melting away.
 // Assets (SVGs saved without extensions, so they're read raw):
-//   src/assets/night-mode/       glow - 1/2/3 (the firefly is drawn inline so its wings can flutter)
+//   src/assets/night-mode/       glow - 1/2/3, moon-sleeper-night.svg (the firefly is drawn inline so its wings can flutter)
 //   src/assets/walker + clouds/  clouds-1, clouds-2, clouds - 3, cloud - 4
 import { useMemo, useRef } from "react";
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, type PanInfo } from "motion/react";
@@ -15,6 +15,9 @@ const pick = (files: Record<string, string>, test: (name: string) => boolean) =>
   Object.entries(files).filter(([p]) => test(p.split("/").pop()!.trim())).sort(([a], [b]) => a.localeCompare(b)).map(([, raw]) => svgUrl(raw));
 
 const GLOWS = pick(night, (n) => n.startsWith("glow"));
+/** The night version of the walker: asleep on the moon, tapping a boot, notes drifting up
+ *  (an animated SVG - shown as an image, so its own SMIL animation keeps playing). */
+export const SLEEPER = pick(night, (n) => n.startsWith("moon-sleeper"))[0];
 const CLOUDS = pick(sky, (n) => n.startsWith("cloud"));
 
 export const NIGHT_BG = "#1C1B10"; // a touch warmer than ink, so the glows read as warm light
@@ -141,10 +144,19 @@ const FIREFLY_CSS = `
 @keyframes ff-flap { from { transform: scaleY(1); } to { transform: scaleY(var(--ff-fold)); } }
 `;
 
-function Firefly({ i, size }: { i: number; size: number }) {
-  // a wandering loop of 5 points across the lower half of the hero, so they hover low
-  // instead of drifting up into the copy; it turns to face where it's flying
-  const pts = useMemo(() => Array.from({ length: 5 }, (_, k) => ({ x: 5 + rnd(i * 13 + k) * 88, y: 52 + rnd(i * 29 + k * 7) * 40 })), [i]);
+function Firefly({ i, size, mobile }: { i: number; size: number; mobile: boolean }) {
+  // a wandering loop of 5 points, kept low and out of the copy; it turns to face where it's
+  // flying. Most stay clear of the character (bottom right) - only every fourth one may
+  // drift across it - so it isn't buried under fireflies.
+  const pts = useMemo(() => {
+    const roam = i % 4 === 0;
+    return Array.from({ length: 5 }, (_, k) => {
+      const a = rnd(i * 13 + k), b = rnd(i * 29 + k * 7);
+      if (roam) return { x: 5 + a * 88, y: 52 + b * 40 };
+      // phones: the band between the copy and the character; desktop: the open left side
+      return mobile ? { x: 5 + a * 88, y: 40 + b * 14 } : { x: 5 + a * 48, y: 48 + b * 44 };
+    });
+  }, [i, mobile]);
   const loop = [...pts, pts[0]];
   const left = loop.map((p) => `${p.x}%`);
   const top = loop.map((p) => `${p.y}%`);
@@ -248,7 +260,7 @@ export function Night({ on, layer, isMobile }: { on: boolean; layer: "below" | "
               <Moon isMobile={isMobile} still={false} />
               <style>{FIREFLY_CSS}</style>
               {Array.from({ length: isMobile ? 8 : 16 }, (_, i) => <Speck key={`s${i}`} i={i} />)}
-              {Array.from({ length: isMobile ? 5 : 8 }, (_, i) => <Firefly key={`f${i}`} i={i + 1} size={isMobile ? 16 : 22} />)}
+              {Array.from({ length: isMobile ? 5 : 8 }, (_, i) => <Firefly key={`f${i}`} i={i + 1} size={isMobile ? 16 : 22} mobile={isMobile} />)}
             </>
           )}
         </motion.div>

@@ -253,6 +253,32 @@ function ItravelCroppedShot() {
   );
 }
 
+// Live travel-wrap prototype, a 390x844 phone build served from /public and scaled to fit the panel.
+const WRAP_SRC = `${import.meta.env.BASE_URL}case-studies/itravel/travel-wrap.html`;
+function ItravelWrapPrototype() {
+  const W = 300, scale = W / 390;
+  return (
+    <MediaPanel padding="24px 4% 20px">
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+        <div style={{ width: W, maxWidth: "100%", height: 844 * scale, borderRadius: 34, overflow: "hidden", border: `1px solid ${colors.white}`, boxShadow: "0 12px 32px rgba(76,76,76,0.14)", backgroundColor: colors.white, position: "relative" }}>
+          <iframe
+            src={WRAP_SRC}
+            title="Travel wrap prototype"
+            loading="lazy"
+            style={{ width: 390, height: 844, border: 0, display: "block", transform: `scale(${scale})`, transformOrigin: "top left" }}
+          />
+        </div>
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, width: W, maxWidth: "100%" }}>
+          <MediaCaption>Interactive prototype. Tap through it.</MediaCaption>
+          <a href={WRAP_SRC} target="_blank" rel="noreferrer" className="font-jakarta font-medium" style={{ fontSize: 10, lineHeight: "13px", color: colors.orange, textDecoration: "none" }}>
+            Open full screen ↗
+          </a>
+        </div>
+      </div>
+    </MediaPanel>
+  );
+}
+
 export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
   return (
     <div className="case-study-sections" style={{ display: "flex", flexDirection: "column" }}>
@@ -367,21 +393,46 @@ export function ItravelCaseStudy({ isMobile }: { isMobile: boolean }) {
       </ItravelSection>
 
       <ItravelSection id="cs-wrapup">
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <ItravelHeading eyebrow="Part 5">Travel wrap-up</ItravelHeading>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <ItravelText>
-              After the trip: a fun summary - total spend, category breakdown, top merchants, country stamp added to a collection.
-            </ItravelText>
-            <ItravelText>
-              The data already exists in the bank's transaction records. iTravel provides the trigger - declared dates and destination tell the system which transactions to aggregate and when to surface the summary.
-            </ItravelText>
-            <ItravelText>
-              The stamp collection scales without manual asset creation. Each sticker uses dynamic fields - country code, currency, year visited - with one SVG illustration per country as the only per-country asset.
-            </ItravelText>
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <ItravelHeading eyebrow="Part 5">Closing the loop: the travel wrap</ItravelHeading>
+          <ItravelText>
+            iTravel asks travellers for a lot up front: dates, destinations, limits. The travel wrap is what they get back. Once the trip ends, iTravel already knows which transactions belong to it, so the bank can return a story instead of a statement.
+          </ItravelText>
+          <ItravelText>
+            Nothing new has to be collected. The declared dates and route tell the system which transactions to group and when to show the summary. Everything else, from spend per country to forex saved, is already in the bank's records.
+          </ItravelText>
         </div>
-        <ItravelCroppedShot />
+
+        <ItravelWrapPrototype />
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <SubHeading>One trip, nine moments</SubHeading>
+          <BulletList
+            items={[
+              { title: "Your trip", text: "Days away and the route, BOM → NRT → SIN → BOM, with a packed suitcase, passport and boarding passes." },
+              { title: "One card, all the way", text: "Total card payments abroad, shown on the user's own card." },
+              { title: "Country by country", text: "Spend at each stop in a swipeable carousel, one illustration per country." },
+              { title: "Where it went", text: "Category share, with the biggest category in front." },
+              { title: "Your stays", text: "Each hotel is a room key in a deck you flip through." },
+              { title: "What the card saved you", text: "A piggy bank breaks open into vouchers for forex markup, reward points and lounge visits." },
+              { title: "New stamps", text: "A passport that opens and turns its pages, with a stamp for each new country." },
+              { title: "That's a wrap", text: "A postcard to share, with past trips kept in folders below." },
+            ]}
+          />
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <SubHeading>Design decisions</SubHeading>
+          <BulletList
+            items={[
+              { title: "Built from the iMobile system", text: "Mulish, the 4px grid, a four-column layout, brand oranges and maroons, and Shadows/100 to 400. The mandala only appears in corners and on cards, the way the brand uses it." },
+              { title: "One number per screen", text: "Each screen leads with a single figure and one supporting line, so it reads like an itinerary rather than a dashboard." },
+              { title: "Objects, not charts", text: "True isometric 3D renders and skeuomorphic objects (a key card, a notched voucher, a passport whose pages turn) give the numbers something you can picture holding." },
+              { title: "Works for any card and any trip", text: "Card art comes from the user's actual card. Stamps and copy use dynamic fields like country code, currency and year, and each country needs only one illustration." },
+              { title: "Savings as the payoff", text: "The savings screen sits near the end on purpose. It turns the card from something you paid with into something that looked after you on the trip." },
+            ]}
+          />
+        </div>
       </ItravelSection>
 
       <Tldr>

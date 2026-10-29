@@ -1,10 +1,10 @@
 
 import { colors, withAlpha } from "@/app/theme/tokens";
 
-export type AiProjectKind = "webapp" | "extension" | "player";
+export type AiProjectKind = "webapp" | "extension" | "player" | "typeface";
 
 /** Projects with hand-designed card artwork - see AiProjectFrame. */
-export type AiProjectFrameKey = "piano" | "job-tracker" | "breathing" | "vinyl";
+export type AiProjectFrameKey = "piano" | "job-tracker" | "breathing" | "vinyl" | "glyphic";
 
 export interface AiProjectStep {
   title: string;
@@ -25,7 +25,7 @@ export interface AiProject {
   year?: string;
   /** webapp: live, embeddable demo URL - runs inside the side drawer as an iframe. */
   url?: string;
-  /** extension: link to the packaged extension file, offered as a download. */
+  /** extension / typeface: link to the packaged file, offered as a download. */
   downloadUrl?: string;
   /** extension: YouTube embed URL for the "how to use" walkthrough. */
   videoUrl?: string;
@@ -35,32 +35,43 @@ export interface AiProject {
   steps?: AiProjectStep[];
   /** player: the small behaviours worth knowing about. */
   interactions?: string[];
+  /** typeface: the project's repo, and where the original it adapts lives. */
+  repoUrl?: string;
+  original?: { author: string; repoUrl: string; googleFontsUrl: string };
 }
 
 // A project is clickable/openable when it has something to actually show -
 // a live url for webapps, or a download/video for extensions.
 export function isOpenableAiProject(project: AiProject): boolean {
-  if (project.kind === "extension") return Boolean(project.downloadUrl || project.videoUrl);
+  // extensions open to their write-up (and the walkthrough, when there is one)
+  if (project.kind === "extension") return true;
   if (project.kind === "player") return Boolean(project.steps?.length);
+  if (project.kind === "typeface") return Boolean(project.repoUrl);
   return Boolean(project.url);
 }
 
 // Order matters: the homepage AI section features the first three *openable*
-// projects (see AiPlayground.tsx), so the ones with hand-designed frames lead.
+// projects (see AiProjectsSection.tsx) - the typeface, job tracker and breathing app;
+// the piano sits just after them, so it's in the lab but not on the homepage.
 export const AI_PROJECTS: AiProject[] = [
   {
-    id: 9,
-    title: "Browser piano",
-    description:
-      "A tiny playable piano that lives in a browser tab - mouse or computer keyboard, sound on, no install.",
+    id: 11,
+    kind: "typeface",
+    title: "Faculty Glyphic Kannada",
+    description: "A Kannada companion to the Faculty Glyphic typeface - one font, Latin and Kannada drawn to the same rules.",
     longDescription:
-      "A small piano you can play right in the browser - click the keys or use your computer keyboard, with a clean tactile keybed and nothing else in the way. Built on the Web Audio API on a slow afternoon because I wanted to noodle without opening a DAW. No sign-up, no tracking, just open it and play.",
-    tags: ["Web Audio", "Interactive", "Web app"],
-    status: "Live",
+      "I'm so in love with the Latin version of Faculty Glyphic that I decided to work on a Kannada adaptation of the typeface.",
+    tags: ["Typeface", "Kannada", "Open Font License"],
+    status: "v1.009",
     statusColor: colors.orange,
     accent: colors.orange,
-    url: "https://laxmispace.github.io/piano/",
-    frameKey: "piano",
+    repoUrl: "https://github.com/laxmispace/Faculty-Glyphic-Kannada",
+    original: {
+      author: "Dylan",
+      repoUrl: "https://github.com/DylanYoungKoto/FacultyGlyphic",
+      googleFontsUrl: "https://fonts.google.com/specimen/Faculty+Glyphic",
+    },
+    frameKey: "glyphic",
   },
   {
     id: 2,
@@ -68,7 +79,7 @@ export const AI_PROJECTS: AiProject[] = [
     title: "Job hunt tracker",
     description: "A Chrome extension for keeping track of job applications without leaving the browser.",
     longDescription:
-      "A lightweight Chrome extension that helps track job applications - company, role, status, and dates - right from the browser toolbar instead of a scattered spreadsheet. Download the packaged extension below, or watch the walkthrough to see it in action.",
+      "A lightweight Chrome extension that helps track job applications - company, role, status, and dates - right from the browser toolbar instead of a scattered spreadsheet.",
     tags: ["Chrome extension", "Job search", "Productivity"],
     status: "Live",
     statusColor: colors.orange,
@@ -91,6 +102,20 @@ export const AI_PROJECTS: AiProject[] = [
     accent: colors.olive,
     url: "https://laxmispace.github.io/breathing-app/",
     frameKey: "breathing",
+  },
+  {
+    id: 9,
+    title: "Browser piano",
+    description:
+      "A tiny playable piano that lives in a browser tab - mouse or computer keyboard, sound on, no install.",
+    longDescription:
+      "A small piano you can play right in the browser - click the keys or use your computer keyboard, with a clean tactile keybed and nothing else in the way. Built on the Web Audio API on a slow afternoon because I wanted to noodle without opening a DAW. No sign-up, no tracking, just open it and play.",
+    tags: ["Web Audio", "Interactive", "Web app"],
+    status: "Live",
+    statusColor: colors.orange,
+    accent: colors.orange,
+    url: "https://laxmispace.github.io/piano/",
+    frameKey: "piano",
   },
   {
     id: 10,

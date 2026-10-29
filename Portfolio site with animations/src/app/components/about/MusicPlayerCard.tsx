@@ -77,7 +77,7 @@ export function MusicPlayerCard({ isMobile, tone: t = SITE_TONE }: { isMobile: b
           <p className="font-inclusive-sans" style={{ fontSize: 12, color: t.muted, marginBottom: 12 }}>
             {status === "error" ? errorMessage : "See what I'm actually listening to"}
           </p>
-          <PrimaryButton onClick={connect} color={t.track} ink={t.ink} arrow={false}>connect spotify</PrimaryButton>
+          <PrimaryButton onClick={connect}>connect spotify</PrimaryButton>
         </>
       )}
     </div>

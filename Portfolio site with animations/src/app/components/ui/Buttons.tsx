@@ -2,7 +2,8 @@
 //   SquiggleLink  - orange serif words over a hand-drawn wavy underline, like the footer's
 //                   "Book a call"; on hover the line refills darker, or a scribbled oval
 //                   loops around the words ("view all ai projects", "work experience").
-//   PrimaryButton - the chunky pill with a hard ink shadow ("post it").
+//   PrimaryButton - an action ("post it", "view on github") in the same wavy-underline
+//                   style, at 20px; it can submit a form, be disabled, or be a (download) link.
 //   TextLink      - a SquiggleLink at body size ("read case study") - same type, colour and
 //                   underline as the footer's "Book a call"; only the size changes. No italics.
 //   ICON_BUTTON   - the size for round icon-only buttons (close, play), 36 desktop / 32 phone.
@@ -23,8 +24,10 @@ const OVAL = "M14 30 C 4 18, 22 5, 52 4 S 99 9, 97 22 S 72 39, 46 38 S 1 33, 4 2
  *  `deep`; `hover="oval"` keeps the line and scribbles an oval around the words instead. */
 export function SquiggleLink({
   children, onClick, href, color = colors.orange, deep = colors.orangeDeep, hover: mode = "refill", hovered, as = "button", style,
+  type = "button", disabled = false, download, ariaLabel, className,
 }: {
   children: ReactNode; onClick?: () => void; href?: string; color?: string; deep?: string;
+  type?: "button" | "submit"; disabled?: boolean; download?: boolean; ariaLabel?: string; className?: string;
   hover?: "refill" | "oval";
   /** Lets a parent (a whole card) drive the hover. */
   hovered?: boolean;
@@ -33,7 +36,7 @@ export function SquiggleLink({
   style?: CSSProperties;
 }) {
   const [own, setOn] = useState(false);
-  const on = hovered ?? own;
+  const on = !disabled && (hovered ?? own);
   // The line keeps the footer's weight relative to its words: 3px at the footer's 32px,
   // thinning in step with smaller sizes (never under 1px). Inherited size = footer weight.
   const size = typeof style?.fontSize === "number" ? style.fontSize : 32;
@@ -76,49 +79,50 @@ export function SquiggleLink({
   const look: CSSProperties = {
     position: "relative", display: "inline-block", whiteSpace: "nowrap", textDecoration: "none",
     fontFamily: fonts.serif, fontWeight: 500, letterSpacing: "-0.01em",
-    color: on ? deep : color, transition: "color 0.25s", ...style,
+    color: on ? deep : color, transition: "color 0.25s, opacity 0.25s", opacity: disabled ? 0.5 : 1, ...style,
   };
   const events = { onMouseEnter: () => setOn(true), onMouseLeave: () => setOn(false), onFocus: () => setOn(true), onBlur: () => setOn(false) };
-  if (href) return <a href={href} target="_blank" rel="noopener noreferrer" style={look} {...events}>{body}</a>;
+  if (href) {
+    return (
+      <a href={href} {...(download ? { download: true } : { target: "_blank", rel: "noopener noreferrer" })} aria-label={ariaLabel} className={className} style={look} {...events}>
+        {body}
+      </a>
+    );
+  }
   if (as === "span") return <span style={look} {...events}>{body}</span>;
   return (
-    <button type="button" onClick={onClick} style={{ fontSize: "inherit", lineHeight: "inherit", background: "none", border: "none", padding: 0, cursor: "pointer", ...look }} {...events}>
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className={className}
+      style={{ fontSize: "inherit", lineHeight: "inherit", background: "none", border: "none", padding: 0, cursor: disabled ? "not-allowed" : "pointer", ...look }}
+      {...events}
+    >
       {body}
     </button>
   );
 }
 
-/** The pill. Pass `href` (and `download`) to make it a link; `icon` sits before the words. */
+/** An action in the wavy-underline style at 20px - just the words over the line, no icons
+ *  or arrows. Pass `href` (and `download`) to make it a link. `color` is the words and line,
+ *  `deep` their hover colour (pick one that reads on the background it sits on). */
 export function PrimaryButton({
-  children, onClick, type = "button", disabled, color = colors.pink, ink = colors.ink, arrow = true, icon, href, download, className, style, ariaLabel,
+  children, onClick, type = "button", disabled, color = colors.orange, deep = colors.orangeDeep, href, download, className, style, ariaLabel,
 }: {
   children: ReactNode; onClick?: () => void; type?: "button" | "submit"; disabled?: boolean;
-  color?: string; ink?: string; arrow?: boolean; icon?: ReactNode; href?: string; download?: boolean;
+  color?: string; deep?: string; href?: string; download?: boolean;
   className?: string; style?: CSSProperties; ariaLabel?: string;
 }) {
-  const Tag = href ? motion.a : motion.button;
   return (
-    <Tag
-      {...(href ? { href, download, target: download ? undefined : "_blank", rel: "noreferrer" } : { type, disabled })}
-      className={className}
-      onClick={onClick}
-      aria-label={ariaLabel}
-      initial={{ x: 0, y: 0, boxShadow: `4px 4px 0 ${ink}` }}
-      whileHover={disabled ? undefined : { x: -1, y: -1, boxShadow: `5px 5px 0 ${ink}` }}
-      whileTap={disabled ? undefined : { x: 3, y: 3, boxShadow: `1px 1px 0 ${ink}` }}
-      transition={{ duration: 0.12 }}
-      style={{
-        display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 16px", whiteSpace: "nowrap",
-        backgroundColor: color, color: ink, border: `2px solid ${ink}`, borderRadius: 999,
-        fontFamily: fonts.serif, fontWeight: 600, fontSize: 16, lineHeight: "20px", textTransform: "uppercase",
-        cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.5 : 1, textDecoration: "none",
-        ...style,
-      }}
+    <SquiggleLink
+      onClick={onClick} href={href} download={download} type={type} disabled={disabled} ariaLabel={ariaLabel} className={className}
+      color={color} deep={deep}
+      style={{ fontSize: 20, lineHeight: "24px", flexShrink: 0, ...style }}
     >
-      {icon}
       {children}
-      {arrow && <span aria-hidden="true">→</span>}
-    </Tag>
+    </SquiggleLink>
   );
 }
 

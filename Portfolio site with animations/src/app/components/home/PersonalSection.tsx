@@ -220,7 +220,9 @@ function Lightbox({ photos, finePointer, onClose }: { photos: Photo[] | null; fi
                 exit={{ scale: 0.7, y: 20, opacity: 0, transition: { duration: 0.18 } }}
                 transition={{ type: "spring", stiffness: 300, damping: 22, delay: i * 0.05 }}
                 style={{
-                  margin: 0, display: "flex", flexDirection: "column", alignItems: "stretch",
+                  // desktop: centre, don't stretch - a label wider than its photo would
+                  // otherwise pull the photo out of shape
+                  margin: 0, display: "flex", flexDirection: "column", alignItems: isMobile ? "stretch" : "center",
                   ...(isMobile ? { breakInside: "avoid", marginBottom: 10 } : { minHeight: undefined }),
                 }}
               >
@@ -233,7 +235,7 @@ function Lightbox({ photos, finePointer, onClose }: { photos: Photo[] | null; fi
                     ...(isMobile
                       ? { width: "100%", height: "auto", maxHeight: photos.length > 1 ? undefined : "78vh", objectFit: "cover" }
                       : {
-                          width: "auto", height: "auto",
+                          width: "auto", height: "auto", objectFit: "contain",
                           // each photo keeps its own shape; up to 3 to a row, rows share the height
                           maxHeight: `calc((min(80vh, 760px) - ${16 * (rows - 1) + LABEL_H * rows}px) / ${rows})`,
                           maxWidth: `calc((min(100vw, 1200px) - ${32 + 16 * (cols - 1)}px) / ${cols})`,
@@ -328,7 +330,7 @@ export function PersonalSection({ onAboutOpen }: PersonalSectionProps) {
         ref={textRef}
         data-no-reveal
         className="font-caslon"
-        style={{ maxWidth: 1000, fontSize: isMobile ? 26 : 52, lineHeight: isMobile ? "38px" : "70px", fontWeight: 500, letterSpacing: "calc(-0.03em - 0.25px)", color: colors.ink }}
+        style={{ maxWidth: 1000, fontSize: isMobile ? 26 : 52, lineHeight: isMobile ? "38px" : "70px", fontWeight: isMobile ? 600 : 500, letterSpacing: "calc(-0.03em - 0.25px)", color: colors.ink }}
       >
         {COPY.map((s, i) => {
           const next = COPY[i + 1];

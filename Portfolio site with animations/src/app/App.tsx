@@ -33,9 +33,17 @@ export default function App() {
   const isMobile = useIsMobile();
   // The lab lives at #lab with its own history entry, so the browser's back button
   // (and the lab's own) return to the portfolio exactly where it was left.
-  const [page, setPage] = useState<Page>(() =>
-    typeof window !== "undefined" && isLabHash(window.location.hash) ? "ai-projects" : "portfolio",
-  );
+  const [page, setPage] = useState<Page>(() => {
+    if (typeof window === "undefined" || !isLabHash(window.location.hash)) return "portfolio";
+    // Landed straight on the lab (a shared link): slip the portfolio in behind it, so the
+    // browser's back button still goes home instead of off the site.
+    if (!window.history.state?.lab) {
+      const { pathname, search, hash } = window.location;
+      window.history.replaceState(null, "", pathname + search);
+      window.history.pushState({ lab: true }, "", hash);
+    }
+    return "ai-projects";
+  });
 
   useEffect(() => {
     const onPop = () => {
@@ -281,9 +289,9 @@ export default function App() {
               )}
               {/* the footer's dark ground runs on a little past the drawing */}
               <div className={isMobile ? undefined : "rounded-b-2xl"} style={{ height: isMobile ? 24 : 33, marginTop: -1, position: "relative", backgroundColor: FOOTER_GROUND }} />
-              {/* On phones the sign-off sits on its own deep-olive strip at the very end of the page, not in the sticky nav */}
+              {/* On phones the sign-off sits on its own strip, in the ground's colour, at the very end of the page, not in the sticky nav */}
               {isMobile && (
-                <div className="rounded-b-2xl" style={{ display: "flex", justifyContent: "center", padding: "14px 16px 16px", backgroundColor: "#3B3920" }}>
+                <div className="rounded-b-2xl" style={{ display: "flex", justifyContent: "center", padding: "14px 16px 16px", backgroundColor: FOOTER_GROUND }}>
                   <MadeWithLove fontSize={13} color={colors.sand} heart={colors.sand} />
                 </div>
               )}
