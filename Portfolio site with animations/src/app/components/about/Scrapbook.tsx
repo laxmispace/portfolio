@@ -211,7 +211,8 @@ export function Scrapbook({ photos, isMobile }: { photos: ScrapPhoto[]; isMobile
       >
         <div
           ref={trackRef}
-          style={{ display: "flex", alignItems: "center", height: ROW_H, width: "max-content", padding: `0 ${isMobile ? 28 : 48}px` }}
+          // room underneath for the place tag on the lowest photos (+8px breathing room), so nothing gets clipped
+          style={{ display: "flex", alignItems: "center", height: ROW_H, boxSizing: "content-box", width: "max-content", padding: `8px ${isMobile ? 28 : 48}px ${isMobile ? 36 : 38}px` }}
         >
           {photos.map((p, i) => {
             const { w, h } = sizeOf(p);

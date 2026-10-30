@@ -1474,7 +1474,7 @@ function GuestbookBoard({ isMobile }: { isMobile: boolean }) {
   );
 
   return (
-    <section aria-label="Leave me a note" style={{ padding: isMobile ? "16px 0 0" : "24px 0 0" }}>
+    <section aria-label="Leave me a note" style={{ padding: isMobile ? "56px 0 0" : "80px 0 0" }}>
       <style>{CSS}</style>
       <motion.div
         ref={frameRef}

@@ -1,14 +1,13 @@
 // Loading screen: the little character waves hello with his flowers on a warm orange page
-// (soft glow, paper grain), and three small cream dots pulse above his head, then
-// "hey" rises in letter by letter. After that a big pink flower (the outline of
+// (soft glow, paper grain). After that a big pink flower (the outline of
 // src/assets/loader/loading-flower.svg) blooms out of his waving hand, spinning, until it
 // covers the whole screen, while a flock of birds flies out past the edges. Then a
 // flower-shaped hole opens in the pink - with an olive layer trailing just behind it as a
 // rim - and grows past the corners, revealing the hero.
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, animate, motion, useReducedMotion } from "motion/react";
-import { HELLO_HEAD, HELLO_PALM, HELLO_VIEWBOX as VB, HelloFlowers } from "@/app/components/walker/HelloFlowers";
-import { colors, fonts, withAlpha } from "@/app/theme/tokens";
+import { HELLO_PALM, HELLO_VIEWBOX as VB, HelloFlowers } from "@/app/components/walker/HelloFlowers";
+import { colors, withAlpha } from "@/app/theme/tokens";
 import flowerSvg from "@/assets/loader/loading-flower.svg?raw";
 
 const WALK_MS = 2800; // the hello before the bloom
@@ -16,68 +15,8 @@ const BLOOM_S = 1.35; // the flower growing until it covers the screen
 const OPEN_S = 1.05; // the flower-shaped hole opening to reveal the hero
 const RIM_LAG_S = 0.14; // the olive layer's hole trails the pink one by this much
 const STAGE = 280; // the character's width on the loader
-// Where his waving palm and the top of his head sit inside the stage, as fractions of the drawing.
+// Where his waving palm sits inside the stage, as fractions of the drawing.
 const BLOOM_AT = { x: (HELLO_PALM.x - VB.x) / VB.w, y: (HELLO_PALM.y - VB.y) / VB.h };
-const HEAD_AT = { x: (HELLO_HEAD.x - VB.x) / VB.w, y: (HELLO_HEAD.y - VB.y) / VB.h };
-
-// ── the greeting: three small cream dots pulse above his head, then "hey" rises in,
-// one soft letter at a time, in light italic Caslon ──
-const HELLO = "hey";
-const DOTS_MS = 1100; // how long the dots pulse before the word starts (after they appear)
-const LETTER_S = 0.12; // stagger between letters
-const CREAM = colors.sandLight;
-
-function Hey() {
-  const reduce = useReducedMotion();
-  const [word, setWord] = useState(!!reduce);
-  useEffect(() => {
-    if (reduce) return;
-    const t = window.setTimeout(() => setWord(true), 400 + DOTS_MS);
-    return () => window.clearTimeout(t);
-  }, [reduce]);
-
-  return (
-    <motion.div
-      aria-hidden="true"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -6, transition: { duration: 0.2, ease: "easeIn" } }}
-      transition={{ duration: 0.4, delay: 0.4 }}
-      style={{
-        position: "absolute", left: `${HEAD_AT.x * 100}%`, bottom: `${(1 - HEAD_AT.y) * 100 + 4}%`, x: "-50%", // centred over his head
-        height: 32, display: "flex", alignItems: "flex-end", justifyContent: "center", whiteSpace: "nowrap",
-      }}
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        {!word ? (
-          <motion.span key="dots" exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }} style={{ display: "flex", gap: 5, paddingBottom: 6 }}>
-            {[0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                animate={{ scale: [0.7, 1, 0.7], opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: i * 0.18 }}
-                style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: CREAM }}
-              />
-            ))}
-          </motion.span>
-        ) : (
-          <motion.span key="word" style={{ display: "flex", fontFamily: fonts.serif, fontStyle: "italic", fontWeight: 400, fontSize: 26, lineHeight: "32px", color: CREAM }}>
-            {HELLO.split("").map((ch, i) => (
-              <motion.span
-                key={i}
-                initial={reduce ? false : { opacity: 0, y: 8, filter: "blur(3px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1], delay: i * LETTER_S }}
-              >
-                {ch}
-              </motion.span>
-            ))}
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
 
 // ── the backdrop: a warm glow, paper grain and a dithered bottom edge ──
 const GRAIN = `url("data:image/svg+xml,${encodeURIComponent(
@@ -372,7 +311,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
             <>
               <Backdrop />
               <div ref={stageRef} style={{ position: "relative", width: STAGE }}>
-                <AnimatePresence>{phase === "walk" && <Hey key="hey" />}</AnimatePresence>
+                
                 <HelloFlowers />
               </div>
             </>
