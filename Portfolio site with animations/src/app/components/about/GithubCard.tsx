@@ -5,13 +5,14 @@ import { GITHUB_URL, GITHUB_USER } from "@/app/lib/links";
 
 // ── GitHub card: the contribution graph (the green squares), in the site's olives ──
 // Data comes from a free public API that scrapes the GitHub profile, so the static
-// site needs no token. Only as many recent weeks as fit the card's width are drawn.
+// site needs no token. As many recent weeks as fit are drawn, and the squares are
+// sized so the grid spans the card's full width edge to edge.
 
 type Day = { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 };
 
 const API = `https://github-contributions-api.jogruber.de/v4/${GITHUB_USER}?y=last`;
 const CARD_HEIGHT = 188;
-const CELL = 10;
+const CELL = 10; // minimum square size; the real size stretches to fill the width
 const GAP = 3;
 
 // Empty → busiest, in the site's olives.
@@ -48,7 +49,7 @@ function label(d: Day) {
 /** `height` defaults to the card's own 188px; pass "100%" to match a taller neighbour. */
 export function GithubCard({ isMobile, height = CARD_HEIGHT }: { isMobile: boolean; height?: number | string }) {
   const [data, setData] = useState<{ total: number; days: Day[] } | null>(null);
-  const [fit, setFit] = useState(20);
+  const [grid, setGrid] = useState({ weeks: 20, cell: CELL });
   const gridWrapRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -58,11 +59,15 @@ export function GithubCard({ isMobile, height = CARD_HEIGHT }: { isMobile: boole
     return () => { live = false; };
   }, []);
 
-  // How many week columns fit the card right now.
+  // How many week columns fit, and how big each square must be to fill the row exactly.
   useLayoutEffect(() => {
     const el = gridWrapRef.current;
     if (!el) return;
-    const measure = () => setFit(Math.max(1, Math.floor((el.clientWidth + GAP) / (CELL + GAP))));
+    const measure = () => {
+      const w = el.clientWidth;
+      const weeks = Math.max(1, Math.floor((w + GAP) / (CELL + GAP)));
+      setGrid({ weeks, cell: (w - (weeks - 1) * GAP) / weeks });
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
@@ -76,7 +81,7 @@ export function GithubCard({ isMobile, height = CARD_HEIGHT }: { isMobile: boole
     gsap.fromTo(cols, { opacity: 0, y: 3 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out", stagger: { each: 0.012, from: "end" } });
   }, [data]);
 
-  const weeks = data ? toWeeks(data.days).slice(-fit) : Array.from({ length: fit }, () => Array(7).fill(null));
+  const weeks = data ? toWeeks(data.days).slice(-grid.weeks) : Array.from({ length: grid.weeks }, () => Array(7).fill(null));
 
   return (
     <div style={{ position: "relative", overflow: "hidden", borderRadius: 16, width: "100%", height, backgroundColor: colors.sandLight, padding: `16px ${isMobile ? 12 : 16}px`, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box" }}>
@@ -90,17 +95,18 @@ export function GithubCard({ isMobile, height = CARD_HEIGHT }: { isMobile: boole
         </a>
       </div>
 
-      <div ref={gridWrapRef} style={{ display: "flex", justifyContent: "flex-end" }}>
-        <div ref={gridRef} style={{ display: "flex", gap: GAP }}>
+      <div ref={gridWrapRef} style={{ width: "100%" }}>
+        <div ref={gridRef} style={{ display: "grid", gridTemplateColumns: `repeat(${weeks.length}, ${grid.cell}px)`, columnGap: GAP }}>
           {weeks.map((week, w) => (
-            <div key={w} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
+            <div key={w} style={{ display: "grid", gridTemplateRows: `repeat(7, ${grid.cell}px)`, rowGap: GAP }}>
               {Array.from({ length: 7 }, (_, d) => {
                 const day = week[d];
                 return (
                   <span
                     key={d}
                     title={day ? label(day) : undefined}
-                    style={{ width: CELL, height: CELL, borderRadius: 2.5, backgroundColor: day ? LEVELS[day.level] : data ? "transparent" : colors.sand }}
+                    // days outside the range (before the first day, after today) keep the empty colour, faded, so the grid stays a clean rectangle
+                    style={{ display: "block", width: grid.cell, height: grid.cell, borderRadius: 2.5, backgroundColor: day ? LEVELS[day.level] : LEVELS[0], opacity: day || !data ? 1 : 0.45 }}
                   />
                 );
               })}
