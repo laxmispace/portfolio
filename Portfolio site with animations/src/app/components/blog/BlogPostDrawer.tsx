@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Play, Pause } from "lucide-react";
+import { X, Play, Pause, Heart } from "lucide-react";
+import { TextLink } from "@/app/components/ui/Buttons";
+import { fetchLikes, sendLike, hasLiked, rememberLiked } from "@/app/lib/blogLikes";
 import { BLOG_POSTS, type BlogPost } from "@/app/data/blogPosts";
 import { useAudioPlayer } from "@/app/hooks/useAudioPlayer";
 import { useWordTimings, type WordTiming } from "@/app/hooks/useWordTimings";
@@ -79,47 +81,109 @@ interface BlogPostDrawerProps {
   onNavigate: (post: BlogPost) => void;
 }
 
-function RelatedBlogLink({ post, isLast, onClick }: { post: BlogPost; isLast: boolean; onClick: () => void }) {
-  const [hov, setHov] = useState(false);
+// The post's looping thumbnail video (or its first picture), filling whatever box it's in.
+function PostMedia({ post }: { post: BlogPost }) {
+  const fill = { width: "100%", height: "100%", objectFit: "cover" as const, display: "block" };
+  if (post.video) return <video src={post.video} autoPlay muted loop playsInline style={fill} />;
+  const img = post.images?.[0] ?? post.stampImage;
+  if (img) return <img src={img} alt="" style={fill} />;
+  return <span style={{ ...fill, background: `radial-gradient(120% 90% at 30% 70%, ${colors.pinkLight} 0%, ${colors.sand} 100%)` }} />;
+}
+
+// Each category keeps a colour, like each case study does.
+const categoryColor = (post: BlogPost) => (post.category === "about design" ? colors.olive : colors.pink);
+
+// "Read more" card, laid out like the case study ones: a faint wash of the category's
+// colour, text left, small cover right; stacks on phones.
+function RelatedBlogCard({ post, onClick, stacked }: { post: BlogPost; onClick: () => void; stacked: boolean }) {
+  const [hovered, setHovered] = useState(false);
+  const color = categoryColor(post);
   return (
     <div
       onClick={onClick}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      role="link"
       style={{
-        padding: "16px 0",
-        borderBottom: isLast ? "none" : `1px solid ${withAlpha(colors.ink, 0.08)}`,
-        cursor: "pointer",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 16,
+        cursor: "pointer", transition: "background-color 0.3s ease",
+        backgroundColor: withAlpha(color, hovered ? 0.26 : 0.18), borderRadius: 12, padding: stacked ? 12 : 16,
+        display: "flex", flexDirection: stacked ? "column-reverse" : "row", alignItems: stacked ? "stretch" : "center", gap: stacked ? 12 : 20,
       }}
     >
-      <div>
-        <span style={{ backgroundColor: withAlpha(colors.oliveDeep, 0.1), borderRadius: 20, padding: "2px 10px", display: "inline-block", marginBottom: 6 }}>
-          <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, color: colors.oliveDeep, letterSpacing: "0.3px", textTransform: "uppercase" }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+        <p className="font-caslon not-italic" style={{ fontSize: stacked ? 19 : 21, lineHeight: 1.3, color: colors.ink, fontWeight: 400 }}>
+          {withMartel(post.title)}
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 10, lineHeight: "14px", letterSpacing: "0.06em", textTransform: "uppercase", color: withAlpha(colors.ink, 0.45) }}>
             {post.category}
           </p>
-        </span>
-        <p
-          className="font-caslon not-italic"
-          style={{ fontSize: 17, lineHeight: "22px", color: colors.ink, fontWeight: 600, textDecoration: hov ? "underline" : "none", transition: "text-decoration 0.1s" }}
-        >
-          {post.title}
-        </p>
-        <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.6, marginTop: 2 }}>
-          {post.date} · {post.readTime}
-        </p>
+          <p className="font-inclusive-sans font-normal" style={{ fontSize: 12, lineHeight: "16px", color: colors.ink }}>{post.date} · {post.readTime}</p>
+        </div>
+        <div style={{ marginTop: 2 }}>
+          <TextLink as="span" hovered={hovered} style={{ fontSize: 14 }}>read post</TextLink>
+        </div>
       </div>
-      <motion.p
-        animate={{ x: hov ? 5 : 0 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="font-caslon"
-        style={{ fontSize: 20, color: withAlpha(colors.ink, 0.3), flexShrink: 0 }}
+      <div style={{ width: stacked ? "100%" : 200, aspectRatio: "2 / 1", borderRadius: 8, overflow: "hidden", flexShrink: 0 }}>
+        <motion.div animate={{ scale: hovered ? 1.04 : 1 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} style={{ width: "100%", height: "100%" }}>
+          <PostMedia post={post} />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// The heart at the end of a post, with how many people have liked it.
+function LikeButton({ slug }: { slug: string }) {
+  const [liked, setLiked] = useState(() => hasLiked(slug));
+  const [count, setCount] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    setLiked(hasLiked(slug));
+    setCount(null);
+    fetchLikes(slug).then((n) => { if (live) setCount(n); });
+    return () => { live = false; };
+  }, [slug]);
+
+  const toggle = async () => {
+    if (busy) return;
+    const next = !liked;
+    setBusy(true);
+    setLiked(next);
+    rememberLiked(slug, next);
+    setCount((c) => (c === null ? c : Math.max(0, c + (next ? 1 : -1))));
+    const saved = await sendLike(slug, next ? 1 : -1);
+    if (saved !== null) setCount(saved);
+    setBusy(false);
+  };
+
+  // Until the counts load (or if they can't), the button still works and shows this browser's own like.
+  const shown = count ?? (liked ? 1 : 0);
+  return (
+    // data-no-reveal: its text changes in place when liked, which the line reveal can't survive
+    <div data-no-reveal style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, marginTop: 56, paddingTop: 32, borderTop: `1px solid ${withAlpha(colors.ink, 0.08)}` }}>
+      <p className="font-inclusive-sans" style={{ fontSize: 13, color: colors.oliveDeep, opacity: 0.7 }}>
+        {liked ? "glad you liked it" : "enjoyed this?"}
+      </p>
+      <motion.button
+        onClick={toggle}
+        whileTap={{ scale: 0.92 }}
+        aria-pressed={liked}
+        aria-label={liked ? "Unlike this post" : "Like this post"}
+        style={{
+          display: "flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: 999, cursor: "pointer",
+          border: `1px solid ${liked ? colors.pink : withAlpha(colors.ink, 0.15)}`,
+          backgroundColor: liked ? withAlpha(colors.pink, 0.28) : "transparent",
+          transition: "background-color 0.25s ease, border-color 0.25s ease",
+        }}
       >
-        →
-      </motion.p>
+        <motion.span key={String(liked)} initial={liked ? { scale: 0.4 } : false} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 14 }} style={{ display: "flex" }}>
+          <Heart size={18} color={liked ? "#c0566e" : colors.ink} fill={liked ? "#c0566e" : "none"} />
+        </motion.span>
+        <span className="font-inclusive-sans" style={{ fontSize: 14, color: colors.ink, minWidth: 8, fontVariantNumeric: "tabular-nums" }}>{shown}</span>
+      </motion.button>
     </div>
   );
 }
@@ -189,8 +253,11 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
               onScroll={(e) => setScrolled((e.target as HTMLDivElement).scrollTop > 20)}
               style={{ height: "100%", overflowY: "auto", scrollbarWidth: "none" }}
             >
-              {/* Sticky header */}
+              {/* Sticky header - kept out of the line-by-line text reveal (useScrollReveal):
+                  it changes text in place when "read more" swaps posts, which a split
+                  paragraph can't survive */}
               <div
+                data-no-reveal
                 style={{
                   position: "sticky", top: 0, zIndex: 5,
                   backgroundColor: colors.sand,
@@ -221,8 +288,13 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
                 </motion.p>
               </div>
 
-              {/* Body */}
-              <div style={{ padding: isMobile ? "20px 16px 32px" : "28px 52px 40px 36px" }}>
+              {/* Body - keyed by post so switching posts (via "read more") builds it fresh,
+                  instead of React patching one post's paragraphs into another's */}
+              <div key={post.id} style={{ padding: isMobile ? "20px 16px 32px" : "28px 52px 40px 36px" }}>
+                {/* Hero cover: the same looping video as the post's thumbnail */}
+                <div style={{ width: "100%", aspectRatio: isMobile ? "16 / 10" : "21 / 9", borderRadius: isMobile ? 10 : 14, overflow: "hidden", marginBottom: 24 }}>
+                  <PostMedia post={post} />
+                </div>
                 <p className="font-inclusive-sans" style={{ fontSize: 16, lineHeight: "25px", color: colors.oliveDeep, opacity: 0.9, marginBottom: 20 }}>
                   {post.subtitle}
                 </p>
@@ -247,30 +319,19 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
                     </motion.p>
                   ))}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 48, paddingTop: 24, borderTop: `1px solid ${withAlpha(colors.ink, 0.08)}` }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: colors.olive, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <p className="font-caslon" style={{ fontSize: 16, color: colors.ink, fontWeight: 600 }}>L</p>
-                  </div>
-                  <div>
-                    <p className="font-inclusive-sans font-semibold" style={{ fontSize: 14, color: colors.ink }}>Laxmi Mahajan</p>
-                    <p className="font-inclusive-sans" style={{ fontSize: 12, color: colors.oliveDeep, opacity: 0.6 }}>UX designer · Bangalore</p>
-                  </div>
-                </div>
+                <LikeButton slug={post.slug} />
               </div>
 
-              {/* Related */}
-              <div style={{ padding: isMobile ? "24px 16px 48px" : "32px 52px 56px 36px", borderTop: `1px solid ${withAlpha(colors.ink, 0.1)}` }}>
-                <p className="font-inclusive-sans font-normal uppercase" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.35), marginBottom: 8 }}>
-                  read more
+              {/* Related - also out of the text reveal, for the same reason as the header */}
+              <div data-no-reveal style={{ padding: isMobile ? "24px 16px 48px" : "32px 52px 56px 36px", borderTop: `1px solid ${withAlpha(colors.ink, 0.1)}` }}>
+                <p className="font-inclusive-sans font-normal" style={{ fontSize: 11, letterSpacing: "0.5px", color: withAlpha(colors.ink, 0.4), textTransform: "uppercase", marginBottom: 12 }}>
+                  Read more
                 </p>
-                {related.map((p, i) => (
-                  <RelatedBlogLink
-                    key={p.id}
-                    post={p}
-                    isLast={i === related.length - 1}
-                    onClick={() => onNavigate(p)}
-                  />
-                ))}
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {related.map((p) => (
+                    <RelatedBlogCard key={p.id} post={p} stacked={isMobile} onClick={() => onNavigate(p)} />
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
