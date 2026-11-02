@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Play, Pause, Heart } from "lucide-react";
 import { TextLink } from "@/app/components/ui/Buttons";
@@ -206,7 +207,9 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
 
   const related = post ? BLOG_POSTS.filter((p) => p.id !== post.id) : [];
 
-  return (
+  // Portal to <body>: on phones the page's scroll card is a fixed, rounded box that
+  // stops above the bottom nav, and iOS Safari clips fixed children to it.
+  return createPortal(
     <AnimatePresence>
       {post && (
         <>
@@ -337,6 +340,7 @@ export function BlogPostDrawer({ post, onClose, onNavigate }: BlogPostDrawerProp
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

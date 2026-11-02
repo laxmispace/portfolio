@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Github, X } from "lucide-react";
 import type { AiProject } from "@/app/data/aiProjects";
@@ -283,7 +284,9 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
   const isPlayer = project?.kind === "player";
   const isTypeface = project?.kind === "typeface";
 
-  return (
+  // Portal to <body>: on phones the page's scroll card is a fixed, rounded box that
+  // stops above the bottom nav, and iOS Safari clips fixed children to it.
+  return createPortal(
     <AnimatePresence>
       {project && (
         <>
@@ -395,6 +398,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
