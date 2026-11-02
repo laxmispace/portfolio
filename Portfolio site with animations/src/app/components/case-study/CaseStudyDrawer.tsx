@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Lottie } from "lottie-react";
 import { X, Play, Pause, Volume2 } from "lucide-react";
@@ -520,7 +521,9 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
   })();
   const related = CASE_STUDY_DATA.filter((cs) => cs.index !== caseStudy?.index && !cs.comingSoon);
 
-  return (
+  // Portal to <body>: on phones the page's scroll card is a fixed, rounded box that
+  // stops above the bottom nav, and iOS Safari clips fixed children to it.
+  return createPortal(
     <AnimatePresence>
       {caseStudy && (
         <>
@@ -783,6 +786,7 @@ export function CaseStudyDrawer({ caseStudy, onClose, onNavigate }: CaseStudyDra
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
