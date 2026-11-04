@@ -298,7 +298,8 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
             transition={{ duration: 0.3 }}
             onClick={onClose}
             style={{
-              position: "fixed", inset: 0, zIndex: 599,
+              // above the lab page (zIndex 1000 in App), which it can open from now that it is portalled to <body>
+              position: "fixed", inset: 0, zIndex: 1099,
               backgroundColor: withAlpha(colors.ink, 0.4),
               backdropFilter: "blur(4px)",
             }}
@@ -310,7 +311,7 @@ export function AiProjectDrawer({ project, onClose }: AiProjectDrawerProps) {
             exit={{ x: "100%" }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "fixed", right: 0, top: 0, bottom: 0, zIndex: 600,
+              position: "fixed", right: 0, top: 0, bottom: 0, zIndex: 1100,
               width: isMobile ? "100%" : "min(1200px, calc(90vw / var(--page-zoom)))",
               borderRadius: isMobile ? 0 : "24px 0 0 24px",
               backgroundColor: colors.ink,
